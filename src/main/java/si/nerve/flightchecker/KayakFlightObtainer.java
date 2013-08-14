@@ -4,11 +4,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
-import java.text.ParseException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import si.nerve.flightchecker.data.FlightLeg;
+import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
 
 /**
  * Created: 10.8.13 20:39
@@ -20,8 +38,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   private static final int MAX_RETRIES = 13;
 
   @Override
-  public MultiCityFlightData get(String from1, String to1, Date date1, String from2, String to2, Date date2)
-      throws IOException
+  public Set<MultiCityFlightData> get(String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException
   {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     String address = ADDRESS_ROOT + "/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
@@ -50,6 +67,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
     String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
 
+    Set<MultiCityFlightData> returnSet = new HashSet<MultiCityFlightData>();
     for (int i = 1; i <= MAX_RETRIES; i++)
     {
       try
@@ -60,18 +78,59 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       {
         e.printStackTrace();
       }
+
       KayakResult result = fetchResult(i, time, i == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       time = result.getTime();
       response = result.getResponse();
-      System.out.println(result.getResponse().length());
+      if (response.length() > 100000)
+      {
+        try
+        {
+          Document doc = Jsoup.parse(response);
+          Elements links = doc.select("#content_div > div[class^=flightresult]");
+          for (Element link : links)
+          {
+            LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
+            for (Element leg : link.select("div[class^=singleleg singleleg]"))
+            {
+              Elements airports = leg.select("div.airport");
+              if (airports.size() == 2)
+              {
+                legs.add(new FlightLeg(
+                    airports.get(0).attr("title"),
+                    airports.get(0).text(),
+                    leg.select("div[class^=flighttime]").get(0).text(),
+                    airports.get(1).attr("title"),
+                    airports.get(1).text(),
+                    leg.select("div[class^=flighttime]").get(1).text(),
+                    leg.select("div.duration").text(),
+                    leg.select("div.stopsLayovers > span.airportslist").text()
+                ));
+              }
+            }
 
-      int resultFrom = response.indexOf("class=\"flightresult");
-      String price = readString(result.getResponse(), "class=\"flightresult", ">$", "<");
-      System.out.println("Best price: " + price);
+            if (legs.size() > 1)
+            {
+              String price = link.select("a[class^=results_price]").text();
+              returnSet.add(new MultiCityFlightData(
+                  Integer.parseInt(link.attr("data-index")),
+                  link.attr("data-resultid"),
+                  Integer.parseInt(price.substring(1)),
+                  PriceType.getInstance(price.charAt(0)),
+                  legs,
+                  link.select("div.seatsPromo").text()
+              ));
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          e.printStackTrace();
+        }
+      }
     }
 
-    System.out.println(response);
-    return null;
+    return returnSet;
   }
 
   private String readString(String input, String mainMarker, String markerStart, String markerEnd)
@@ -151,7 +210,15 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int newTimeCommandStart = response.indexOf("Streaming.lastPoll=");
     newTimeCommandStart = response.indexOf("=", newTimeCommandStart) + 1;
     int newTimeCommandStop = response.indexOf(";", newTimeCommandStart) - 1;
-    long newTime = Long.parseLong(response.substring(newTimeCommandStart, newTimeCommandStop).trim());
+    long newTime = 0;
+    try
+    {
+      newTime =    Long.parseLong(response.substring(newTimeCommandStart, newTimeCommandStop).trim());
+    }
+    catch (NumberFormatException e)
+    {
+      e.printStackTrace();
+    }
 
     return new KayakResult(newTime, response);
   }
@@ -166,7 +233,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     connection.addRequestProperty("Referer", "http://www.kayak.com/flights/LJU-NYC/2013-08-11/NYC-VIE/2013-08-17");
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4");
-    return (HttpURLConnection) connection;
+    return (HttpURLConnection)connection;
   }
 
   private String readResponse(InputStream ins) throws IOException
@@ -190,7 +257,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.get("LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
+      Set<MultiCityFlightData> multiCityFlightData = obtainer.get("LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
+      System.out.println();
     }
     catch (Exception e)
     {
