@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +32,7 @@ import si.nerve.flightchecker.data.PriceType;
  */
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
-  private static final String ADDRESS_ROOT = "http://www.kayak.com/flights";
+  private static final String ADDRESS_ROOT = "http://www.kayak.de/flights";
   private static final int ADDRESS_PORT = 80;
   private static final int MAX_RETRIES = 13;
 
@@ -72,7 +71,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       try
       {
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(400);
       }
       catch (InterruptedException e)
       {
@@ -82,7 +81,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       KayakResult result = fetchResult(i, time, i == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       time = result.getTime();
       response = result.getResponse();
-      if (response.length() > 100000)
+      if (response.contains("content_div"))
       {
         try
         {
@@ -107,6 +106,10 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                     leg.select("div.stopsLayovers > span.airportslist").text()
                 ));
               }
+              else
+              {
+                System.out.println();
+              }
             }
 
             if (legs.size() > 1)
@@ -115,8 +118,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
               returnSet.add(new MultiCityFlightData(
                   Integer.parseInt(link.attr("data-index")),
                   link.attr("data-resultid"),
-                  Integer.parseInt(price.substring(1)),
-                  PriceType.getInstance(price.charAt(0)),
+                  Integer.parseInt(price.replaceAll("[\\D]", "")),
+                  price.contains("€") ? PriceType.EURO : PriceType.DOLLAR,
                   legs,
                   link.select("div.seatsPromo").text()
               ));
@@ -150,10 +153,10 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       Map<String, List<String>> headerFields)
       throws IOException
   {
-    String address = "http://www.kayak.com/s/jsresults?ss=1&poll=" + counter + "&final=" + finalCall + "&updateStamp=" + time;
+    String address = "http://www.kayak.de/s/jsresults?ss=1&poll=" + counter + "&final=" + finalCall + "&updateStamp=" + time;
     URL url = new URL(address);
     HttpURLConnection connection = createHttpConnection(url);
-    StringBuffer sbuf = new StringBuffer();
+    StringBuilder sbuf = new StringBuilder();
     for (String cookie : headerFields.get("Set-Cookie"))
     {
       if (sbuf.length() > 0)
@@ -163,8 +166,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       sbuf.append(cookie);
     }
     connection.addRequestProperty("Cookie", sbuf.toString());
-    connection.addRequestProperty("Host", "www.kayak.com");
-    connection.addRequestProperty("Origin", "http://www.kayak.com");
+    connection.addRequestProperty("Host", "www.kayak.de");
+    connection.addRequestProperty("Origin", "http://www.kayak.de");
     connection.addRequestProperty("Referer", referrer);
     connection.setDoOutput(true);
     connection.setInstanceFollowRedirects(false);
@@ -213,7 +216,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     long newTime = 0;
     try
     {
-      newTime =    Long.parseLong(response.substring(newTimeCommandStart, newTimeCommandStop).trim());
+      newTime = Long.parseLong(response.substring(newTimeCommandStart, newTimeCommandStop).trim());
     }
     catch (NumberFormatException e)
     {
@@ -230,7 +233,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     connection.addRequestProperty("Cache-Control", "max-age");
     connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
     connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-    connection.addRequestProperty("Referer", "http://www.kayak.com/flights/LJU-NYC/2013-08-11/NYC-VIE/2013-08-17");
+    connection.addRequestProperty("Referer", url.toString());
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4");
     return (HttpURLConnection)connection;
@@ -258,7 +261,6 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     try
     {
       Set<MultiCityFlightData> multiCityFlightData = obtainer.get("LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
-      System.out.println();
     }
     catch (Exception e)
     {

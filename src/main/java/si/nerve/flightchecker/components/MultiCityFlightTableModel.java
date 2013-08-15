@@ -1,7 +1,10 @@
-package si.nerve.flightchecker.data;
+package si.nerve.flightchecker.components;
 
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+
+import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
 
 /**
  * @author bratwurzt
@@ -90,6 +93,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
 
       case COL_PRICE:
         return flightData.getPriceAmount();
+
       case COL_ID:
         return flightData.getIndex();
 

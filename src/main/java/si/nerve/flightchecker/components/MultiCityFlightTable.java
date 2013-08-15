@@ -1,4 +1,4 @@
-package si.nerve.flightchecker.data;
+package si.nerve.flightchecker.components;
 
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
