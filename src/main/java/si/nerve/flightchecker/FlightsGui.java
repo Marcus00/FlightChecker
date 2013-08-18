@@ -54,7 +54,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
   private JScrollPane m_scrollPane;
-  private JComboBox<String> m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
+  private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
   private JXDatePicker m_fromDatePicker, m_toDatePicker;
   private JButton m_search;
   private JCheckBox m_combined;
@@ -81,10 +81,10 @@ public class FlightsGui extends JFrame implements ActionListener
     m_mainTable.setRowSorter(m_sorter);
     m_scrollPane = new JScrollPane(m_mainTable);
 
-    m_fromAP1 = new JComboBox<String>();
-    m_toAP1 = new JComboBox<String>();
-    m_fromAP2 = new JComboBox<String>();
-    m_toAP2 = new JComboBox<String>();
+    m_fromAP1 = new JComboBox();
+    m_toAP1 = new JComboBox();
+    m_fromAP2 = new JComboBox();
+    m_toAP2 = new JComboBox();
     m_fromDatePicker = new JXDatePicker(Locale.getDefault());
     m_fromDatePicker.setFormats(m_dateFormatter);
     m_fromDatePicker.addActionListener(this);
@@ -163,11 +163,11 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
         m_flightSet = m_cityFlightObtainer.get("de",
-            m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()),
-            m_toAP1.getItemAt(m_toAP1.getSelectedIndex()),
+            (String) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()),
+            (String) m_toAP1.getItemAt(m_toAP1.getSelectedIndex()),
             m_fromDatePicker.getDate(),
-            m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()),
-            m_toAP2.getItemAt(m_toAP2.getSelectedIndex()),
+            (String) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()),
+            (String) m_toAP2.getItemAt(m_toAP2.getSelectedIndex()),
             m_toDatePicker.getDate());
       }
       catch (Exception e)
@@ -188,12 +188,12 @@ public class FlightsGui extends JFrame implements ActionListener
         "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
         "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
 
-    final String from = m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex());
-    final String to = m_toAP2.getItemAt(m_toAP2.getSelectedIndex());
+    final String from = (String) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex());
+    final String to = (String) m_toAP2.getItemAt(m_toAP2.getSelectedIndex());
 
     m_executorPool = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-    final String toStatic = m_toAP1.getItemAt(m_toAP1.getSelectedIndex());
-    final String fromStatic = m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex());
+    final String toStatic = (String) m_toAP1.getItemAt(m_toAP1.getSelectedIndex());
+    final String fromStatic = (String) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex());
     final Date fromDate = m_fromDatePicker.getDate();
     final Date toDate = m_toDatePicker.getDate();
 

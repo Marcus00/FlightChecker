@@ -61,8 +61,6 @@ public class SearchAndRefresh implements Runnable
       m_flightsGui.getSorter().setModel(model);
       m_flightsGui.getSorter().sort();
       m_flightsGui.getMainTable().setModel(model);
-      m_flightsGui.getMainTable().setRowSorter(m_flightsGui.getSorter());
-      m_flightsGui.getMainTable().setColumnWidths(FlightsGui.c_columnWidths);
       m_flightsGui.pack();
       m_flightsGui.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
