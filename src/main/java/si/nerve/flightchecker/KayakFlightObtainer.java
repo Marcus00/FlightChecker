@@ -32,15 +32,15 @@ import si.nerve.flightchecker.data.PriceType;
  */
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
-  private static final String ADDRESS_ROOT = "http://www.kayak.de/flights";
-  private static final int ADDRESS_PORT = 80;
+  private String m_addressDot;
   private static final int MAX_RETRIES = 13;
 
   @Override
-  public Set<MultiCityFlightData> get(String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException
+  public Set<MultiCityFlightData> get(String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException
   {
+    m_addressDot = addressRoot;
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    String address = ADDRESS_ROOT + "/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
+    String address = "http://www.kayak." + m_addressDot + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
         "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
     URL url = new URL(address);
     URLConnection connection = createHttpConnection(url);
@@ -71,7 +71,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       try
       {
-        Thread.sleep(400);
+        Thread.sleep(500);
       }
       catch (InterruptedException e)
       {
@@ -153,7 +153,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       Map<String, List<String>> headerFields)
       throws IOException
   {
-    String address = "http://www.kayak.de/s/jsresults?ss=1&poll=" + counter + "&final=" + finalCall + "&updateStamp=" + time;
+    String address = "http://www.kayak." + m_addressDot + "/s/jsresults?ss=1&poll=" + counter + "&final=" + finalCall + "&updateStamp=" + time;
     URL url = new URL(address);
     HttpURLConnection connection = createHttpConnection(url);
     StringBuilder sbuf = new StringBuilder();
@@ -166,8 +166,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       sbuf.append(cookie);
     }
     connection.addRequestProperty("Cookie", sbuf.toString());
-    connection.addRequestProperty("Host", "www.kayak.de");
-    connection.addRequestProperty("Origin", "http://www.kayak.de");
+    connection.addRequestProperty("Host", "www.kayak." + m_addressDot);
+    connection.addRequestProperty("Origin", "http://www.kayak." + m_addressDot);
     connection.addRequestProperty("Referer", referrer);
     connection.setDoOutput(true);
     connection.setInstanceFollowRedirects(false);
@@ -260,7 +260,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      Set<MultiCityFlightData> multiCityFlightData = obtainer.get("LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
+      Set<MultiCityFlightData> multiCityFlightData = obtainer.get("de", "LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
     }
     catch (Exception e)
     {

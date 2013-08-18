@@ -11,5 +11,5 @@ import si.nerve.flightchecker.data.MultiCityFlightData;
  */
 public interface MultiCityFlightObtainer
 {
-  public Set<MultiCityFlightData> get(String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException;
+  public Set<MultiCityFlightData> get(String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException;
 }

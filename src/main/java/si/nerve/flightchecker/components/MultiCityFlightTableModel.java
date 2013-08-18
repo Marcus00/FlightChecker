@@ -25,7 +25,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
   public static final int COL_LEG2_DURATION = 10;
   public static final int COL_LEG2_STOPS = 11;
   public static final int COL_PRICE = 12;
-  public static final int COL_ID = 13;
+  public static final int COL_MON_ID = 13;
   protected static final int COLUMN_COUNT = 14;
 
   protected List<MultiCityFlightData> m_entityList;
@@ -94,8 +94,8 @@ public class MultiCityFlightTableModel extends AbstractTableModel
       case COL_PRICE:
         return flightData.getPriceAmount();
 
-      case COL_ID:
-        return flightData.getIndex();
+      case COL_MON_ID:
+        return flightData.getPriceType().equals(PriceType.EURO) ? "€" : "$";
 
       default:
         return "damn you, sky!";
@@ -130,8 +130,8 @@ public class MultiCityFlightTableModel extends AbstractTableModel
 
       case COL_PRICE:
         return "Cena (" + m_priceType.toString() + ")";
-      case COL_ID:
-        return "ID";
+      case COL_MON_ID:
+        return "Enota";
 
       default:
         return "?";
@@ -157,7 +157,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return String.class;
 
       case COL_PRICE:
-      case COL_ID:
+      case COL_MON_ID:
         return Integer.class;
 
       default:
