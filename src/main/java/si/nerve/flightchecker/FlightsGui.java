@@ -201,7 +201,7 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         if (!from.equals(codeFrom) && !to.equals(codeTo))
         {
-          m_executorPool.execute(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate));
+          m_executorPool.submit(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate));
         }
       }
     }
