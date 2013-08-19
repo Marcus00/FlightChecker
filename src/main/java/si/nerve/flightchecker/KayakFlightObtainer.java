@@ -71,7 +71,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       try
       {
-        Thread.sleep(1000);
+        Thread.sleep(200 + (int)(Math.random() * 100));
       }
       catch (InterruptedException e)
       {

@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +62,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private Set<MultiCityFlightData> m_flightSet;
   private MultiCityFlightObtainer m_cityFlightObtainer;
   private Map<String, AirportData> m_airportMap;
-  private ThreadPoolExecutor m_executorPool;
+  private ExecutorService m_executorService;
 
   public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException
   {
@@ -186,14 +188,15 @@ public class FlightsGui extends JFrame implements ActionListener
     final String from = (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex());
     final String to = (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex());
 
-    m_executorPool = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+    //m_executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+    m_executorService = Executors.newSingleThreadExecutor();
     final String toStatic = (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex());
     final String fromStatic = (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex());
     final Date fromDate = m_fromDateChooser.getDate();
     final Date toDate = m_toDateChooser.getDate();
 
     m_flightSet = new HashSet<MultiCityFlightData>();
-    m_executorPool.execute(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
+    m_executorService.submit(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
 
     for (final String codeFrom : codes)
     {
@@ -201,7 +204,7 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         if (!from.equals(codeFrom) && !to.equals(codeTo))
         {
-          m_executorPool.submit(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate));
+          m_executorService.submit(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate));
         }
       }
     }
