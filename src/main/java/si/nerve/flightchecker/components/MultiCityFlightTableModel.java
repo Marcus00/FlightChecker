@@ -95,7 +95,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return flightData.getPriceAmount();
 
       case COL_MON_ID:
-        return flightData.getPriceType().equals(PriceType.EURO) ? "€" : "$";
+        return flightData.getPriceType().equals(PriceType.DOLLAR) ? "$" : "€";
 
       default:
         return "damn you, sky!";
