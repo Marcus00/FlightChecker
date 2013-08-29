@@ -164,4 +164,9 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return String.class;
     }
   }
+
+  public void setEntityList(List<MultiCityFlightData> entityList)
+  {
+    m_entityList = entityList;
+  }
 }

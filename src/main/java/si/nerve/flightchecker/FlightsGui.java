@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JButton;
@@ -62,7 +63,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private Set<MultiCityFlightData> m_flightSet;
   private MultiCityFlightObtainer m_cityFlightObtainer;
   private Map<String, AirportData> m_airportMap;
-  private ExecutorService m_executorService;
+  private ScheduledExecutorService m_executorService;
 
   public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException
   {
@@ -185,26 +186,31 @@ public class FlightsGui extends JFrame implements ActionListener
         "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
         "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
 
-    final String from = (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex());
-    final String to = (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex());
+    final String from = m_fromAP1.getSelectedIndex() > 0 ? (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()) : null;
+    final String to = m_toAP2.getSelectedIndex() > 0 ? (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex()) : null;
 
     //m_executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-    m_executorService = Executors.newSingleThreadExecutor();
+    m_executorService = Executors.newScheduledThreadPool(1);
     final String toStatic = (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex());
     final String fromStatic = (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex());
     final Date fromDate = m_fromDateChooser.getDate();
     final Date toDate = m_toDateChooser.getDate();
 
     m_flightSet = new HashSet<MultiCityFlightData>();
-    m_executorService.submit(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
+    if (from != null && from.length() == 3 && to != null && to.length() == 3)
+    {
+      m_executorService.execute(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
+    }
 
+    long delay = (long)(300 + Math.random() * 1000);
     for (final String codeFrom : codes)
     {
       for (final String codeTo : codes)
       {
-        if (!from.equals(codeFrom) && !to.equals(codeTo))
+        if (!codeFrom.equals(from) && !codeTo.equals(to))
         {
-          m_executorService.submit(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate));
+          m_executorService.schedule(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
+          delay += (long)(300 + Math.random() * 1000);
         }
       }
     }
@@ -234,14 +240,17 @@ public class FlightsGui extends JFrame implements ActionListener
   {
     ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
     multiCityFlightDatas.addAll(m_flightSet);
-    MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
-    m_sorter.setModel(model);
+
+    ((MultiCityFlightTableModel)m_mainTable.getModel()).setEntityList(multiCityFlightDatas);
+
+    //MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
+    //m_sorter.setModel(model);
     //m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_sorter.sort();
-    m_mainTable.setModel(model);
-    m_mainTable.setRowSorter(m_sorter);
-    m_mainTable.setColumnWidths(c_columnWidths);
-    this.pack();
+    //m_mainTable.setModel(model);
+    //m_mainTable.setRowSorter(m_sorter);
+    //m_mainTable.setColumnWidths(c_columnWidths);
+    //this.pack();
   }
 
   private Map<String, AirportData> readAirportCsv()

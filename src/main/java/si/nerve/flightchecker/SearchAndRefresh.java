@@ -57,12 +57,15 @@ public class SearchAndRefresh implements Runnable
     {
       ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
       multiCityFlightDatas.addAll(m_flightsGui.getFlightSet());
-      MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
+      MultiCityFlightTableModel model = (MultiCityFlightTableModel)m_flightsGui.getMainTable().getModel();
+      model.setEntityList(multiCityFlightDatas);
+      //MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
       m_flightsGui.getMainTable().setModel(model);
       m_flightsGui.getSorter().setModel(model);
       m_flightsGui.getMainTable().setRowSorter(m_flightsGui.getSorter());
       m_flightsGui.getSorter().sort();
-      m_flightsGui.pack();
+      m_flightsGui.getSorter().toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
+      //m_flightsGui.pack();
       m_flightsGui.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
   }
