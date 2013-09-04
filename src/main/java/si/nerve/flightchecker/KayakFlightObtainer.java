@@ -33,7 +33,7 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 13;
+  private static final int MAX_RETRIES = 25;
 
   @Override
   public Set<MultiCityFlightData> get(String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException

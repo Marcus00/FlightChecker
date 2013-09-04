@@ -9,6 +9,8 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,11 +22,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,6 +35,9 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.JTextComponent;
 
 import com.csvreader.CsvReader;
 import com.toedter.calendar.JDateChooser;
@@ -44,6 +46,8 @@ import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.components.SearchBoxModel;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.process.ComboDocument;
+import si.nerve.flightchecker.process.SelectFocusAdapter;
 
 /**
  * @author bratwurzt
@@ -102,16 +106,34 @@ public class FlightsGui extends JFrame implements ActionListener
     m_fromAP2.setEditable(true);
     m_toAP2.setEditable(true);
     ArrayList<String> airportCodes = new ArrayList<String>(m_airportMap.keySet());
+
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportCodes);
+    //DocumentFilter filter = new UppercaseDocumentFilter();
+    JTextComponent fromComboxTF1 = (JTextComponent)m_fromAP1.getEditor().getEditorComponent();
+    fromComboxTF1.setDocument(new ComboDocument());
+    fromComboxTF1.addFocusListener(new SelectFocusAdapter(fromComboxTF1));
+    //((AbstractDocument)fromComboxTF1.getDocument()).setDocumentFilter(filter);
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
     SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportCodes);
+    JTextComponent toComboxTF1 = (JTextComponent)m_toAP1.getEditor().getEditorComponent();
+    toComboxTF1.setDocument(new ComboDocument());
+    toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
+    //((AbstractDocument)toComboxTF1.getDocument()).setDocumentFilter(filter);
     m_toAP1.setModel(sbm2);
     m_toAP1.addItemListener(sbm2);
     SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportCodes);
+    JTextComponent fromComboxTF2 = (JTextComponent)m_fromAP2.getEditor().getEditorComponent();
+    fromComboxTF2.setDocument(new ComboDocument());
+    fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
+    //((AbstractDocument)fromComboxTF2.getDocument()).setDocumentFilter(filter);
     m_fromAP2.setModel(sbm3);
     m_fromAP2.addItemListener(sbm3);
     SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportCodes);
+    JTextComponent toCombocTF2 = (JTextComponent)m_toAP2.getEditor().getEditorComponent();
+    toCombocTF2.setDocument(new ComboDocument());
+    toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
+    //((AbstractDocument)toCombocTF2.getDocument()).setDocumentFilter(filter);
     m_toAP2.setModel(sbm4);
     m_toAP2.addItemListener(sbm4);
 
