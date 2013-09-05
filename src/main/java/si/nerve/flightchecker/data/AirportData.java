@@ -65,4 +65,10 @@ public class AirportData
   {
     return m_dst;
   }
+
+  @Override
+  public String toString()
+  {
+    return getIataCode() + " " + getCity() + " (" + getName() + ")";
+  }
 }

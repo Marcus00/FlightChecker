@@ -9,13 +9,13 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,8 +35,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
 
 import com.csvreader.CsvReader;
@@ -105,9 +103,8 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toAP1.setEditable(true);
     m_fromAP2.setEditable(true);
     m_toAP2.setEditable(true);
-    ArrayList<String> airportCodes = new ArrayList<String>(m_airportMap.keySet());
 
-    SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportCodes);
+    SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, m_airportMap);
     //DocumentFilter filter = new UppercaseDocumentFilter();
     JTextComponent fromComboxTF1 = (JTextComponent)m_fromAP1.getEditor().getEditorComponent();
     fromComboxTF1.setDocument(new ComboDocument());
@@ -115,21 +112,21 @@ public class FlightsGui extends JFrame implements ActionListener
     //((AbstractDocument)fromComboxTF1.getDocument()).setDocumentFilter(filter);
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
-    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportCodes);
+    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, m_airportMap);
     JTextComponent toComboxTF1 = (JTextComponent)m_toAP1.getEditor().getEditorComponent();
     toComboxTF1.setDocument(new ComboDocument());
     toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
     //((AbstractDocument)toComboxTF1.getDocument()).setDocumentFilter(filter);
     m_toAP1.setModel(sbm2);
     m_toAP1.addItemListener(sbm2);
-    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportCodes);
+    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, m_airportMap);
     JTextComponent fromComboxTF2 = (JTextComponent)m_fromAP2.getEditor().getEditorComponent();
     fromComboxTF2.setDocument(new ComboDocument());
     fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
     //((AbstractDocument)fromComboxTF2.getDocument()).setDocumentFilter(filter);
     m_fromAP2.setModel(sbm3);
     m_fromAP2.addItemListener(sbm3);
-    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportCodes);
+    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, m_airportMap);
     JTextComponent toCombocTF2 = (JTextComponent)m_toAP2.getEditor().getEditorComponent();
     toCombocTF2.setDocument(new ComboDocument());
     toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
@@ -183,11 +180,11 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
         m_flightSet = m_cityFlightObtainer.get("de",
-            (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()),
-            (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex()),
+            (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()).toString(),
+            (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex()).toString(),
             m_fromDateChooser.getDate(),
-            (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()),
-            (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex()),
+            (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()).toString(),
+            (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex()).toString(),
             m_toDateChooser.getDate());
       }
       catch (Exception e)
@@ -265,14 +262,7 @@ public class FlightsGui extends JFrame implements ActionListener
 
     ((MultiCityFlightTableModel)m_mainTable.getModel()).setEntityList(multiCityFlightDatas);
 
-    //MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
-    //m_sorter.setModel(model);
-    //m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_sorter.sort();
-    //m_mainTable.setModel(model);
-    //m_mainTable.setRowSorter(m_sorter);
-    //m_mainTable.setColumnWidths(c_columnWidths);
-    //this.pack();
   }
 
   private Map<String, AirportData> readAirportCsv()
@@ -280,7 +270,8 @@ public class FlightsGui extends JFrame implements ActionListener
     Map<String, AirportData> airports;
     try
     {
-      CsvReader reader = new CsvReader(new InputStreamReader(new FileInputStream(new File("airports.csv"))));
+      InputStream resourceAsStream = ClassLoader.class.getResourceAsStream("/resources/airports.csv");
+      CsvReader reader = new CsvReader(new InputStreamReader(resourceAsStream));
       reader.setDelimiter(',');
       reader.readHeaders();
       try

@@ -5,11 +5,16 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+
+import si.nerve.flightchecker.data.AirportData;
 
 /**
  * @author bratwurzt
@@ -17,13 +22,13 @@ import javax.swing.JTextField;
 public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, KeyListener, ItemListener
 {
   private static final long serialVersionUID = 9050594122953046884L;
-  private ArrayList<String> db = new ArrayList<String>();
-  private ArrayList<String> data = new ArrayList<String>();
-  private String selection;
+  private Map<String, AirportData> db;
+  private List<String> data;
+  private AirportData selection;
   private JComboBox cb;
   private ComboBoxEditor cbe;
 
-  public SearchBoxModel(JComboBox jcb, ArrayList<String> codes)
+  public SearchBoxModel(JComboBox jcb, Map<String, AirportData> airportDataMap)
   {
     cb = jcb;
     cbe = jcb.getEditor();
@@ -31,7 +36,8 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
     cbe.getEditorComponent().addKeyListener(this);
 
     //set up our "database" of items - in practice you will usuallu have a proper db.
-    db.addAll(codes);
+    db = airportDataMap;
+    data = new ArrayList<String>();
   }
 
   public void updateModel(String in)
@@ -39,11 +45,12 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
     data.clear();
     //lets find any items which start with the string the user typed, and add it to the popup list
     //here you would usually get your items from a database, or some other storage...
-    for (String s : db)
+    for (Map.Entry<String, AirportData> s : db.entrySet())
     {
-      if (s.startsWith(in))
+      String key = s.getKey();
+      if (key.startsWith(in))
       {
-        data.add(s);
+        data.add(key);
       }
     }
 
@@ -65,12 +72,15 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
 
   public Object getElementAt(int index)
   {
-    return data.get(index);
+    return db.get(data.get(index));
   }
 
   public void setSelectedItem(Object anItem)
   {
-    selection = (String)anItem;
+    if (anItem instanceof AirportData)
+    {
+      selection = (AirportData) anItem;
+    }
   }
 
   public Object getSelectedItem()
