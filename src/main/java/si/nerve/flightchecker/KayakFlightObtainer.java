@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   {
     m_addressDot = addressRoot;
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    String address = "http://www.kayak." + m_addressDot + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
+    String hostAddress = "http://www.kayak." + m_addressDot;
+    String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
         "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
     URL url = new URL(address);
     URLConnection connection = createHttpConnection(url);
@@ -106,21 +108,25 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                     leg.select("div.stopsLayovers > span.airportslist").text()
                 ));
               }
-              else
-              {
-                System.out.println();
-              }
             }
 
             if (legs.size() > 1)
             {
               String price = link.select("a[class^=results_price]").text();
+              String priceNumber = price.replaceAll("[\\D]", "");
+              Elements priceLinks = link.select("a[class=dealsinresult]:contains(" + priceNumber + ")");
+              ArrayList<URL> flightTickets = new ArrayList<URL>();
+              for (Element priceLink : priceLinks)
+              {
+                flightTickets.add(new URL(hostAddress + priceLink.attr("rel")));
+              }
               returnSet.add(new MultiCityFlightData(
                   Integer.parseInt(link.attr("data-index")),
                   link.attr("data-resultid"),
-                  Integer.parseInt(price.replaceAll("[\\D]", "")),
+                  Integer.parseInt(priceNumber),
                   price.contains("€") ? PriceType.EURO : PriceType.DOLLAR,
                   legs,
+                  flightTickets,
                   link.select("div.seatsPromo").text()
               ));
             }

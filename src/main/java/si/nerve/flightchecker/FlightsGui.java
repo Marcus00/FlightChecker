@@ -210,7 +210,7 @@ public class FlightsGui extends JFrame implements ActionListener
       m_executorService.execute(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
     }
 
-    long delay = (long)(300 + Math.random() * 1000);
+    long delay = (long)(300 + Math.random() * 100);
     for (final String codeFrom : codes)
     {
       for (final String codeTo : codes)
@@ -218,7 +218,7 @@ public class FlightsGui extends JFrame implements ActionListener
         if (!codeFrom.equals(from) && !codeTo.equals(to))
         {
           m_executorService.schedule(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-          delay += (long)(300 + Math.random() * 1000);
+          delay += (long)(300 + Math.random() * 100);
         }
       }
     }

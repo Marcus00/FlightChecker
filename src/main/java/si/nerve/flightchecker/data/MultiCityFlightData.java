@@ -1,5 +1,7 @@
 package si.nerve.flightchecker.data;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -12,15 +14,17 @@ public class MultiCityFlightData
   private int m_priceAmount;
   private PriceType m_priceType;
   private LinkedList<FlightLeg> m_flightLegs;
+  private ArrayList<URL> m_flightTickets;
   private String m_seatsPromo;
 
-  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType, LinkedList<FlightLeg> flightLegs, String seatsPromo)
+  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType, LinkedList<FlightLeg> flightLegs, ArrayList<URL> flightTickets, String seatsPromo)
   {
     m_index = index;
     m_dataResultId = dataResultId;
     m_priceAmount = priceAmount;
     m_priceType = priceType;
     m_flightLegs = flightLegs;
+    m_flightTickets = flightTickets;
     m_seatsPromo = seatsPromo;
   }
 
