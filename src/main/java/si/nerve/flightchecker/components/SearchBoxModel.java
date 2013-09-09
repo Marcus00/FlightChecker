@@ -113,6 +113,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
     else if (e.getKeyCode() == KeyEvent.VK_ENTER)
     {
       cb.setSelectedIndex(cb.getSelectedIndex());
+      cbe.setItem(((AirportData)cb.getSelectedItem()).getIataCode());
     }
     else
     {

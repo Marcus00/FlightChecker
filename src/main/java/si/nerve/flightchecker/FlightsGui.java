@@ -9,13 +9,10 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -180,11 +177,11 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
         m_flightSet = m_cityFlightObtainer.get("de",
-            (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()).toString(),
-            (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex()).toString(),
+            m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()).toString(),
+            m_toAP1.getItemAt(m_toAP1.getSelectedIndex()).toString(),
             m_fromDateChooser.getDate(),
-            (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()).toString(),
-            (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex()).toString(),
+            m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()).toString(),
+            m_toAP2.getItemAt(m_toAP2.getSelectedIndex()).toString(),
             m_toDateChooser.getDate());
       }
       catch (Exception e)
@@ -210,8 +207,8 @@ public class FlightsGui extends JFrame implements ActionListener
 
     //m_executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
     m_executorService = Executors.newScheduledThreadPool(1);
-    final String toStatic = (String)m_toAP1.getItemAt(m_toAP1.getSelectedIndex());
-    final String fromStatic = (String)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex());
+    final String toStatic = ((AirportData)m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
+    final String fromStatic = ((AirportData)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
     final Date fromDate = m_fromDateChooser.getDate();
     final Date toDate = m_toDateChooser.getDate();
 
