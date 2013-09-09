@@ -1,12 +1,6 @@
 package si.nerve.flightchecker;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
@@ -22,15 +16,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
@@ -57,6 +43,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
   private JDateChooser m_fromDateChooser, m_toDateChooser;
   private JButton m_search;
+  private JLabel m_statusLabel;
   private JCheckBox m_combined;
   public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 2};
   private Set<MultiCityFlightData> m_flightSet;
@@ -89,6 +76,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toDateChooser.setDateFormatString("dd.MM.yyyy");
     m_combined = new JCheckBox("Rošada");
     m_search = new JButton("Išči");
+    m_statusLabel = new JLabel();
 
     m_combined.addActionListener(this);
     m_combined.setActionCommand(COMBO_CHANGED);
@@ -142,8 +130,12 @@ public class FlightsGui extends JFrame implements ActionListener
     commandPanel.add(m_search, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     JPanel panel = new JPanel(new GridBagLayout());
 
+    JPanel statusPanel = new JPanel(new GridBagLayout());
+    statusPanel.add(m_statusLabel, new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 3, 0), 0, 0));
+
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.add(m_scrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(statusPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.setOpaque(true);
     add(panel, BorderLayout.CENTER);
 
@@ -250,6 +242,11 @@ public class FlightsGui extends JFrame implements ActionListener
   public MultiCityFlightObtainer getCityFlightObtainer()
   {
     return m_cityFlightObtainer;
+  }
+
+  public JLabel getStatusLabel()
+  {
+    return m_statusLabel;
   }
 
   protected void refreshTableModel()

@@ -48,6 +48,7 @@ public class SearchAndRefresh implements Runnable
               m_codeTo,
               m_toDate)
       );
+      m_flightsGui.getStatusLabel().setText("Najdenih rezultatov: " + m_flightsGui.getFlightSet().size());
     }
     catch (IOException e)
     {
