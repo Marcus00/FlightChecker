@@ -10,20 +10,23 @@ public enum PriceType
   POUND
   ;
 
-  public static PriceType getInstance(char monetarySign)
+  public static PriceType getInstance(String price)
   {
-    if ('$' == monetarySign)
+    return price.contains("€") ? PriceType.EURO : price.contains("£") ? PriceType.POUND : PriceType.DOLLAR;
+  }
+
+  public String getMonSign()
+  {
+    switch (this)
     {
-      return DOLLAR;
+      case EURO:
+        return "€";
+      case DOLLAR:
+        return "$";
+      case POUND:
+        return "£";
+      default:
+        return "?";
     }
-    else if ('€' == monetarySign)
-    {
-      return EURO;
-    }
-    else if ('£' == monetarySign)
-    {
-      return POUND;
-    }
-    return null;
   }
 }

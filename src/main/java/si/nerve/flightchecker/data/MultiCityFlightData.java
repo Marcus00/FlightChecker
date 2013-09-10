@@ -14,17 +14,15 @@ public class MultiCityFlightData
   private int m_priceAmount;
   private PriceType m_priceType;
   private LinkedList<FlightLeg> m_flightLegs;
-  private ArrayList<URL> m_flightTickets;
   private String m_seatsPromo;
 
-  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType, LinkedList<FlightLeg> flightLegs, ArrayList<URL> flightTickets, String seatsPromo)
+  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType, LinkedList<FlightLeg> flightLegs, String seatsPromo)
   {
     m_index = index;
     m_dataResultId = dataResultId;
     m_priceAmount = priceAmount;
     m_priceType = priceType;
     m_flightLegs = flightLegs;
-    m_flightTickets = flightTickets;
     m_seatsPromo = seatsPromo;
   }
 
@@ -61,17 +59,6 @@ public class MultiCityFlightData
   public String getPrice()
   {
     return String.valueOf(getPriceAmount()) + getPriceType().toString();
-  }
-
-  public String getLinksHtml()
-  {
-    StringBuilder b = new StringBuilder("<html>");
-    for (URL url : m_flightTickets)
-    {
-      b.append("<a href=\"").append(url).append("\">cena</a>");
-    }
-    b.append("</html>");
-    return b.toString();
   }
 
   @Override

@@ -51,7 +51,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private JMenu m_mainMenu;
   private JFileChooser m_fileChooser;
   private JMenuItem m_menuItem;
-  private JProgressBar m_progressBar;;
+  private JProgressBar m_progressBar;
 
   public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException
   {
@@ -61,7 +61,7 @@ public class FlightsGui extends JFrame implements ActionListener
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     m_mainTable = new MultiCityFlightTable(new MultiCityFlightTableModel(new ArrayList<MultiCityFlightData>()));
-    m_mainTable.setPreferredScrollableViewportSize(new Dimension(1200, 800));
+    m_mainTable.setPreferredScrollableViewportSize(new Dimension(1300, 800));
     m_mainTable.setFillsViewportHeight(true);
     m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel) m_mainTable.getModel());
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
@@ -252,7 +252,7 @@ public class FlightsGui extends JFrame implements ActionListener
         writer.append(flightData.getFlightLegs().get(1).getArrivalLocalTime()).append(',');
         writer.append(flightData.getFlightLegs().get(1).getDuration()).append(',');
         writer.append(String.valueOf(flightData.getPriceAmount())).append(',');
-        writer.append(flightData.getPriceType().equals(PriceType.DOLLAR) ? "$" : "€");
+        writer.append(flightData.getPriceType().getMonSign());
         writer.append('\n');
       }
       writer.flush();
@@ -279,14 +279,25 @@ public class FlightsGui extends JFrame implements ActionListener
     {
       try
       {
-        setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        m_flightSet = m_cityFlightObtainer.get("de",
-            ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode(),
-            ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode(),
-            m_fromDateChooser.getDate(),
-            ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode(),
-            ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode(),
-            m_toDateChooser.getDate());
+        final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
+        final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData)m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
+
+        if (m_executorService == null)
+        {
+          m_executorService = Executors.newScheduledThreadPool(3);
+        }
+        final String toStatic = ((AirportData)m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
+        final String fromStatic = ((AirportData)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
+        final Date fromDate = m_fromDateChooser.getDate();
+        final Date toDate = m_toDateChooser.getDate();
+
+        m_flightSet = new HashSet<MultiCityFlightData>();
+        if (from != null && from.length() == 3 && to != null && to.length() == 3)
+        {
+          m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate));
+          m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate));
+          m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate));
+        }
       }
       catch (Exception e)
       {
@@ -295,7 +306,6 @@ public class FlightsGui extends JFrame implements ActionListener
       finally
       {
         refreshTableModel();
-        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
       }
     }
   }
@@ -306,10 +316,13 @@ public class FlightsGui extends JFrame implements ActionListener
         "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
         "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
 
-    final String from = m_fromAP1.getSelectedIndex() > 0 ? (String) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()) : null;
-    final String to = m_toAP2.getSelectedIndex() > 0 ? (String) m_toAP2.getItemAt(m_toAP2.getSelectedIndex()) : null;
+    final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
+    final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData)m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
 
-    m_executorService = Executors.newScheduledThreadPool(3);
+    if (m_executorService == null)
+    {
+      m_executorService = Executors.newScheduledThreadPool(3);
+    }
     final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
     final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
     final Date fromDate = m_fromDateChooser.getDate();

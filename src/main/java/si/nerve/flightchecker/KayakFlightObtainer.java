@@ -114,19 +114,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
             {
               String price = link.select("a[class^=results_price]").text();
               String priceNumber = price.replaceAll("[\\D]", "");
-              Elements priceLinks = link.select("a[class=dealsinresult]:contains(" + priceNumber + ")");
-              ArrayList<URL> flightTickets = new ArrayList<URL>();
-              for (Element priceLink : priceLinks)
-              {
-                flightTickets.add(new URL(hostAddress + priceLink.attr("rel")));
-              }
               returnSet.add(new MultiCityFlightData(
                   Integer.parseInt(link.attr("data-index")),
                   link.attr("data-resultid"),
                   Integer.parseInt(priceNumber),
-                  price.contains("€") ? PriceType.EURO : price.contains("£") ? PriceType.POUND : PriceType.DOLLAR,
+                  PriceType.getInstance(price),
                   legs,
-                  flightTickets,
                   link.select("div.seatsPromo").text()
               ));
             }

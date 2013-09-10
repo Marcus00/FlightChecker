@@ -4,6 +4,7 @@ import java.awt.Cursor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.data.MultiCityFlightData;
@@ -39,18 +40,20 @@ public class SearchAndRefresh implements Runnable
   {
     try
     {
-      m_flightsGui.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-      m_flightsGui.getFlightSet().addAll(
-          m_flightsGui.getCityFlightObtainer().get(
-              m_root,
-              m_codeFrom,
-              m_codeToStatic,
-              m_fromDate,
-              m_codeFromStatic,
-              m_codeTo,
-              m_toDate)
-      );
-      m_flightsGui.getStatusLabel().setText("Najdenih rezultatov: " + m_flightsGui.getFlightSet().size());
+      Set<MultiCityFlightData> getSet = m_flightsGui.getCityFlightObtainer().get(
+          m_root,
+          m_codeFrom,
+          m_codeToStatic,
+          m_fromDate,
+          m_codeFromStatic,
+          m_codeTo,
+          m_toDate);
+
+      synchronized (m_flightsGui.getFlightSet())
+      {
+        m_flightsGui.getFlightSet().addAll(getSet);
+        m_flightsGui.getStatusLabel().setText("Najdenih rezultatov: " + m_flightsGui.getFlightSet().size());
+      }
     }
     catch (IOException e)
     {
@@ -58,18 +61,18 @@ public class SearchAndRefresh implements Runnable
     }
     finally
     {
-      ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
-      multiCityFlightDatas.addAll(m_flightsGui.getFlightSet());
-      MultiCityFlightTableModel model = (MultiCityFlightTableModel)m_flightsGui.getMainTable().getModel();
-      model.setEntityList(multiCityFlightDatas);
-      //MultiCityFlightTableModel model = new MultiCityFlightTableModel(multiCityFlightDatas);
-      m_flightsGui.getMainTable().setModel(model);
-      m_flightsGui.getSorter().setModel(model);
-      m_flightsGui.getMainTable().setRowSorter(m_flightsGui.getSorter());
-      m_flightsGui.getSorter().sort();
-      m_flightsGui.getSorter().toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
-      //m_flightsGui.pack();
-      m_flightsGui.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+      synchronized (m_flightsGui.getFlightSet())
+      {
+        ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
+        multiCityFlightDatas.addAll(m_flightsGui.getFlightSet());
+        MultiCityFlightTableModel model = (MultiCityFlightTableModel)m_flightsGui.getMainTable().getModel();
+        model.setEntityList(multiCityFlightDatas);
+        m_flightsGui.getMainTable().setModel(model);
+        m_flightsGui.getSorter().setModel(model);
+        m_flightsGui.getMainTable().setRowSorter(m_flightsGui.getSorter());
+        m_flightsGui.getSorter().sort();
+        m_flightsGui.getSorter().toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
+      }
     }
   }
 }

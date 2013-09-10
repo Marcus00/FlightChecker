@@ -95,7 +95,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return flightData.getPriceAmount();
 
       case COL_MON_ID:
-        return flightData.getPriceType().equals(PriceType.DOLLAR) ? "$" : "€";
+        return flightData.getPriceType().getMonSign();
 
       default:
         return "damn you, sky!";
@@ -129,7 +129,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return "Layover";
 
       case COL_PRICE:
-        return "Cena (" + m_priceType.toString() + ")";
+        return "Cena";
       case COL_MON_ID:
         return "Enota";
 
