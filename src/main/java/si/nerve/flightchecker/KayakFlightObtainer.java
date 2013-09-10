@@ -124,7 +124,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                   Integer.parseInt(link.attr("data-index")),
                   link.attr("data-resultid"),
                   Integer.parseInt(priceNumber),
-                  price.contains("€") ? PriceType.EURO : PriceType.DOLLAR,
+                  price.contains("€") ? PriceType.EURO : price.contains("£") ? PriceType.POUND : PriceType.DOLLAR,
                   legs,
                   flightTickets,
                   link.select("div.seatsPromo").text()

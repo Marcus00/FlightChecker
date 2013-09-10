@@ -3,20 +3,15 @@ package si.nerve.flightchecker;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
@@ -27,6 +22,7 @@ import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.components.SearchBoxModel;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
 import si.nerve.flightchecker.process.ComboDocument;
 import si.nerve.flightchecker.process.SelectFocusAdapter;
 
@@ -45,11 +41,17 @@ public class FlightsGui extends JFrame implements ActionListener
   private JButton m_search;
   private JLabel m_statusLabel;
   private JCheckBox m_combined;
-  public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 2};
+  public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 2, 5};
   private Set<MultiCityFlightData> m_flightSet;
   private MultiCityFlightObtainer m_cityFlightObtainer;
   private Map<String, AirportData> m_airportMap;
   private ScheduledExecutorService m_executorService;
+
+  private JMenuBar m_menuBar;
+  private JMenu m_mainMenu;
+  private JFileChooser m_fileChooser;
+  private JMenuItem m_menuItem;
+  private JProgressBar m_progressBar;;
 
   public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException
   {
@@ -61,7 +63,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_mainTable = new MultiCityFlightTable(new MultiCityFlightTableModel(new ArrayList<MultiCityFlightData>()));
     m_mainTable.setPreferredScrollableViewportSize(new Dimension(1200, 800));
     m_mainTable.setFillsViewportHeight(true);
-    m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel)m_mainTable.getModel());
+    m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel) m_mainTable.getModel());
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_mainTable.setRowSorter(m_sorter);
     m_scrollPane = new JScrollPane(m_mainTable);
@@ -90,32 +92,27 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toAP2.setEditable(true);
 
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, m_airportMap);
-    //DocumentFilter filter = new UppercaseDocumentFilter();
-    JTextComponent fromComboxTF1 = (JTextComponent)m_fromAP1.getEditor().getEditorComponent();
+    JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
     fromComboxTF1.setDocument(new ComboDocument());
     fromComboxTF1.addFocusListener(new SelectFocusAdapter(fromComboxTF1));
-    //((AbstractDocument)fromComboxTF1.getDocument()).setDocumentFilter(filter);
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
     SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, m_airportMap);
-    JTextComponent toComboxTF1 = (JTextComponent)m_toAP1.getEditor().getEditorComponent();
+    JTextComponent toComboxTF1 = (JTextComponent) m_toAP1.getEditor().getEditorComponent();
     toComboxTF1.setDocument(new ComboDocument());
     toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
-    //((AbstractDocument)toComboxTF1.getDocument()).setDocumentFilter(filter);
     m_toAP1.setModel(sbm2);
     m_toAP1.addItemListener(sbm2);
     SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, m_airportMap);
-    JTextComponent fromComboxTF2 = (JTextComponent)m_fromAP2.getEditor().getEditorComponent();
+    JTextComponent fromComboxTF2 = (JTextComponent) m_fromAP2.getEditor().getEditorComponent();
     fromComboxTF2.setDocument(new ComboDocument());
     fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
-    //((AbstractDocument)fromComboxTF2.getDocument()).setDocumentFilter(filter);
     m_fromAP2.setModel(sbm3);
     m_fromAP2.addItemListener(sbm3);
     SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, m_airportMap);
-    JTextComponent toCombocTF2 = (JTextComponent)m_toAP2.getEditor().getEditorComponent();
+    JTextComponent toCombocTF2 = (JTextComponent) m_toAP2.getEditor().getEditorComponent();
     toCombocTF2.setDocument(new ComboDocument());
     toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
-    //((AbstractDocument)toCombocTF2.getDocument()).setDocumentFilter(filter);
     m_toAP2.setModel(sbm4);
     m_toAP2.addItemListener(sbm4);
 
@@ -142,19 +139,134 @@ public class FlightsGui extends JFrame implements ActionListener
     pack();
     setVisible(true);
     m_mainTable.setColumnWidths(c_columnWidths);
+
+    m_fileChooser = new JFileChooser();
+    m_fileChooser.addChoosableFileFilter(new FileFilter()
+    {
+
+      @Override
+      public boolean accept(File file)
+      {
+        return file.getName().toLowerCase().endsWith(".csv");
+      }
+
+      @Override
+      public String getDescription()
+      {
+        return null;
+      }
+    });
+
+    m_menuBar = new JMenuBar();
+    m_mainMenu = new JMenu("File");
+    m_mainMenu.setMnemonic(KeyEvent.VK_F);
+    m_menuBar.add(m_mainMenu);
+    m_menuItem = new JMenuItem("Open...", KeyEvent.VK_O);
+    m_menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
+    m_menuItem.addActionListener(this);
+    m_menuItem.setActionCommand("MENU.OPEN");
+    m_mainMenu.add(m_menuItem);
+    m_menuItem = new JMenuItem("Save...", KeyEvent.VK_S);
+    m_menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+    m_menuItem.addActionListener(this);
+    m_menuItem.setActionCommand("MENU.SAVE");
+    m_mainMenu.add(m_menuItem);
+    m_menuItem = new JMenuItem("Close", KeyEvent.VK_C);
+    m_menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_MASK));
+    m_menuItem.setActionCommand("MENU.CLOSE");
+    m_menuItem.addActionListener(this);
+    m_mainMenu.add(m_menuItem);
+    setJMenuBar(m_menuBar);
   }
 
   @Override
   public void actionPerformed(ActionEvent e)
   {
-    if (SEARCH_CMD.equals(e.getActionCommand()))
+    String action = e.getActionCommand();
+    if (SEARCH_CMD.equals(action))
     {
       search(m_combined.isSelected());
+    }
+    if ("MENU.OPEN".equals(action))
+    {
+      int returnVal = m_fileChooser.showOpenDialog(FlightsGui.this);
+
+      if (returnVal == JFileChooser.APPROVE_OPTION)
+      {
+        File file = m_fileChooser.getSelectedFile();
+        if (file.exists())
+        {
+          setHoldCursor();
+          try
+          {
+            m_flightSet = readFlightsFile(file.getAbsolutePath());
+          }
+          finally
+          {
+            resetCursor();
+          }
+        }
+        refreshTableModel();
+      }
+    }
+    else if ("MENU.SAVE".equals(action))
+    {
+      int returnVal = m_fileChooser.showSaveDialog(FlightsGui.this);
+      if (returnVal == JFileChooser.APPROVE_OPTION)
+      {
+        writeFlightsFile(m_flightSet, m_fileChooser.getSelectedFile().getAbsolutePath());
+      }
+    }
+    else if ("MENU.CLOSE".equals(action))
+    {
+      m_flightSet = new HashSet<MultiCityFlightData>();
+      refreshTableModel();
     }
     else if (e.getSource().equals(m_fromDateChooser))
     {
       m_toDateChooser.setDate(m_fromDateChooser.getDate());
     }
+  }
+
+  private void writeFlightsFile(Set<MultiCityFlightData> flightSet, String absolutePath)
+  {
+    try
+    {
+      FileWriter writer = new FileWriter(absolutePath);
+      writer.append("AP-From1-IATA,").append("Date-From1,").append("AP-To1-IATA,").append("Date-To1,").append("Duration1,").append("Layovers1,");
+      writer.append("AP-From2-IATA,").append("Date-From2,").append("AP-To2-IATA,").append("Date-To2,").append("Duration2,").append("Layovers2,");
+      writer.append("Price,");
+      writer.append("PriceType");
+      writer.append('\n');
+      for (MultiCityFlightData flightData : flightSet)
+      {
+        writer.append(flightData.getFlightLegs().get(0).getFromAirportCode()).append(',');
+        writer.append(flightData.getFlightLegs().get(0).getDepartureLocalTime()).append(',');
+        writer.append(flightData.getFlightLegs().get(0).getToAirportCode()).append(',');
+        writer.append(flightData.getFlightLegs().get(0).getArrivalLocalTime()).append(',');
+        writer.append(flightData.getFlightLegs().get(0).getDuration()).append(',');
+        writer.append(flightData.getFlightLegs().get(0).getLayovers()).append(',');
+        writer.append(flightData.getFlightLegs().get(1).getFromAirportCode()).append(',');
+        writer.append(flightData.getFlightLegs().get(1).getDepartureLocalTime()).append(',');
+        writer.append(flightData.getFlightLegs().get(1).getToAirportCode()).append(',');
+        writer.append(flightData.getFlightLegs().get(1).getArrivalLocalTime()).append(',');
+        writer.append(flightData.getFlightLegs().get(1).getDuration()).append(',');
+        writer.append(String.valueOf(flightData.getPriceAmount())).append(',');
+        writer.append(flightData.getPriceType().equals(PriceType.DOLLAR) ? "$" : "€");
+        writer.append('\n');
+      }
+      writer.flush();
+      writer.close();
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  private Set<MultiCityFlightData> readFlightsFile(String absolutePath)
+  {
+    return new HashSet<MultiCityFlightData>();
   }
 
   private void search(boolean combined)
@@ -169,11 +281,11 @@ public class FlightsGui extends JFrame implements ActionListener
       {
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
         m_flightSet = m_cityFlightObtainer.get("de",
-            m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()).toString(),
-            m_toAP1.getItemAt(m_toAP1.getSelectedIndex()).toString(),
+            ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode(),
+            ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode(),
             m_fromDateChooser.getDate(),
-            m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex()).toString(),
-            m_toAP2.getItemAt(m_toAP2.getSelectedIndex()).toString(),
+            ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode(),
+            ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode(),
             m_toDateChooser.getDate());
       }
       catch (Exception e)
@@ -194,31 +306,34 @@ public class FlightsGui extends JFrame implements ActionListener
         "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
         "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
 
-    final String from = m_fromAP1.getSelectedIndex() > 0 ? (String)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()) : null;
-    final String to = m_toAP2.getSelectedIndex() > 0 ? (String)m_toAP2.getItemAt(m_toAP2.getSelectedIndex()) : null;
+    final String from = m_fromAP1.getSelectedIndex() > 0 ? (String) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex()) : null;
+    final String to = m_toAP2.getSelectedIndex() > 0 ? (String) m_toAP2.getItemAt(m_toAP2.getSelectedIndex()) : null;
 
-    //m_executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-    m_executorService = Executors.newScheduledThreadPool(1);
-    final String toStatic = ((AirportData)m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
-    final String fromStatic = ((AirportData)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
+    m_executorService = Executors.newScheduledThreadPool(3);
+    final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
+    final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
     final Date fromDate = m_fromDateChooser.getDate();
     final Date toDate = m_toDateChooser.getDate();
 
     m_flightSet = new HashSet<MultiCityFlightData>();
     if (from != null && from.length() == 3 && to != null && to.length() == 3)
     {
-      m_executorService.execute(new SearchAndRefresh(this, from, to, toStatic, fromStatic, fromDate, toDate));
+      m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate));
+      m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate));
+      m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate));
     }
 
-    long delay = (long)(300 + Math.random() * 100);
+    long delay = (long) (300 + Math.random() * 100);
     for (final String codeFrom : codes)
     {
       for (final String codeTo : codes)
       {
         if (!codeFrom.equals(from) && !codeTo.equals(to))
         {
-          m_executorService.schedule(new SearchAndRefresh(this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-          delay += (long)(300 + Math.random() * 100);
+          m_executorService.schedule(new SearchAndRefresh("de", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
+          m_executorService.schedule(new SearchAndRefresh("it", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
+          m_executorService.schedule(new SearchAndRefresh("co.uk", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
+          delay += (long) (300 + Math.random() * 100);
         }
       }
     }
@@ -254,7 +369,7 @@ public class FlightsGui extends JFrame implements ActionListener
     ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
     multiCityFlightDatas.addAll(m_flightSet);
 
-    ((MultiCityFlightTableModel)m_mainTable.getModel()).setEntityList(multiCityFlightDatas);
+    ((MultiCityFlightTableModel) m_mainTable.getModel()).setEntityList(multiCityFlightDatas);
 
     m_sorter.sort();
   }
@@ -334,5 +449,37 @@ public class FlightsGui extends JFrame implements ActionListener
     {
       e.printStackTrace();
     }
+  }
+
+  public void setHoldCursor()
+  {
+    setCursorOnActiveWindow(this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+  }
+
+  public void resetCursor()
+  {
+    setCursorOnActiveWindow(this, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+  }
+
+  private Cursor setCursorOnActiveWindow(Window window, Cursor cursor)
+  {
+    if (window.getFocusOwner() != null)
+    {
+      Cursor oldCursor = window.getCursor();
+      window.setCursor(cursor);
+      return oldCursor;
+    }
+    else if (window.getOwnedWindows().length > 0)
+    {
+      Window[] temp = window.getOwnedWindows();
+      Cursor tmpCursor = null;
+      for (int i = 0; i < temp.length && tmpCursor == null; i++)
+      {
+        tmpCursor = setCursorOnActiveWindow(temp[i], cursor);
+      }
+      return tmpCursor;
+    }
+
+    return null;
   }
 }

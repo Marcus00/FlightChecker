@@ -6,7 +6,9 @@ package si.nerve.flightchecker.data;
 public enum PriceType
 {
   EURO,
-  DOLLAR;
+  DOLLAR,
+  POUND
+  ;
 
   public static PriceType getInstance(char monetarySign)
   {
@@ -17,6 +19,10 @@ public enum PriceType
     else if ('€' == monetarySign)
     {
       return EURO;
+    }
+    else if ('£' == monetarySign)
+    {
+      return POUND;
     }
     return null;
   }

@@ -20,8 +20,9 @@ public class SearchAndRefresh implements Runnable
   private String m_codeToStatic;
   private Date m_fromDate;
   private Date m_toDate;
+  private String m_root;
 
-  public SearchAndRefresh(FlightsGui flightsGui, String codeFrom, String codeTo, String codeToStatic, String codeFromStatic, Date fromDate, Date toDate)
+  public SearchAndRefresh(String root, FlightsGui flightsGui, String codeFrom, String codeTo, String codeToStatic, String codeFromStatic, Date fromDate, Date toDate)
   {
     m_flightsGui = flightsGui;
     m_codeFrom = codeFrom;
@@ -30,6 +31,7 @@ public class SearchAndRefresh implements Runnable
     m_codeToStatic = codeToStatic;
     m_fromDate = fromDate;
     m_toDate = toDate;
+    m_root = root;
   }
 
   @Override
@@ -40,7 +42,7 @@ public class SearchAndRefresh implements Runnable
       m_flightsGui.setCursor(new Cursor(Cursor.WAIT_CURSOR));
       m_flightsGui.getFlightSet().addAll(
           m_flightsGui.getCityFlightObtainer().get(
-              "de",
+              m_root,
               m_codeFrom,
               m_codeToStatic,
               m_fromDate,

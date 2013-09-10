@@ -63,6 +63,17 @@ public class MultiCityFlightData
     return String.valueOf(getPriceAmount()) + getPriceType().toString();
   }
 
+  public String getLinksHtml()
+  {
+    StringBuilder b = new StringBuilder("<html>");
+    for (URL url : m_flightTickets)
+    {
+      b.append("<a href=\"").append(url).append("\">cena</a>");
+    }
+    b.append("</html>");
+    return b.toString();
+  }
+
   @Override
   public int hashCode()
   {
