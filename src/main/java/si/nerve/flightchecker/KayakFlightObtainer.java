@@ -27,7 +27,7 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 14;
+  private static final int MAX_RETRIES = 20;
 
   @Override
   public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws IOException
@@ -61,18 +61,11 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
     String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
 
-    for (int i = 1; i <= MAX_RETRIES; i++)
+    long startTime = System.currentTimeMillis();
+    int i = 1;
+    while((System.currentTimeMillis() - startTime < 600000) && i <= MAX_RETRIES)
     {
-      try
-      {
-        Thread.sleep(200 + (int)(Math.random() * 100));
-      }
-      catch (InterruptedException e)
-      {
-        e.printStackTrace();
-      }
-
-      KayakResult result = fetchResult(i, time, i == MAX_RETRIES, address, searchId, connection.getHeaderFields());
+      KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       time = result.getTime();
       response = result.getResponse();
       if (response.contains("content_div"))
@@ -133,15 +126,15 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
           e.printStackTrace();
         }
       }
+      try
+      {
+        Thread.sleep(400 + (int)(Math.random() * 100));
+      }
+      catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
     }
-  }
-
-  private String readString(String input, String mainMarker, String markerStart, String markerEnd)
-  {
-    int mainMarkerIndex = input.indexOf(mainMarker);
-    int resultStart = input.indexOf(markerStart, mainMarkerIndex) + markerStart.length() - 1;
-    int resultEnd = input.indexOf(markerEnd, resultStart);
-    return input.substring(resultStart, resultEnd);
   }
 
   private KayakResult fetchResult(

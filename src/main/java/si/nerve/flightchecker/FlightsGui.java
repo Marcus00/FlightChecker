@@ -300,6 +300,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_flightSet = new HashSet<MultiCityFlightData>();
     if (from != null && from.length() == 3 && to != null && to.length() == 3)
     {
+      m_executorService.execute(new SearchAndRefresh("com", this, from, to, toStatic, fromStatic, fromDate, toDate));
       m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate));
       m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate));
       m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate));
@@ -318,6 +319,7 @@ public class FlightsGui extends JFrame implements ActionListener
         {
           if (!codeFrom.equals(from) && !codeTo.equals(to))
           {
+            m_executorService.schedule(new SearchAndRefresh("com", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
             m_executorService.schedule(new SearchAndRefresh("de", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
             m_executorService.schedule(new SearchAndRefresh("it", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
             m_executorService.schedule(new SearchAndRefresh("co.uk", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
