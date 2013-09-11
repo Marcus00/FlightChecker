@@ -2,6 +2,7 @@ package si.nerve.flightchecker.components;
 
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
@@ -9,7 +10,7 @@ import si.nerve.flightchecker.data.PriceType;
 /**
  * @author bratwurzt
  */
-public class MultiCityFlightTableModel extends AbstractTableModel
+public class MultiCityFlightTableModel extends DefaultTableModel
 {
   private static final long serialVersionUID = -4509000599023221046L;
   public static final int COL_LEG1_FROM_AIRPORT = 0;
@@ -26,21 +27,21 @@ public class MultiCityFlightTableModel extends AbstractTableModel
   public static final int COL_LEG2_STOPS = 11;
   public static final int COL_PRICE = 12;
   public static final int COL_MON_ID = 13;
-  protected static final int COLUMN_COUNT = 14;
+  public static final int COL_HOST_ADDRESS = 14;
+  protected static final int COLUMN_COUNT = 15;
 
   protected List<MultiCityFlightData> m_entityList;
-  private PriceType m_priceType;
-
+  private boolean m_convertToEuro;
   public MultiCityFlightTableModel(List<MultiCityFlightData> entityList)
   {
     m_entityList = entityList;
-    m_priceType = m_entityList != null && m_entityList.size() > 0 ? m_entityList.get(0).getPriceType() : PriceType.EURO;
+    m_convertToEuro = true;
   }
 
   @Override
   public int getRowCount()
   {
-    return m_entityList.size();
+    return m_entityList == null ? 0 : m_entityList.size();
   }
 
   @Override
@@ -92,10 +93,13 @@ public class MultiCityFlightTableModel extends AbstractTableModel
         return flightData.getFlightLegs().get(1).getLayovers();
 
       case COL_PRICE:
-        return flightData.getPriceAmount();
+        return flightData.getPriceAmount(m_convertToEuro);
 
       case COL_MON_ID:
-        return flightData.getPriceType().getMonSign();
+        return m_convertToEuro ? PriceType.EURO.getMonSign() : flightData.getPriceType().getMonSign();
+
+      case COL_HOST_ADDRESS:
+        return flightData.getHostAddress();
 
       default:
         return "damn you, sky!";
@@ -133,6 +137,9 @@ public class MultiCityFlightTableModel extends AbstractTableModel
       case COL_MON_ID:
         return "Enota";
 
+      case COL_HOST_ADDRESS:
+        return "Vir";
+
       default:
         return "?";
     }
@@ -154,6 +161,7 @@ public class MultiCityFlightTableModel extends AbstractTableModel
       case COL_LEG2_TO_TIME:
       case COL_LEG2_DURATION:
       case COL_LEG2_STOPS:
+      case COL_HOST_ADDRESS:
         return String.class;
 
       case COL_PRICE:
@@ -168,5 +176,10 @@ public class MultiCityFlightTableModel extends AbstractTableModel
   public void setEntityList(List<MultiCityFlightData> entityList)
   {
     m_entityList = entityList;
+  }
+
+  public void setConvertToEuro(boolean convertToEuro)
+  {
+    m_convertToEuro = convertToEuro;
   }
 }

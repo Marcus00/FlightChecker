@@ -1,6 +1,5 @@
 package si.nerve.flightchecker;
 
-import java.awt.Cursor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +24,7 @@ public class SearchAndRefresh implements Runnable
 
   public SearchAndRefresh(String root, FlightsGui flightsGui, String codeFrom, String codeTo, String codeToStatic, String codeFromStatic, Date fromDate, Date toDate)
   {
+    m_root = root;
     m_flightsGui = flightsGui;
     m_codeFrom = codeFrom;
     m_codeTo = codeTo;
@@ -32,7 +32,6 @@ public class SearchAndRefresh implements Runnable
     m_codeToStatic = codeToStatic;
     m_fromDate = fromDate;
     m_toDate = toDate;
-    m_root = root;
   }
 
   @Override
@@ -40,39 +39,11 @@ public class SearchAndRefresh implements Runnable
   {
     try
     {
-      Set<MultiCityFlightData> getSet = m_flightsGui.getCityFlightObtainer().get(
-          m_root,
-          m_codeFrom,
-          m_codeToStatic,
-          m_fromDate,
-          m_codeFromStatic,
-          m_codeTo,
-          m_toDate);
-
-      synchronized (m_flightsGui.getFlightSet())
-      {
-        m_flightsGui.getFlightSet().addAll(getSet);
-        m_flightsGui.getStatusLabel().setText("Najdenih rezultatov: " + m_flightsGui.getFlightSet().size());
-      }
+      new KayakFlightObtainer().search(m_flightsGui, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
     }
     catch (IOException e)
     {
       e.printStackTrace();
-    }
-    finally
-    {
-      synchronized (m_flightsGui.getFlightSet())
-      {
-        ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
-        multiCityFlightDatas.addAll(m_flightsGui.getFlightSet());
-        MultiCityFlightTableModel model = (MultiCityFlightTableModel)m_flightsGui.getMainTable().getModel();
-        model.setEntityList(multiCityFlightDatas);
-        m_flightsGui.getMainTable().setModel(model);
-        m_flightsGui.getSorter().setModel(model);
-        m_flightsGui.getMainTable().setRowSorter(m_flightsGui.getSorter());
-        m_flightsGui.getSorter().sort();
-        m_flightsGui.getSorter().toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
-      }
     }
   }
 }

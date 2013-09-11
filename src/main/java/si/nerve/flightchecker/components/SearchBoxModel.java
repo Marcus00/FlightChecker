@@ -56,7 +56,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
 
     super.fireContentsChanged(this, 0, data.size());
 
-    //this is a hack to get around redraw problems when changing the list length of the displayed popups
+    //this is a hack to search around redraw problems when changing the list length of the displayed popups
     cb.hidePopup();
     cb.showPopup();
     if (data.size() != 0)

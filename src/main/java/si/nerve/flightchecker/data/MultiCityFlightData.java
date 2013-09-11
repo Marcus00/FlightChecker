@@ -1,7 +1,5 @@
 package si.nerve.flightchecker.data;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -15,8 +13,10 @@ public class MultiCityFlightData
   private PriceType m_priceType;
   private LinkedList<FlightLeg> m_flightLegs;
   private String m_seatsPromo;
+  private String m_hostAddress;
 
-  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType, LinkedList<FlightLeg> flightLegs, String seatsPromo)
+  public MultiCityFlightData(int index, String dataResultId, int priceAmount, PriceType priceType,
+                             LinkedList<FlightLeg> flightLegs, String seatsPromo, String hostAddress)
   {
     m_index = index;
     m_dataResultId = dataResultId;
@@ -24,6 +24,7 @@ public class MultiCityFlightData
     m_priceType = priceType;
     m_flightLegs = flightLegs;
     m_seatsPromo = seatsPromo;
+    m_hostAddress = hostAddress;
   }
 
   public int getIndex()
@@ -36,8 +37,20 @@ public class MultiCityFlightData
     return m_dataResultId;
   }
 
-  public int getPriceAmount()
+  public int getPriceAmount(boolean convertToEuro)
   {
+    if (convertToEuro)
+    {
+      switch (m_priceType)
+      {
+        case DOLLAR:
+          return (int) (m_priceAmount * 0.75);
+        case EURO:
+          return m_priceAmount;
+        case POUND:
+          return (int) (m_priceAmount * 1.19);
+      }
+    }
     return m_priceAmount;
   }
 
@@ -56,9 +69,9 @@ public class MultiCityFlightData
     return m_seatsPromo;
   }
 
-  public String getPrice()
+  public String getHostAddress()
   {
-    return String.valueOf(getPriceAmount()) + getPriceType().toString();
+    return m_hostAddress;
   }
 
   @Override
