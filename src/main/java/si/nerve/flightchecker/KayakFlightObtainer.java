@@ -9,7 +9,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.jsoup.Jsoup;
@@ -20,8 +27,6 @@ import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
-
-import javax.swing.table.TableRowSorter;
 
 /**
  * Created: 10.8.13 20:39
@@ -34,126 +39,112 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   @Override
   public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
   {
+    m_addressDot = addressRoot;
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    String hostAddress = "http://www.kayak." + m_addressDot;
+    String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
+        "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
+    URL url = new URL(address);
+    URLConnection connection = createHttpConnection(url);
+    InputStream ins = connection.getInputStream();
+    String encoding = connection.getHeaderField("Content-Encoding");
+    if (encoding.equals("gzip"))
+    {
+      ins = new GZIPInputStream(ins);
+    }
+    String response = readResponse(ins);
+
+    int streamingStartLocation = response.indexOf("window.Streaming");
+    int streamingEndLocation = response.indexOf(";", streamingStartLocation);
+    String streamingCommand = null;
     try
     {
-      m_addressDot = addressRoot;
-      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-      String hostAddress = "http://www.kayak." + m_addressDot;
-      String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
-          "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
-      URL url = new URL(address);
-      URLConnection connection = createHttpConnection(url);
-      InputStream ins = connection.getInputStream();
-      String encoding = connection.getHeaderField("Content-Encoding");
-      if (encoding.equals("gzip"))
-      {
-        ins = new GZIPInputStream(ins);
-      }
-      String response = readResponse(ins);
-
-      int streamingStartLocation = response.indexOf("window.Streaming");
-      int streamingEndLocation = response.indexOf(";", streamingStartLocation);
-      String streamingCommand = null;
-      try
-      {
-        streamingCommand = response.substring(streamingStartLocation, streamingEndLocation);
-      }
-      catch (Exception e)
-      {
-        e.printStackTrace();
-      }
-      int timeStart = streamingCommand.indexOf(",") + 1;
-      int timeEnd = streamingCommand.indexOf(",", timeStart) - 1;
-      long time = Long.parseLong(streamingCommand.substring(timeStart, timeEnd).trim());
-
-      int searchIdCmdStartLocation = response.indexOf("setTargeting('searchid'");
-      int searchIdCmdEndLocation = response.indexOf(")", searchIdCmdStartLocation);
-      String searchLocationCommand = response.substring(searchIdCmdStartLocation, searchIdCmdEndLocation);
-      int searchIdStartLocation = searchLocationCommand.indexOf(",") + 3;
-      int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
-      String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
-
-      long startTime = System.currentTimeMillis();
-      int i = 1;
-      while ((System.currentTimeMillis() - startTime < 600000) && i <= MAX_RETRIES)
-      {
-        KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
-        if (result != null)
-        {
-          time = result.getTime();
-          response = result.getResponse();
-          if (response.contains("content_div"))
-          {
-            try
-            {
-              Document doc = Jsoup.parse(response);
-              Elements links = doc.select("#content_div > div[class^=flightresult]");
-              for (Element link : links)
-              {
-                LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
-                for (Element leg : link.select("div[class^=singleleg singleleg]"))
-                {
-                  Elements airports = leg.select("div.airport");
-                  if (airports.size() == 2)
-                  {
-                    legs.add(new FlightLeg(
-                        airports.get(0).attr("title"),
-                        airports.get(0).text(),
-                        leg.select("div[class^=flighttime]").get(0).text(),
-                        airports.get(1).attr("title"),
-                        airports.get(1).text(),
-                        leg.select("div[class^=flighttime]").get(1).text(),
-                        leg.select("div.duration").text(),
-                        leg.select("div.stopsLayovers > span.airportslist").text()
-                    ));
-                  }
-                }
-
-                if (legs.size() > 1)
-                {
-                  String price = link.select("a[class^=results_price]").text();
-                  String priceNumber = price.replaceAll("[\\D]", "");
-                  synchronized (flightGui.getFlightSet())
-                  {
-                    flightGui.getFlightSet().add(new MultiCityFlightData(
-                        Integer.parseInt(link.attr("data-index")),
-                        link.attr("data-resultid"),
-                        Integer.parseInt(priceNumber),
-                        PriceType.getInstance(price),
-                        legs,
-                        link.select("div.seatsPromo").text(),
-                        hostAddress
-                    ));
-
-                    flightGui.getStatusLabel().setText(String.valueOf(flightGui.getFlightSet().size()));
-
-                    MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
-                    tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightSet()));
-  //                  flightGui.getMainTable().setModel(tableModel);
-                    tableModel.fireTableDataChanged();
-                  }
-                }
-              }
-            }
-            catch (Exception e)
-            {
-              e.printStackTrace();
-            }
-          }
-          try
-          {
-            Thread.sleep(200 + (int) (Math.random() * 100));
-          }
-          catch (InterruptedException e)
-          {
-            e.printStackTrace();
-          }
-        }
-      }
+      streamingCommand = response.substring(streamingStartLocation, streamingEndLocation);
     }
     catch (Exception e)
     {
       e.printStackTrace();
+    }
+    int timeStart = streamingCommand.indexOf(",") + 1;
+    int timeEnd = streamingCommand.indexOf(",", timeStart) - 1;
+    long time = Long.parseLong(streamingCommand.substring(timeStart, timeEnd).trim());
+
+    int searchIdCmdStartLocation = response.indexOf("setTargeting('searchid'");
+    int searchIdCmdEndLocation = response.indexOf(")", searchIdCmdStartLocation);
+    String searchLocationCommand = response.substring(searchIdCmdStartLocation, searchIdCmdEndLocation);
+    int searchIdStartLocation = searchLocationCommand.indexOf(",") + 3;
+    int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
+    String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
+
+    long startTime = System.currentTimeMillis();
+    int i = 1;
+    while ((System.currentTimeMillis() - startTime < 600000) && i <= MAX_RETRIES)
+    {
+      KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
+      if (result != null)
+      {
+        time = result.getTime();
+        response = result.getResponse();
+        if (response.contains("content_div"))
+        {
+          try
+          {
+            Document doc = Jsoup.parse(response);
+            Elements links = doc.select("#content_div > div[class^=flightresult]");
+            for (Element link : links)
+            {
+              LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
+              for (Element leg : link.select("div[class^=singleleg singleleg]"))
+              {
+                Elements airports = leg.select("div.airport");
+                if (airports.size() == 2)
+                {
+                  legs.add(new FlightLeg(
+                      airports.get(0).attr("title"),
+                      airports.get(0).text(),
+                      leg.select("div[class^=flighttime]").get(0).text(),
+                      airports.get(1).attr("title"),
+                      airports.get(1).text(),
+                      leg.select("div[class^=flighttime]").get(1).text(),
+                      leg.select("div.duration").text(),
+                      leg.select("div.stopsLayovers > span.airportslist").text()
+                  ));
+                }
+              }
+
+              if (legs.size() > 1)
+              {
+                String price = link.select("a[class^=results_price]").text();
+                String priceNumber = price.replaceAll("[\\D]", "");
+                synchronized (flightGui.getFlightSet())
+                {
+                  flightGui.getFlightSet().add(new MultiCityFlightData(
+                      Integer.parseInt(link.attr("data-index")),
+                      link.attr("data-resultid"),
+                      Integer.parseInt(priceNumber),
+                      PriceType.getInstance(price),
+                      legs,
+                      link.select("div.seatsPromo").text(),
+                      hostAddress
+                  ));
+
+                  flightGui.getStatusLabel().setText(String.valueOf(flightGui.getFlightSet().size()));
+
+                  MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+                  tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightSet()));
+                  //                  flightGui.getMainTable().setModel(tableModel);
+                  tableModel.fireTableDataChanged();
+                }
+              }
+            }
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
+        Thread.sleep(200 + (int)(Math.random() * 100));
+      }
     }
   }
 
@@ -254,7 +245,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     connection.addRequestProperty("Referer", url.toString());
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4");
-    return (HttpURLConnection) connection;
+    return (HttpURLConnection)connection;
   }
 
   private String readResponse(InputStream ins) throws IOException
@@ -278,7 +269,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-//      obtainer.search(, "de", "LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
+      //      obtainer.search(, "de", "LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
     }
     catch (Exception e)
     {

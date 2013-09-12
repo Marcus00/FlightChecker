@@ -24,7 +24,6 @@ public class SearchAndRefresh implements Runnable
   private boolean m_combined;
   private String[] m_codes;
 
-
   public SearchAndRefresh(String root, FlightsGui flightsGui, String codeFrom, String codeTo,
                           String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, boolean combined, String[] codes)
   {
@@ -46,7 +45,14 @@ public class SearchAndRefresh implements Runnable
     try
     {
       KayakFlightObtainer kayakFlightObtainer = new KayakFlightObtainer();
-      kayakFlightObtainer.search(m_flightsGui, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+      try
+      {
+        kayakFlightObtainer.search(m_flightsGui, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+      }
+      catch (InterruptedException e)
+      {
+        return;
+      }
 
       if (m_combined)
       {
@@ -62,13 +68,16 @@ public class SearchAndRefresh implements Runnable
               }
               catch (InterruptedException e)
               {
-                e.printStackTrace();
+                return;
               }
               kayakFlightObtainer.search(m_flightsGui, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
             }
           }
         }
       }
+    }
+    catch (InterruptedException ignored)
+    {
     }
     catch (Exception e)
     {

@@ -107,7 +107,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
       if (e.getKeyCode() != KeyEvent.VK_ENTER)
       {
         cbe.setItem(str);
-        jtf.setCaretPosition(currPos);
+        //jtf.setCaretPosition(currPos);
       }
     }
     else if (e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -119,7 +119,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
     {
       updateModel(cb.getEditor().getItem().toString());
       cbe.setItem(str);
-      jtf.setCaretPosition(currPos);
+      //jtf.setCaretPosition(currPos);
     }
   }
 
