@@ -21,14 +21,15 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -50,7 +51,7 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import com.csvreader.CsvReader;
-import com.toedter.calendar.JDateChooser;
+import si.nerve.flightchecker.components.DoubleDateChooser;
 import si.nerve.flightchecker.components.MultiCityFlightTable;
 import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.components.SearchBoxModel;
@@ -67,17 +68,19 @@ public class FlightsGui extends JFrame implements ActionListener
   public static final String SEARCH = "SEARCH";
   public static final String STOP_SEARCH = "STOP_SEARCH";
   public static final String CHECKBOX_CHANGED = "CHECKBOX_CHANGED";
+  public static final int QUEUE_SIZE = 50;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
   private JScrollPane m_scrollPane;
   private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
-  private JDateChooser m_fromDateChooser, m_toDateChooser;
   private JButton m_searchButton;
+  private DoubleDateChooser m_dateChooser;
   private JLabel m_statusLabel;
   private JCheckBox m_combined;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 3, 15};
-  private Set<MultiCityFlightData> m_flightSet;
+  private PriorityQueue<MultiCityFlightData> m_flightQueue;
+  private Comparator<MultiCityFlightData> m_comparator;
   private Map<String, AirportData> m_airportMap;
   private ExecutorService m_executorService;
 
@@ -85,7 +88,6 @@ public class FlightsGui extends JFrame implements ActionListener
   private JMenu m_mainMenu;
   private JFileChooser m_fileChooser;
   private JMenuItem m_menuItem;
-  private JProgressBar m_progressBar;
 
   public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, ParseException
   {
@@ -106,10 +108,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toAP1 = new JComboBox();
     m_fromAP2 = new JComboBox();
     m_toAP2 = new JComboBox();
-    m_fromDateChooser = new JDateChooser();
-    m_fromDateChooser.setDateFormatString("dd.MM.yyyy");
-    m_toDateChooser = new JDateChooser();
-    m_toDateChooser.setDateFormatString("dd.MM.yyyy");
+
     m_searchButton = new JButton("Išči");
     m_statusLabel = new JLabel();
     m_combined = new JCheckBox("Rošada");
@@ -127,6 +126,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toAP1.setEditable(true);
     m_fromAP2.setEditable(true);
     m_toAP2.setEditable(true);
+    m_dateChooser = new DoubleDateChooser();
 
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, m_airportMap);
     JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
@@ -158,11 +158,10 @@ public class FlightsGui extends JFrame implements ActionListener
     commandPanel.add(m_toAP1, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_fromAP2, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_toAP2, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_fromDateChooser, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_toDateChooser, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_combined, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_showInEuro, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_searchButton, new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_dateChooser, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_combined, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_searchButton, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     JPanel panel = new JPanel(new GridBagLayout());
 
     JPanel statusPanel = new JPanel(new GridBagLayout());
@@ -178,10 +177,19 @@ public class FlightsGui extends JFrame implements ActionListener
     setVisible(true);
     m_mainTable.setColumnWidths(c_columnWidths);
 
+    m_comparator = new Comparator<MultiCityFlightData>()
+    {
+      @Override
+      public int compare(MultiCityFlightData o1, MultiCityFlightData o2)
+      {
+        return o1.getPriceAmount(true) > o2.getPriceAmount(true) ? -1 : o1.getPriceAmount(true) < o2.getPriceAmount(true) ? 1 : 0;
+      }
+    };
+
     buildMenus();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-    m_fromDateChooser.setDate(dateFormat.parse("21.12.2013"));
-    m_toDateChooser.setDate(dateFormat.parse("07.01.2014"));
+    //SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    //m_dateChooser.getFromDateChooser().setDate(dateFormat.parse("21.12.2013"));
+    //m_dateChooser.getToDateChooser().setDate(dateFormat.parse("07.01.2014"));
   }
 
   private void buildMenus()
@@ -230,6 +238,7 @@ public class FlightsGui extends JFrame implements ActionListener
     String action = e.getActionCommand();
     if (SEARCH.equals(action))
     {
+      setHoldCursor();
       search(m_combined.isSelected());
       m_searchButton.setText("Stop");
       m_searchButton.setActionCommand(STOP_SEARCH);
@@ -241,6 +250,7 @@ public class FlightsGui extends JFrame implements ActionListener
       m_searchButton.setActionCommand(SEARCH);
       pack();
       m_executorService.shutdownNow();
+      resetCursor();
     }
     else if ("MENU.OPEN".equals(action))
     {
@@ -254,7 +264,7 @@ public class FlightsGui extends JFrame implements ActionListener
           setHoldCursor();
           try
           {
-            m_flightSet = readFlightsFile(file.getAbsolutePath());
+            m_flightQueue = readFlightsFile(file.getAbsolutePath());
           }
           finally
           {
@@ -269,17 +279,13 @@ public class FlightsGui extends JFrame implements ActionListener
       int returnVal = m_fileChooser.showSaveDialog(FlightsGui.this);
       if (returnVal == JFileChooser.APPROVE_OPTION)
       {
-        writeFlightsFile(m_flightSet, m_fileChooser.getSelectedFile().getAbsolutePath());
+        writeFlightsFile(m_flightQueue, m_fileChooser.getSelectedFile().getAbsolutePath());
       }
     }
     else if ("MENU.CLOSE".equals(action))
     {
-      m_flightSet = new HashSet<MultiCityFlightData>();
+      m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
       refreshTableModel();
-    }
-    else if (e.getSource().equals(m_fromDateChooser))
-    {
-      m_toDateChooser.setDate(m_fromDateChooser.getDate());
     }
     else if (CHECKBOX_CHANGED.equals(action))
     {
@@ -289,7 +295,7 @@ public class FlightsGui extends JFrame implements ActionListener
     }
   }
 
-  private void writeFlightsFile(Set<MultiCityFlightData> flightSet, String absolutePath)
+  private void writeFlightsFile(PriorityQueue<MultiCityFlightData> flightSet, String absolutePath)
   {
     try
     {
@@ -325,9 +331,9 @@ public class FlightsGui extends JFrame implements ActionListener
     }
   }
 
-  private Set<MultiCityFlightData> readFlightsFile(String absolutePath)
+  private PriorityQueue<MultiCityFlightData> readFlightsFile(String absolutePath)
   {
-    return new HashSet<MultiCityFlightData>();
+    return new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
   }
 
   private void search(boolean combined)
@@ -339,16 +345,13 @@ public class FlightsGui extends JFrame implements ActionListener
     final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
     final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData)m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
 
-    if (m_executorService == null)
-    {
-      m_executorService = Executors.newFixedThreadPool(7);
-    }
+    m_executorService = Executors.newFixedThreadPool(7);
     final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
     final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
-    final Date fromDate = m_fromDateChooser.getDate();
-    final Date toDate = m_toDateChooser.getDate();
+    final Date fromDate = m_dateChooser.getFromDateChooser().getDate();
+    final Date toDate = m_dateChooser.getToDateChooser().getDate();
 
-    m_flightSet = new HashSet<MultiCityFlightData>();
+    m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
     if (from != null && from.length() == 3 && to != null && to.length() == 3)
     {
       m_executorService.execute(new SearchAndRefresh("com", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
@@ -367,9 +370,9 @@ public class FlightsGui extends JFrame implements ActionListener
     return m_mainTable;
   }
 
-  public Set<MultiCityFlightData> getFlightSet()
+  public PriorityQueue<MultiCityFlightData> getFlightQueue()
   {
-    return m_flightSet;
+    return m_flightQueue;
   }
 
   public JLabel getStatusLabel()
@@ -380,7 +383,7 @@ public class FlightsGui extends JFrame implements ActionListener
   protected void refreshTableModel()
   {
     ArrayList<MultiCityFlightData> multiCityFlightDatas = new ArrayList<MultiCityFlightData>();
-    multiCityFlightDatas.addAll(m_flightSet);
+    multiCityFlightDatas.addAll(m_flightQueue);
 
     MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) m_mainTable.getModel();
     tableModel.setEntityList(multiCityFlightDatas);

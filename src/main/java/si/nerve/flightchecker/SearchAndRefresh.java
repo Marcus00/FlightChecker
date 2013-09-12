@@ -1,12 +1,6 @@
 package si.nerve.flightchecker;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Set;
-
-import si.nerve.flightchecker.components.MultiCityFlightTableModel;
-import si.nerve.flightchecker.data.MultiCityFlightData;
 
 /**
  * @author bratwurzt

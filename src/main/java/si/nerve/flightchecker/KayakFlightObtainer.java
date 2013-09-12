@@ -34,7 +34,7 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 15;
+  private static final int MAX_RETRIES = 14;
 
   @Override
   public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
@@ -116,9 +116,9 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
               {
                 String price = link.select("a[class^=results_price]").text();
                 String priceNumber = price.replaceAll("[\\D]", "");
-                synchronized (flightGui.getFlightSet())
+                synchronized (flightGui.getFlightQueue())
                 {
-                  flightGui.getFlightSet().add(new MultiCityFlightData(
+                  MultiCityFlightData flightData = new MultiCityFlightData(
                       Integer.parseInt(link.attr("data-index")),
                       link.attr("data-resultid"),
                       Integer.parseInt(priceNumber),
@@ -126,14 +126,26 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                       legs,
                       link.select("div.seatsPromo").text(),
                       hostAddress
-                  ));
+                  );
 
-                  flightGui.getStatusLabel().setText(String.valueOf(flightGui.getFlightSet().size()));
+                  if (!flightGui.getFlightQueue().contains(flightData))
+                  {
+                    flightGui.getFlightQueue().add(flightData);
 
-                  MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
-                  tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightSet()));
-                  //                  flightGui.getMainTable().setModel(tableModel);
-                  tableModel.fireTableDataChanged();
+                    MultiCityFlightData removed = null;
+                    if (flightGui.getFlightQueue().size() > FlightsGui.QUEUE_SIZE)
+                    {
+                      removed = flightGui.getFlightQueue().remove();
+                    }
+
+                    if (!flightData.equals(removed))
+                    {
+                      flightGui.getStatusLabel().setText(String.valueOf(flightGui.getFlightQueue().size()));
+                      MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+                      tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
+                      tableModel.fireTableDataChanged();
+                    }
+                  }
                 }
               }
             }
@@ -143,7 +155,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
             e.printStackTrace();
           }
         }
-        Thread.sleep(200 + (int)(Math.random() * 100));
+        Thread.sleep(300 + (int)(Math.random() * 100));
       }
     }
   }
