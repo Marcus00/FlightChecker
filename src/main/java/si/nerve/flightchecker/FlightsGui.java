@@ -131,7 +131,7 @@ public class FlightsGui extends JFrame implements ActionListener
     JPanel panel = new JPanel(new GridBagLayout());
 
     JPanel statusPanel = new JPanel(new GridBagLayout());
-    statusPanel.add(m_statusLabel, new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 3, 0), 0, 0));
+    statusPanel.add(m_statusLabel, new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 3, 3, 0), 0, 0));
 
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.add(m_scrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -233,8 +233,8 @@ public class FlightsGui extends JFrame implements ActionListener
     {
       MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) m_mainTable.getModel();
       tableModel.setConvertToEuro(m_showInEuro.isSelected());
-      m_mainTable.setModel(tableModel);
       tableModel.fireTableDataChanged();
+//      m_mainTable.setModel(tableModel);
     }
   }
 
@@ -300,37 +300,14 @@ public class FlightsGui extends JFrame implements ActionListener
     m_flightSet = new HashSet<MultiCityFlightData>();
     if (from != null && from.length() == 3 && to != null && to.length() == 3)
     {
-      m_executorService.execute(new SearchAndRefresh("com", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("es", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("fr", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("nl", this, from, to, toStatic, fromStatic, fromDate, toDate));
-      m_executorService.execute(new SearchAndRefresh("pl", this, from, to, toStatic, fromStatic, fromDate, toDate));
-    }
-
-    if (combined)
-    {
-      long delay = (long) (300 + Math.random() * 100);
-      for (final String codeFrom : codes)
-      {
-        for (final String codeTo : codes)
-        {
-          if (!codeFrom.equals(from) && !codeTo.equals(to))
-          {
-            m_executorService.schedule(new SearchAndRefresh("com", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("de", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("it", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("co.uk", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("es", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("fr", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("nl", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            m_executorService.schedule(new SearchAndRefresh("pl", this, codeFrom, codeTo, toStatic, fromStatic, fromDate, toDate), delay, TimeUnit.MILLISECONDS);
-            delay += (long) (300 + Math.random() * 100);
-          }
-        }
-      }
+      m_executorService.execute(new SearchAndRefresh("com", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("es", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("fr", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("nl", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      m_executorService.execute(new SearchAndRefresh("pl", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
     }
   }
 
@@ -361,7 +338,7 @@ public class FlightsGui extends JFrame implements ActionListener
 
     MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) m_mainTable.getModel();
     tableModel.setEntityList(multiCityFlightDatas);
-    m_mainTable.setModel(tableModel);
+//    m_mainTable.setModel(tableModel);
     tableModel.fireTableDataChanged();
   }
 

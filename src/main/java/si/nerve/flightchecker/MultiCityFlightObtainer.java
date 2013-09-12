@@ -19,5 +19,5 @@ public interface MultiCityFlightObtainer
       Date date1,
       String from2,
       String to2,
-      Date date2) throws IOException;
+      Date date2) throws Exception;
 }

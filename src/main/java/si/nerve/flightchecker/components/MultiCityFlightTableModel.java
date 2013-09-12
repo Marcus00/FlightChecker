@@ -173,6 +173,11 @@ public class MultiCityFlightTableModel extends DefaultTableModel
     }
   }
 
+  public List<MultiCityFlightData> getEntityList()
+  {
+    return m_entityList;
+  }
+
   public void setEntityList(List<MultiCityFlightData> entityList)
   {
     m_entityList = entityList;
