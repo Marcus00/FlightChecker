@@ -34,7 +34,7 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 13;
+  private static final int MAX_RETRIES = 33;
 
   @Override
   public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
@@ -78,95 +78,102 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
     String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
 
-    //long startTime = System.currentTimeMillis();
+    long startTime = System.currentTimeMillis();
+    //long middleTime;
     int i = 1;
-    while (/*(System.currentTimeMillis() - startTime < 600000) && */i <= MAX_RETRIES)
+    while ((System.currentTimeMillis() - startTime < 15200) && i <= MAX_RETRIES)
     {
+      //middleTime = System.currentTimeMillis();
       KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       if (result != null)
       {
         time = result.getTime();
         response = result.getResponse();
-        if (response.contains("content_div"))
-        {
-          try
-          {
-            Document doc = Jsoup.parse(response);
-            Elements links = doc.select("#content_div > div[class^=flightresult]");
-            for (Element link : links)
-            {
-              LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
-              for (Element leg : link.select("div[class^=singleleg singleleg]"))
-              {
-                Elements airports = leg.select("div.airport");
-                if (airports.size() == 2)
-                {
-                  legs.add(new FlightLeg(
-                      airports.get(0).attr("title"),
-                      airports.get(0).text(),
-                      leg.select("div[class^=flighttime]").get(0).text(),
-                      airports.get(1).attr("title"),
-                      airports.get(1).text(),
-                      leg.select("div[class^=flighttime]").get(1).text(),
-                      leg.select("div.duration").text(),
-                      leg.select("div.stopsLayovers > span.airportslist").text()
-                  ));
-                }
-              }
-
-              if (legs.size() > 1)
-              {
-                String price = link.select("a[class^=results_price]").text();
-                String priceNumber = price.replaceAll("[\\D]", "");
-                synchronized (flightGui.getFlightQueue())
-                {
-                  MultiCityFlightData flightData = new MultiCityFlightData(
-                      Integer.parseInt(link.attr("data-index")),
-                      link.attr("data-resultid"),
-                      Integer.parseInt(priceNumber),
-                      PriceType.getInstance(price),
-                      legs,
-                      link.select("div.seatsPromo").text(),
-                      hostAddress
-                  );
-
-                  if (!flightGui.getFlightQueue().contains(flightData))
-                  {
-                    flightGui.getFlightQueue().add(flightData);
-
-                    MultiCityFlightData removed = null;
-                    if (flightGui.getFlightQueue().size() > FlightsGui.QUEUE_SIZE)
-                    {
-                      removed = flightGui.getFlightQueue().remove();
-                    }
-
-                    if (!flightData.equals(removed))
-                    {
-                      String text = "Prikaz: " + String.valueOf(flightGui.getFlightQueue().size())
-                          + " cen. Trenutno iščem: " + from1 + "-" + to1 + " | " + from2 + "-" + to2;
-                      if (!text.equals(flightGui.getStatusLabel().getText()))
-                      {
-                        flightGui.getStatusLabel().setText(text);
-                      }
-                      MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
-                      tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
-                      tableModel.fireTableDataChanged();
-                    }
-                  }
-                }
-              }
-            }
-          }
-          catch (Exception e)
-          {
-            e.printStackTrace();
-          }
-        }
-        Thread.sleep(500 + (int)(Math.random() * 150));
+        addToQueue(flightGui, from1, to1, from2, to2, hostAddress, response);
+        //System.out.println("[" + Thread.currentThread().getName() + "] " + (System.currentTimeMillis() - middleTime) + " ms");
       }
       else
       {
         return;
+      }
+    }
+  }
+
+  private void addToQueue(FlightsGui flightGui, String from1, String to1, String from2, String to2, String hostAddress, String response)
+  {
+    if (response.contains("content_div"))
+    {
+      try
+      {
+        Document doc = Jsoup.parse(response);
+        Elements links = doc.select("#content_div > div[class^=flightresult]");
+        for (Element link : links)
+        {
+          LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
+          for (Element leg : link.select("div[class^=singleleg singleleg]"))
+          {
+            Elements airports = leg.select("div.airport");
+            if (airports.size() == 2)
+            {
+              legs.add(new FlightLeg(
+                  airports.get(0).attr("title"),
+                  airports.get(0).text(),
+                  leg.select("div[class^=flighttime]").get(0).text(),
+                  airports.get(1).attr("title"),
+                  airports.get(1).text(),
+                  leg.select("div[class^=flighttime]").get(1).text(),
+                  leg.select("div.duration").text(),
+                  leg.select("div.stopsLayovers > span.airportslist").text()
+              ));
+            }
+          }
+
+          if (legs.size() > 1)
+          {
+            String price = link.select("a[class^=results_price]").text();
+            String priceNumber = price.replaceAll("[\\D]", "");
+            synchronized (flightGui.getFlightQueue())
+            {
+              MultiCityFlightData flightData = new MultiCityFlightData(
+                  Integer.parseInt(link.attr("data-index")),
+                  link.attr("data-resultid"),
+                  Integer.parseInt(priceNumber),
+                  PriceType.getInstance(price),
+                  legs,
+                  link.select("div.seatsPromo").text(),
+                  hostAddress
+              );
+
+              if (!flightGui.getFlightQueue().contains(flightData))
+              {
+                flightGui.getFlightQueue().add(flightData);
+
+                MultiCityFlightData removed = null;
+                if (flightGui.getFlightQueue().size() > FlightsGui.QUEUE_SIZE)
+                {
+                  removed = flightGui.getFlightQueue().remove();
+                }
+
+                if (!flightData.equals(removed))
+                {
+                  String text = "Prikaz: " + String.valueOf(flightGui.getFlightQueue().size())
+                      + " cen. Trenutno iščem: " + from1 + "-" + to1 + " | " + from2 + "-" + to2;
+                  if (!text.equals(flightGui.getStatusLabel().getText()))
+                  {
+                    flightGui.getStatusLabel().setText(text);
+                  }
+                  MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+                  tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
+                  tableModel.fireTableDataChanged();
+                }
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
       }
     }
   }
@@ -257,6 +264,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       return null;
     }
 
+    System.out.print(address + " ");
     return new KayakResult(newTime, response);
   }
 
