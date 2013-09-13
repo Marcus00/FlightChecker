@@ -52,7 +52,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = readResponse(ins);
+    String response = readResponse(ins, getCharSetFromConnection(connection));
 
     int streamingStartLocation = response.indexOf("window.Streaming");
     int streamingEndLocation = response.indexOf(";", streamingStartLocation);
@@ -224,7 +224,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = readResponse(ins);
+
+    String response = readResponse(ins, getCharSetFromConnection(connection));
 
     int newTimeCommandStart = response.indexOf("Streaming.lastPoll=");
     if (newTimeCommandStart < 0)
@@ -233,7 +234,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
     newTimeCommandStart = response.indexOf("=", newTimeCommandStart) + 1;
     int newTimeCommandStop = response.indexOf(";", newTimeCommandStart) - 1;
-    long newTime = 0;
+    long newTime;
     try
     {
       newTime = Long.parseLong(response.substring(newTimeCommandStart, newTimeCommandStop).trim());
@@ -245,6 +246,30 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
 
     return new KayakResult(newTime, response);
+  }
+
+  private String getCharSetFromConnection(URLConnection connection)
+  {
+    String contentType = connection.getHeaderField("Content-Type");
+
+    String[] values = contentType.split(";"); //The values.length must be equal to 2...
+    String charset = null;
+
+    for (String value : values)
+    {
+      value = value.trim();
+
+      if (value.toLowerCase().startsWith("charset="))
+      {
+        charset = value.substring("charset=".length());
+      }
+    }
+
+    if (charset == null)
+    {
+      charset = "UTF-8"; //Assumption....it's the mother of all f**k ups...lol
+    }
+    return charset;
   }
 
   private HttpURLConnection createHttpConnection(URL url) throws IOException
@@ -260,11 +285,11 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     return (HttpURLConnection)connection;
   }
 
-  private String readResponse(InputStream ins) throws IOException
+  private String readResponse(InputStream ins, String charset) throws IOException
   {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     byte[] buffer = new byte[4096];
-    int cnt = 0;
+    int cnt;
     while ((cnt = ins.read(buffer)) >= 0)
     {
       if (cnt > 0)
@@ -272,7 +297,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         bos.write(buffer, 0, cnt);
       }
     }
-    return bos.toString();
+    return bos.toString(charset);
   }
 
   public static void main(String[] args)
