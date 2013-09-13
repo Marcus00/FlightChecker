@@ -1,8 +1,10 @@
 package si.nerve.flightchecker;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
@@ -27,6 +29,7 @@ import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -43,6 +46,7 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
@@ -72,8 +76,9 @@ public class FlightsGui extends JFrame implements ActionListener
   private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
   private JButton m_searchButton;
   private DoubleDateChooser m_dateChooser;
-  private JLabel m_statusLabel;
   private JCheckBox m_combined;
+  private JCheckBox m_kayakNl, m_kayakCom, m_kayakDe, m_kayakIt, m_kayakCoUk, m_kayakEs, m_kayakFr, m_kayakPl;
+  private JLabel m_kayakNlStatusLabel, m_kayakComStatusLabel, m_kayakDeStatusLabel, m_kayakItStatusLabel, m_kayakCoUkStatusLabel, m_kayakEsStatusLabel, m_kayakFrStatusLabel, m_kayakPlStatusLabel;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 3, 15};
   private PriorityQueue<MultiCityFlightData> m_flightQueue;
@@ -81,6 +86,7 @@ public class FlightsGui extends JFrame implements ActionListener
   private Map<String, AirportData> m_airportMap;
   private ExecutorService m_executorService;
 
+  //menu
   private JMenuBar m_menuBar;
   private JMenu m_mainMenu;
   private JFileChooser m_fileChooser;
@@ -107,9 +113,55 @@ public class FlightsGui extends JFrame implements ActionListener
     m_toAP2 = new JComboBox();
 
     m_searchButton = new JButton("Išči");
-    m_statusLabel = new JLabel();
+
+    m_kayakNlStatusLabel = new JLabel();
+    m_kayakComStatusLabel = new JLabel();
+    m_kayakDeStatusLabel = new JLabel();
+    m_kayakItStatusLabel = new JLabel();
+    m_kayakCoUkStatusLabel = new JLabel();
+    m_kayakEsStatusLabel = new JLabel();
+    m_kayakFrStatusLabel = new JLabel();
+    m_kayakPlStatusLabel = new JLabel();
+
+    m_kayakPl = new JCheckBox("www.kayak.pl");
+    m_kayakNl = new JCheckBox("www.kayak.nl");
+    m_kayakCom = new JCheckBox("www.kayak.com");
+    m_kayakDe = new JCheckBox("www.kayak.de");
+    m_kayakIt = new JCheckBox("www.kayak.it");
+    m_kayakCoUk = new JCheckBox("www.kayak.co.uk");
+    m_kayakEs = new JCheckBox("www.kayak.es");
+    m_kayakFr = new JCheckBox("www.kayak.fr");
+
+    Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
+    m_kayakNlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakNl.getText()));
+    m_kayakComStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakCom.getText()));
+    m_kayakDeStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakDe.getText()));
+    m_kayakItStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakIt.getText()));
+    m_kayakCoUkStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakCoUk.getText()));
+    m_kayakEsStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakEs.getText()));
+    m_kayakFrStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakFr.getText()));
+    m_kayakPlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakPl.getText()));
+
     m_combined = new JCheckBox("Rošada");
     m_showInEuro = new JCheckBox("€");
+
+    m_kayakPl.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakNl.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakCom.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakDe.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakIt.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakCoUk.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakEs.setActionCommand(CHECKBOX_CHANGED);
+    m_kayakFr.setActionCommand(CHECKBOX_CHANGED);
+
+    m_kayakPl.setSelected(true);
+    m_kayakNl.setSelected(true);
+    m_kayakCom.setSelected(true);
+    m_kayakDe.setSelected(true);
+    m_kayakIt.setSelected(true);
+    m_kayakCoUk.setSelected(true);
+    m_kayakEs.setSelected(true);
+    m_kayakFr.setSelected(true);
 
     m_searchButton.addActionListener(this);
     m_searchButton.setActionCommand(SEARCH);
@@ -159,15 +211,34 @@ public class FlightsGui extends JFrame implements ActionListener
     commandPanel.add(m_combined, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_searchButton, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
+    JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+    groupPanel.setBorder(BorderFactory.createTitledBorder("Strani"));
+    groupPanel.add(m_kayakDe);
+    groupPanel.add(m_kayakIt);
+    groupPanel.add(m_kayakCom);
+    groupPanel.add(m_kayakCoUk);
+    groupPanel.add(m_kayakEs);
+    groupPanel.add(m_kayakFr);
+    groupPanel.add(m_kayakNl);
+    groupPanel.add(m_kayakPl);
+
+    JPanel groupStatusPanel = new JPanel(new GridBagLayout());
+    groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
+    groupStatusPanel.add(m_kayakDeStatusLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakItStatusLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakComStatusLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakCoUkStatusLabel, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakEsStatusLabel, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakFrStatusLabel, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakNlStatusLabel, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_kayakPlStatusLabel, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
     JPanel panel = new JPanel(new GridBagLayout());
-
-    JPanel statusPanel = new JPanel(new GridBagLayout());
-    statusPanel.add(m_statusLabel,
-        new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 3, 3, 0), 0, 0));
-
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(m_scrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(statusPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(m_scrollPane, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupStatusPanel, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.setOpaque(true);
     add(panel, BorderLayout.CENTER);
 
@@ -240,10 +311,25 @@ public class FlightsGui extends JFrame implements ActionListener
     }
     else if (STOP_SEARCH.equals(action))
     {
-      m_searchButton.setText("Išči");
-      m_searchButton.setActionCommand(SEARCH);
       m_executorService.shutdownNow();
-      resetCursor();
+      new SwingWorker()
+      {
+        @Override
+        protected Object doInBackground() throws Exception
+        {
+          try
+          {
+            m_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            m_searchButton.setText("Išči");
+            m_searchButton.setActionCommand(SEARCH);
+            resetCursor();
+          }
+          catch (InterruptedException ignored)
+          {
+          }
+          return null;
+        }
+      }.execute();
     }
     else if ("MENU.OPEN".equals(action))
     {
@@ -331,6 +417,11 @@ public class FlightsGui extends JFrame implements ActionListener
 
   private void search(boolean combined)
   {
+    if (nonKayaksSelected())
+    {
+      return;
+    }
+
     String[] codes = {
         "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
         "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
@@ -347,14 +438,70 @@ public class FlightsGui extends JFrame implements ActionListener
     m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
     if (from != null && from.length() == 3 && to != null && to.length() == 3)
     {
-      m_executorService.execute(new SearchAndRefresh("com", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("de", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("it", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("co.uk", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("es", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("fr", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("nl", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
-      m_executorService.execute(new SearchAndRefresh("pl", this, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      if (m_kayakCom.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakComStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakDe.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakDeStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakIt.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakItStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakCoUk.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakCoUkStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakEs.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakEsStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakFr.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakFrStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakNl.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakNlStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_kayakPl.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh("pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+      }
+      else
+      {
+        m_kayakPlStatusLabel.setForeground(Color.GRAY);
+      }
       m_executorService.shutdown();
       new SwingWorker()
       {
@@ -377,6 +524,12 @@ public class FlightsGui extends JFrame implements ActionListener
     }
   }
 
+  private boolean nonKayaksSelected()
+  {
+    return !m_kayakCom.isSelected() && !m_kayakCoUk.isSelected() && !m_kayakDe.isSelected() && !m_kayakEs.isSelected()
+        && !m_kayakFr.isSelected() && !m_kayakIt.isSelected() && !m_kayakNl.isSelected() && !m_kayakPl.isSelected();
+  }
+
   public MultiCityFlightTable getMainTable()
   {
     return m_mainTable;
@@ -385,11 +538,6 @@ public class FlightsGui extends JFrame implements ActionListener
   public PriorityQueue<MultiCityFlightData> getFlightQueue()
   {
     return m_flightQueue;
-  }
-
-  public JLabel getStatusLabel()
-  {
-    return m_statusLabel;
   }
 
   protected void refreshTableModel()

@@ -1,5 +1,6 @@
 package si.nerve.flightchecker;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
+import javax.swing.JLabel;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,7 +40,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   private static final int MAX_RETRIES = 33;
 
   @Override
-  public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
+  public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
   {
     m_addressDot = addressRoot;
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,7 +92,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       {
         time = result.getTime();
         response = result.getResponse();
-        addToQueue(flightGui, from1, to1, from2, to2, hostAddress, response);
+        addToQueue(flightGui, kayakStatusLabel, hostAddress, response);
         //System.out.println("[" + Thread.currentThread().getName() + "] " + (System.currentTimeMillis() - middleTime) + " ms");
       }
       else
@@ -99,7 +102,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
   }
 
-  private void addToQueue(FlightsGui flightGui, String from1, String to1, String from2, String to2, String hostAddress, String response)
+  private void addToQueue(FlightsGui flightGui, JLabel kayakStatusLabel, String hostAddress, String response)
   {
     if (response.contains("content_div"))
     {
@@ -132,18 +135,20 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
           {
             String price = link.select("a[class^=results_price]").text();
             String priceNumber = price.replaceAll("[\\D]", "");
+            MultiCityFlightData flightData = new MultiCityFlightData(
+                Integer.parseInt(link.attr("data-index")),
+                link.attr("data-resultid"),
+                Integer.parseInt(priceNumber),
+                PriceType.getInstance(price),
+                legs,
+                link.select("div.seatsPromo").text(),
+                hostAddress
+            );
+
+            kayakStatusLabel.setForeground(kayakStatusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
+
             synchronized (flightGui.getFlightQueue())
             {
-              MultiCityFlightData flightData = new MultiCityFlightData(
-                  Integer.parseInt(link.attr("data-index")),
-                  link.attr("data-resultid"),
-                  Integer.parseInt(priceNumber),
-                  PriceType.getInstance(price),
-                  legs,
-                  link.select("div.seatsPromo").text(),
-                  hostAddress
-              );
-
               if (!flightGui.getFlightQueue().contains(flightData))
               {
                 flightGui.getFlightQueue().add(flightData);
@@ -156,12 +161,6 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
                 if (!flightData.equals(removed))
                 {
-                  String text = "Prikaz: " + String.valueOf(flightGui.getFlightQueue().size())
-                      + " cen. Trenutno iščem: " + from1 + "-" + to1 + " | " + from2 + "-" + to2;
-                  if (!text.equals(flightGui.getStatusLabel().getText()))
-                  {
-                    flightGui.getStatusLabel().setText(text);
-                  }
                   MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
                   tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
                   tableModel.fireTableDataChanged();
@@ -264,7 +263,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       return null;
     }
 
-    System.out.print(address + " ");
+    //System.out.print(address + " ");
     return new KayakResult(newTime, response);
   }
 

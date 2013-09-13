@@ -1,6 +1,8 @@
 package si.nerve.flightchecker;
 
+import java.awt.Color;
 import java.util.Date;
+import javax.swing.JLabel;
 
 /**
  * @author bratwurzt
@@ -17,9 +19,11 @@ public class SearchAndRefresh implements Runnable
   private String m_root;
   private boolean m_combined;
   private String[] m_codes;
+  private JLabel m_kayakStatusLabel;
 
-  public SearchAndRefresh(String root, FlightsGui flightsGui, String codeFrom, String codeTo,
-                          String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, boolean combined, String[] codes)
+  public SearchAndRefresh(
+      String root, FlightsGui flightsGui, JLabel kayakStatusLabel, String codeFrom, String codeTo,
+      String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, boolean combined, String[] codes)
   {
     m_root = root;
     m_flightsGui = flightsGui;
@@ -31,6 +35,7 @@ public class SearchAndRefresh implements Runnable
     m_toDate = toDate;
     m_combined = combined;
     m_codes = codes;
+    m_kayakStatusLabel = kayakStatusLabel;
   }
 
   @Override
@@ -41,10 +46,12 @@ public class SearchAndRefresh implements Runnable
       KayakFlightObtainer kayakFlightObtainer = new KayakFlightObtainer();
       try
       {
-        kayakFlightObtainer.search(m_flightsGui, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+        m_kayakStatusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
+        kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
       }
       catch (InterruptedException e)
       {
+        m_kayakStatusLabel.setForeground(Color.DARK_GRAY);
         return;
       }
 
@@ -64,27 +71,23 @@ public class SearchAndRefresh implements Runnable
               {
                 return;
               }
-              kayakFlightObtainer.search(m_flightsGui, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
-              synchronized (m_flightsGui.getFlightQueue())
-              {
-                String text = "Prikaz: " + String.valueOf(m_flightsGui.getFlightQueue().size())
-                    + " cen. Trenutno iščem: " + codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo;
-                if (!text.equals(m_flightsGui.getStatusLabel().getText()))
-                {
-                  m_flightsGui.getStatusLabel().setText(text);
-                }
-              }
+              kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
+              m_kayakStatusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
             }
           }
         }
       }
     }
-    catch (InterruptedException ignored)
+    catch (InterruptedException e)
     {
+      m_kayakStatusLabel.setForeground(Color.DARK_GRAY);
+      return;
     }
     catch (Exception e)
     {
       e.printStackTrace();
+      m_kayakStatusLabel.setForeground(Color.RED);
     }
+    m_kayakStatusLabel.setForeground(Color.GREEN);
   }
 }

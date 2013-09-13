@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
+import javax.swing.JLabel;
+
 import si.nerve.flightchecker.data.MultiCityFlightData;
 
 /**
@@ -13,7 +15,7 @@ public interface MultiCityFlightObtainer
 {
   public void search(
       FlightsGui flightGui,
-      String addressRoot,
+      JLabel kayakComStatusLabel, String addressRoot,
       String from1,
       String to1,
       Date date1,
