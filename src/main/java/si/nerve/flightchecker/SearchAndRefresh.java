@@ -58,13 +58,22 @@ public class SearchAndRefresh implements Runnable
             {
               try
               {
-                Thread.sleep(500 + (int)(Math.random() * 100));
+                Thread.sleep(600 + (int)(Math.random() * 100));
               }
               catch (InterruptedException e)
               {
                 return;
               }
               kayakFlightObtainer.search(m_flightsGui, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
+              synchronized (m_flightsGui.getFlightQueue())
+              {
+                String text = "Prikaz: " + String.valueOf(m_flightsGui.getFlightQueue().size())
+                    + " cen. Trenutno iščem: " + codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo;
+                if (!text.equals(m_flightsGui.getStatusLabel().getText()))
+                {
+                  m_flightsGui.getStatusLabel().setText(text);
+                }
+              }
             }
           }
         }

@@ -187,9 +187,6 @@ public class FlightsGui extends JFrame implements ActionListener
     };
 
     buildMenus();
-    //SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-    //m_dateChooser.getFromDateChooser().setDate(dateFormat.parse("21.12.2013"));
-    //m_dateChooser.getToDateChooser().setDate(dateFormat.parse("07.01.2014"));
   }
 
   private void buildMenus()

@@ -34,7 +34,7 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 14;
+  private static final int MAX_RETRIES = 13;
 
   @Override
   public void search(final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
@@ -56,7 +56,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
     int streamingStartLocation = response.indexOf("window.Streaming");
     int streamingEndLocation = response.indexOf(";", streamingStartLocation);
-    String streamingCommand = null;
+    String streamingCommand;
     try
     {
       streamingCommand = response.substring(streamingStartLocation, streamingEndLocation);
@@ -64,6 +64,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     catch (Exception e)
     {
       e.printStackTrace();
+      System.out.println("BANNED! " + address);
+      return;
     }
     int timeStart = streamingCommand.indexOf(",") + 1;
     int timeEnd = streamingCommand.indexOf(",", timeStart) - 1;
@@ -76,9 +78,9 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int searchIdEndLocation = searchLocationCommand.indexOf("'", searchIdStartLocation);
     String searchId = searchLocationCommand.substring(searchIdStartLocation, searchIdEndLocation);
 
-    long startTime = System.currentTimeMillis();
+    //long startTime = System.currentTimeMillis();
     int i = 1;
-    while ((System.currentTimeMillis() - startTime < 600000) && i <= MAX_RETRIES)
+    while (/*(System.currentTimeMillis() - startTime < 600000) && */i <= MAX_RETRIES)
     {
       KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       if (result != null)
@@ -140,7 +142,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
                     if (!flightData.equals(removed))
                     {
-                      flightGui.getStatusLabel().setText(String.valueOf(flightGui.getFlightQueue().size()));
+                      String text = "Prikaz: " + String.valueOf(flightGui.getFlightQueue().size())
+                          + " cen. Trenutno iščem: " + from1 + "-" + to1 + " | " + from2 + "-" + to2;
+                      if (!text.equals(flightGui.getStatusLabel().getText()))
+                      {
+                        flightGui.getStatusLabel().setText(text);
+                      }
                       MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
                       tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
                       tableModel.fireTableDataChanged();
@@ -155,7 +162,11 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
             e.printStackTrace();
           }
         }
-        Thread.sleep(300 + (int)(Math.random() * 100));
+        Thread.sleep(500 + (int)(Math.random() * 150));
+      }
+      else
+      {
+        return;
       }
     }
   }
@@ -231,6 +242,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     if (newTimeCommandStart < 0)
     {
       System.out.println("Stream closed: " + address);
+      return null;
     }
     newTimeCommandStart = response.indexOf("=", newTimeCommandStart) + 1;
     int newTimeCommandStop = response.indexOf(";", newTimeCommandStart) - 1;
@@ -241,7 +253,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
     catch (NumberFormatException e)
     {
-      e.printStackTrace();
+      //e.printStackTrace();
       return null;
     }
 
