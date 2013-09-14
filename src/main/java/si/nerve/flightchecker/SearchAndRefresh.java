@@ -3,6 +3,7 @@ package si.nerve.flightchecker;
 import java.awt.Color;
 import java.util.Date;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 
 /**
  * @author bratwurzt
@@ -46,8 +47,11 @@ public class SearchAndRefresh implements Runnable
       KayakFlightObtainer kayakFlightObtainer = new KayakFlightObtainer();
       try
       {
-        m_kayakStatusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
-        kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+        if (m_codeFrom != null && m_codeTo != null && m_codeFrom.length() == 3 && m_codeTo.length() == 3)
+        {
+          m_kayakStatusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
+          kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+        }
       }
       catch (InterruptedException e)
       {
@@ -63,16 +67,28 @@ public class SearchAndRefresh implements Runnable
           {
             if (!codeFrom.equals(m_codeFrom) && !codeTo.equals(m_codeTo))
             {
-              try
+              JToggleButton toggleButtonFrom, toggleButtonTo;
+              synchronized (m_flightsGui.getAirportGroupBtnMap())
               {
-                Thread.sleep(1300 + (int)(Math.random() * 400));
+                toggleButtonFrom = m_flightsGui.getAirportGroupBtnMap().get(codeFrom);
+                toggleButtonTo = m_flightsGui.getAirportGroupBtnMap().get(codeTo);
               }
-              catch (InterruptedException e)
+
+              if (toggleButtonFrom.isSelected() && toggleButtonTo.isSelected())
               {
-                return;
+                try
+                {
+                  Thread.sleep(1300 + (int)(Math.random() * 400));
+                }
+                catch (InterruptedException e)
+                {
+                  return;
+                }
+
+                kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
+
+                m_kayakStatusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
               }
-              kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
-              m_kayakStatusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
             }
           }
         }

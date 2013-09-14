@@ -13,8 +13,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +46,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -56,6 +62,7 @@ import si.nerve.flightchecker.components.DoubleDateChooser;
 import si.nerve.flightchecker.components.MultiCityFlightTable;
 import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.components.SearchBoxModel;
+import si.nerve.flightchecker.components.WrapLayout;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.process.ComboDocument;
@@ -64,7 +71,7 @@ import si.nerve.flightchecker.process.SelectFocusAdapter;
 /**
  * @author bratwurzt
  */
-public class FlightsGui extends JFrame implements ActionListener
+public class FlightsGui extends JFrame implements ActionListener, WindowListener
 {
   public static final String SEARCH = "SEARCH";
   public static final String STOP_SEARCH = "STOP_SEARCH";
@@ -72,7 +79,6 @@ public class FlightsGui extends JFrame implements ActionListener
   public static final int QUEUE_SIZE = 50;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
-  private JScrollPane m_scrollPane;
   private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
   private JButton m_searchButton;
   private DoubleDateChooser m_dateChooser;
@@ -81,9 +87,12 @@ public class FlightsGui extends JFrame implements ActionListener
   private JLabel m_kayakNlStatusLabel, m_kayakComStatusLabel, m_kayakDeStatusLabel, m_kayakItStatusLabel, m_kayakCoUkStatusLabel, m_kayakEsStatusLabel, m_kayakFrStatusLabel, m_kayakPlStatusLabel;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 3, 15};
+  private String[] m_codes = {
+      "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
+      "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
+  private Map<String, JToggleButton> m_airportGroupBtnMap;
   private PriorityQueue<MultiCityFlightData> m_flightQueue;
   private Comparator<MultiCityFlightData> m_comparator;
-  private Map<String, AirportData> m_airportMap;
   private ExecutorService m_executorService;
 
   //menu
@@ -92,9 +101,12 @@ public class FlightsGui extends JFrame implements ActionListener
   private JFileChooser m_fileChooser;
   private JMenuItem m_menuItem;
 
-  public FlightsGui() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, ParseException
+  public FlightsGui()
+      throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, ParseException, IOException
   {
     super("Flights");
+    this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.addWindowListener(this);
     UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -105,7 +117,7 @@ public class FlightsGui extends JFrame implements ActionListener
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_mainTable.setRowSorter(m_sorter);
     m_sorter.setSortsOnUpdates(true);
-    m_scrollPane = new JScrollPane(m_mainTable);
+    JScrollPane scrollPane = new JScrollPane(m_mainTable);
 
     m_fromAP1 = new JComboBox();
     m_toAP1 = new JComboBox();
@@ -170,32 +182,38 @@ public class FlightsGui extends JFrame implements ActionListener
     m_showInEuro.setActionCommand(CHECKBOX_CHANGED);
     m_showInEuro.setSelected(true);
 
-    m_airportMap = readAirportCsv();
+    m_airportGroupBtnMap = new HashMap<String, JToggleButton>();
+    for (String code : m_codes)
+    {
+      m_airportGroupBtnMap.put(code, new JToggleButton(code));
+    }
+
+    Map<String, AirportData> airportMap = readAirportCsv();
     m_fromAP1.setEditable(true);
     m_toAP1.setEditable(true);
     m_fromAP2.setEditable(true);
     m_toAP2.setEditable(true);
     m_dateChooser = new DoubleDateChooser();
 
-    SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, m_airportMap);
+    SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportMap);
     JTextComponent fromComboxTF1 = (JTextComponent)m_fromAP1.getEditor().getEditorComponent();
     fromComboxTF1.setDocument(new ComboDocument());
     fromComboxTF1.addFocusListener(new SelectFocusAdapter(fromComboxTF1));
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
-    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, m_airportMap);
+    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportMap);
     JTextComponent toComboxTF1 = (JTextComponent)m_toAP1.getEditor().getEditorComponent();
     toComboxTF1.setDocument(new ComboDocument());
     toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
     m_toAP1.setModel(sbm2);
     m_toAP1.addItemListener(sbm2);
-    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, m_airportMap);
+    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportMap);
     JTextComponent fromComboxTF2 = (JTextComponent)m_fromAP2.getEditor().getEditorComponent();
     fromComboxTF2.setDocument(new ComboDocument());
     fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
     m_fromAP2.setModel(sbm3);
     m_fromAP2.addItemListener(sbm3);
-    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, m_airportMap);
+    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportMap);
     JTextComponent toCombocTF2 = (JTextComponent)m_toAP2.getEditor().getEditorComponent();
     toCombocTF2.setDocument(new ComboDocument());
     toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
@@ -223,6 +241,52 @@ public class FlightsGui extends JFrame implements ActionListener
     groupPanel.add(m_kayakNl);
     groupPanel.add(m_kayakPl);
 
+    JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
+    groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
+
+    for (JToggleButton button : m_airportGroupBtnMap.values())
+    {
+      button.addActionListener(this);
+      groupCodesPanel.add(button);
+    }
+
+    File settingsFile = getSettingsFile();
+    if (settingsFile != null && settingsFile.exists() && settingsFile.isFile())
+    {
+      BufferedReader br = new BufferedReader(new FileReader(settingsFile));
+      try
+      {
+        StringBuilder sb = new StringBuilder();
+        String line = br.readLine();
+
+        while (line != null)
+        {
+          sb.append(line);
+          line = br.readLine();
+        }
+        String everything = sb.toString();
+        for (int i = 0; i < everything.length(); i += 3)
+        {
+          try
+          {
+            m_airportGroupBtnMap.get(everything.substring(i, i + 3)).setSelected(true);
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace();
+      }
+      finally
+      {
+        br.close();
+      }
+    }
+
     JPanel groupStatusPanel = new JPanel(new GridBagLayout());
     groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
     groupStatusPanel.add(m_kayakDeStatusLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -236,9 +300,10 @@ public class FlightsGui extends JFrame implements ActionListener
 
     JPanel panel = new JPanel(new GridBagLayout());
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(groupPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(m_scrollPane, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(groupStatusPanel, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupCodesPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(scrollPane, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupStatusPanel, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.setOpaque(true);
     add(panel, BorderLayout.CENTER);
 
@@ -422,10 +487,6 @@ public class FlightsGui extends JFrame implements ActionListener
       return;
     }
 
-    String[] codes = {
-        "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
-        "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
-
     final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
     final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData)m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
 
@@ -436,11 +497,11 @@ public class FlightsGui extends JFrame implements ActionListener
     final Date toDate = m_dateChooser.getToDateChooser().getDate();
 
     m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
-    if (from != null && from.length() == 3 && to != null && to.length() == 3)
+    if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
     {
       if (m_kayakCom.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -448,7 +509,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakDe.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -456,7 +517,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakIt.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -464,7 +525,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakCoUk.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -472,7 +533,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakEs.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -480,7 +541,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakFr.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -488,7 +549,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakNl.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -496,7 +557,7 @@ public class FlightsGui extends JFrame implements ActionListener
       }
       if (m_kayakPl.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, codes));
+        m_executorService.execute(new SearchAndRefresh("pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -538,6 +599,11 @@ public class FlightsGui extends JFrame implements ActionListener
   public PriorityQueue<MultiCityFlightData> getFlightQueue()
   {
     return m_flightQueue;
+  }
+
+  public Map<String, JToggleButton> getAirportGroupBtnMap()
+  {
+    return m_airportGroupBtnMap;
   }
 
   protected void refreshTableModel()
@@ -639,5 +705,93 @@ public class FlightsGui extends JFrame implements ActionListener
     {
       e.printStackTrace();
     }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void windowOpened(WindowEvent e)
+  {
+  }
+
+  @Override
+  public void windowClosing(WindowEvent e)
+  {
+    try
+    {
+      FileWriter fw = new FileWriter(getSettingsFile());
+      try
+      {
+        BufferedWriter bw = new BufferedWriter(fw);
+        try
+        {
+          for (JToggleButton button : m_airportGroupBtnMap.values())
+          {
+            if (button.isSelected())
+            {
+              bw.write(button.getText());
+            }
+          }
+        }
+        finally
+        {
+          bw.close();
+        }
+      }
+      finally
+      {
+        fw.close();
+      }
+    }
+    catch (IOException e1)
+    {
+      e1.printStackTrace();
+    }
+  }
+
+  @Override
+  public void windowClosed(WindowEvent e)
+  {
+  }
+
+  @Override
+  public void windowIconified(WindowEvent e)
+  {
+  }
+
+  @Override
+  public void windowDeiconified(WindowEvent e)
+  {
+  }
+
+  @Override
+  public void windowActivated(WindowEvent e)
+  {
+  }
+
+  @Override
+  public void windowDeactivated(WindowEvent e)
+  {
+  }
+
+  public File getSettingsFile()
+  {
+    String userHome = System.getProperty("user.home");
+    if (userHome == null)
+    {
+      throw new IllegalStateException("user.home==null");
+    }
+    File home = new File(userHome);
+    File settingsDirectory = new File(home, ".flights");
+    if (!settingsDirectory.exists())
+    {
+      if (!settingsDirectory.mkdir())
+      {
+        throw new IllegalStateException(settingsDirectory.toString());
+      }
+    }
+    return new File(settingsDirectory, "settings.ini");
   }
 }
