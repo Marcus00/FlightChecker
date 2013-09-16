@@ -37,7 +37,8 @@ import si.nerve.flightchecker.data.PriceType;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
-  private static final int MAX_RETRIES = 33;
+  private static final int MAX_RETRIES = 45;
+  public static final int TIME_MILLIS = 30000;
 
   @Override
   public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
@@ -84,7 +85,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     long startTime = System.currentTimeMillis();
     //long middleTime;
     int i = 1;
-    while ((System.currentTimeMillis() - startTime < 15200) && i <= MAX_RETRIES)
+
+    while ((System.currentTimeMillis() - startTime < TIME_MILLIS) && i <= MAX_RETRIES)
     {
       //middleTime = System.currentTimeMillis();
       KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
