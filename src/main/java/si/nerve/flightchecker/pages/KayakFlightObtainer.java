@@ -1,4 +1,4 @@
-package si.nerve.flightchecker;
+package si.nerve.flightchecker.pages;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import si.nerve.flightchecker.FlightsGui;
 import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;

@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
+
 /**
  * @author bratwurzt
  */
@@ -21,8 +23,9 @@ public class SearchAndRefresh implements Runnable
   private boolean m_combined;
   private String[] m_codes;
   private JLabel m_kayakStatusLabel;
+  private MultiCityFlightObtainer m_multiCityFlightObtainer;
 
-  public SearchAndRefresh(
+  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer,
       String root, FlightsGui flightsGui, JLabel kayakStatusLabel, String codeFrom, String codeTo,
       String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, boolean combined, String[] codes)
   {
@@ -37,6 +40,7 @@ public class SearchAndRefresh implements Runnable
     m_combined = combined;
     m_codes = codes;
     m_kayakStatusLabel = kayakStatusLabel;
+    m_multiCityFlightObtainer = multiCityFlightObtainer;
   }
 
   @Override
@@ -44,13 +48,12 @@ public class SearchAndRefresh implements Runnable
   {
     try
     {
-      KayakFlightObtainer kayakFlightObtainer = new KayakFlightObtainer();
       try
       {
         if (m_codeFrom != null && m_codeTo != null && m_codeFrom.length() == 3 && m_codeTo.length() == 3)
         {
           m_kayakStatusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
-          kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+          m_multiCityFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
         }
       }
       catch (InterruptedException e)
@@ -85,7 +88,7 @@ public class SearchAndRefresh implements Runnable
                   return;
                 }
 
-                kayakFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
+                m_multiCityFlightObtainer.search(m_flightsGui, m_kayakStatusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
 
                 m_kayakStatusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
               }

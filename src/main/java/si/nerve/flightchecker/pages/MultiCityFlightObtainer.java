@@ -1,12 +1,10 @@
-package si.nerve.flightchecker;
+package si.nerve.flightchecker.pages;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.Set;
 
 import javax.swing.JLabel;
 
-import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.FlightsGui;
 
 /**
  * Created: 10.8.13 20:27

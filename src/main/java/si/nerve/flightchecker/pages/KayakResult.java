@@ -1,4 +1,4 @@
-package si.nerve.flightchecker;
+package si.nerve.flightchecker.pages;
 
 /**
  * Created: 11.8.13 20:16

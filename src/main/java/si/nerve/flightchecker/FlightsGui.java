@@ -65,6 +65,8 @@ import si.nerve.flightchecker.components.SearchBoxModel;
 import si.nerve.flightchecker.components.WrapLayout;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
+import si.nerve.flightchecker.pages.KayakFlightObtainer;
 import si.nerve.flightchecker.process.ComboDocument;
 import si.nerve.flightchecker.process.SelectFocusAdapter;
 
@@ -83,8 +85,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private JButton m_searchButton;
   private DoubleDateChooser m_dateChooser;
   private JCheckBox m_combined;
-  private JCheckBox m_kayakNl, m_kayakCom, m_kayakDe, m_kayakIt, m_kayakCoUk, m_kayakEs, m_kayakFr, m_kayakPl;
-  private JLabel m_kayakNlStatusLabel, m_kayakComStatusLabel, m_kayakDeStatusLabel, m_kayakItStatusLabel, m_kayakCoUkStatusLabel, m_kayakEsStatusLabel, m_kayakFrStatusLabel, m_kayakPlStatusLabel;
+  private JCheckBox m_kayakNl, m_kayakCom, m_kayakDe, m_kayakIt, m_kayakCoUk, m_kayakEs, m_kayakFr, m_kayakPl, m_expediaCom;
+  private JLabel m_kayakNlStatusLabel, m_kayakComStatusLabel, m_kayakDeStatusLabel, m_kayakItStatusLabel, m_kayakCoUkStatusLabel, m_kayakEsStatusLabel, m_kayakFrStatusLabel, m_kayakPlStatusLabel, m_expediaComStatusLabel;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {5, 5, 5, 5, 7, 10, 5, 5, 5, 5, 7, 10, 10, 3, 15};
   private String[] m_codes = {
@@ -134,6 +136,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakEsStatusLabel = new JLabel();
     m_kayakFrStatusLabel = new JLabel();
     m_kayakPlStatusLabel = new JLabel();
+    m_expediaComStatusLabel = new JLabel();
 
     m_kayakPl = new JCheckBox("www.kayak.pl");
     m_kayakNl = new JCheckBox("www.kayak.nl");
@@ -143,6 +146,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakCoUk = new JCheckBox("www.kayak.co.uk");
     m_kayakEs = new JCheckBox("www.kayak.es");
     m_kayakFr = new JCheckBox("www.kayak.fr");
+    m_expediaCom = new JCheckBox("www.expedia.com");
 
     Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
     m_kayakNlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakNl.getText()));
@@ -153,6 +157,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakEsStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakEs.getText()));
     m_kayakFrStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakFr.getText()));
     m_kayakPlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakPl.getText()));
+    m_expediaComStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
 
     m_combined = new JCheckBox("Rošada");
     m_showInEuro = new JCheckBox("€");
@@ -165,6 +170,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakCoUk.setActionCommand(CHECKBOX_CHANGED);
     m_kayakEs.setActionCommand(CHECKBOX_CHANGED);
     m_kayakFr.setActionCommand(CHECKBOX_CHANGED);
+    m_expediaCom.setActionCommand(CHECKBOX_CHANGED);
 
     m_kayakPl.setSelected(true);
     m_kayakNl.setSelected(true);
@@ -174,6 +180,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakCoUk.setSelected(true);
     m_kayakEs.setSelected(true);
     m_kayakFr.setSelected(true);
+    m_expediaCom.setSelected(true);
 
     m_searchButton.addActionListener(this);
     m_searchButton.setActionCommand(SEARCH);
@@ -240,6 +247,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     groupPanel.add(m_kayakFr);
     groupPanel.add(m_kayakNl);
     groupPanel.add(m_kayakPl);
+    groupPanel.add(m_expediaCom);
 
     JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
@@ -297,6 +305,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     groupStatusPanel.add(m_kayakFrStatusLabel, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     groupStatusPanel.add(m_kayakNlStatusLabel, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     groupStatusPanel.add(m_kayakPlStatusLabel, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    groupStatusPanel.add(m_expediaComStatusLabel, new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     JPanel panel = new JPanel(new GridBagLayout());
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -482,7 +491,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
   private void search(boolean combined)
   {
-    if (nonKayaksSelected())
+    if (nothingSelected())
     {
       return;
     }
@@ -501,7 +510,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       if (m_kayakCom.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -509,7 +518,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakDe.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -517,7 +526,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakIt.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -525,7 +534,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakCoUk.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -533,7 +542,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakEs.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -541,7 +550,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakFr.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -549,7 +558,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakNl.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
@@ -557,11 +566,19 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
       if (m_kayakPl.isSelected())
       {
-        m_executorService.execute(new SearchAndRefresh("pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
       }
       else
       {
         m_kayakPlStatusLabel.setForeground(Color.GRAY);
+      }
+      if (m_expediaCom.isSelected())
+      {
+        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "com", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+      }
+      else
+      {
+        m_expediaComStatusLabel.setForeground(Color.GRAY);
       }
       m_executorService.shutdown();
       new SwingWorker()
@@ -585,10 +602,10 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     }
   }
 
-  private boolean nonKayaksSelected()
+  private boolean nothingSelected()
   {
     return !m_kayakCom.isSelected() && !m_kayakCoUk.isSelected() && !m_kayakDe.isSelected() && !m_kayakEs.isSelected()
-        && !m_kayakFr.isSelected() && !m_kayakIt.isSelected() && !m_kayakNl.isSelected() && !m_kayakPl.isSelected();
+        && !m_kayakFr.isSelected() && !m_kayakIt.isSelected() && !m_kayakNl.isSelected() && !m_kayakPl.isSelected() && !m_expediaCom.isSelected();
   }
 
   public MultiCityFlightTable getMainTable()
