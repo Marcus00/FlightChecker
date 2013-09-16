@@ -1,1 +1,2 @@
 HTTP GET and POST testing
+Dependencies(put into classpath): javacsv.jar, jcalendar-1.4.jar, jsoup-1.6.1.jar
