@@ -1,10 +1,9 @@
 package si.nerve.flightchecker.pages;
 
-import java.util.Date;
-
-import javax.swing.JLabel;
-
 import si.nerve.flightchecker.FlightsGui;
+
+import javax.swing.*;
+import java.util.Date;
 
 /**
  * Created: 10.8.13 20:27

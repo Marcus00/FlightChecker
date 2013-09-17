@@ -1,8 +1,8 @@
 package si.nerve.flightchecker.process;
 
-import java.awt.event.FocusAdapter;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.awt.event.FocusAdapter;
 
 /**
  * @author bratwurzt

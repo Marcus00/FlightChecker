@@ -101,7 +101,7 @@ public class MultiCityFlightData
       return false;
     }
 
-    MultiCityFlightData other = (MultiCityFlightData)obj;
+    MultiCityFlightData other = (MultiCityFlightData) obj;
     FlightLeg otherFlightLeg1 = other.getFlightLegs().get(0);
     FlightLeg otherFlightLeg2 = other.getFlightLegs().get(1);
     FlightLeg flightLeg1 = getFlightLegs().get(0);

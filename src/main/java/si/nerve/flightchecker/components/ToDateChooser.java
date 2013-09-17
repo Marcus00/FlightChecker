@@ -1,11 +1,11 @@
 package si.nerve.flightchecker.components;
 
+import com.toedter.calendar.JDateChooser;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.JPopupMenu;
-
-import com.toedter.calendar.JDateChooser;
 
 /**
  * @author bratwurzt

@@ -1,18 +1,9 @@
 package si.nerve.flightchecker.components;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Calendar;
-import java.util.Date;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-
 import com.toedter.calendar.JDateChooser;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * @author bratwurzt

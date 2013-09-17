@@ -1,11 +1,10 @@
 package si.nerve.flightchecker.components;
 
-import java.util.List;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 /**
  * @author bratwurzt
@@ -32,6 +31,7 @@ public class MultiCityFlightTableModel extends DefaultTableModel
 
   protected List<MultiCityFlightData> m_entityList;
   private boolean m_convertToEuro;
+
   public MultiCityFlightTableModel(List<MultiCityFlightData> entityList)
   {
     m_entityList = entityList;

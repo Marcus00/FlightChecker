@@ -7,8 +7,7 @@ public enum PriceType
 {
   EURO,
   DOLLAR,
-  POUND
-  ;
+  POUND;
 
   public static PriceType getInstance(String price)
   {

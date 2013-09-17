@@ -1,3 +1,5 @@
 Manifest-Version: 1.0
+Class-Path: javacsv.jar jcalendar-1.4.jar jsoup-1.6.1.jar log4j-1.2.15
+ .jar
 Main-Class: si.nerve.flightchecker.FlightsGui
-Class-Path: javacsv.jar jcalendar-1.4.jar jsoup-1.6.1.jar
+

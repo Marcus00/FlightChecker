@@ -1,27 +1,6 @@
 package si.nerve.flightchecker.pages;
 
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.GZIPInputStream;
-
-import javax.swing.JLabel;
-
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -32,6 +11,21 @@ import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
 /**
  * Created: 10.8.13 20:39
  */
@@ -40,9 +34,11 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   private String m_addressDot;
   private static final int MAX_RETRIES = 45;
   public static final int TIME_MILLIS = 30000;
+  private static final Logger LOG = Logger.getLogger(KayakFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2) throws Exception
+  public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
+      throws Exception
   {
     m_addressDot = addressRoot;
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -68,8 +64,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
     catch (Exception e)
     {
-      e.printStackTrace();
-      System.out.println("BANNED! " + address);
+      LOG.error("KayakFlightObtainer: window.Streaming not found!", e);
       return;
     }
     int timeStart = streamingCommand.indexOf(",") + 1;
@@ -89,14 +84,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
     while ((System.currentTimeMillis() - startTime < TIME_MILLIS) && i <= MAX_RETRIES)
     {
-      //middleTime = System.currentTimeMillis();
       KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
       if (result != null)
       {
         time = result.getTime();
         response = result.getResponse();
         addToQueue(flightGui, kayakStatusLabel, hostAddress, response);
-        //System.out.println("[" + Thread.currentThread().getName() + "] " + (System.currentTimeMillis() - middleTime) + " ms");
       }
       else
       {
@@ -164,7 +157,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
                 if (!flightData.equals(removed))
                 {
-                  MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+                  MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
                   tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
                   tableModel.fireTableDataChanged();
                 }
@@ -175,8 +168,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       }
       catch (Exception e)
       {
-        e.printStackTrace();
+        LOG.error("KayakFlightObtainer: Jsoup parsing failed!", e);
       }
+    }
+    else
+    {
+      LOG.error("KayakFlightObtainer: content_div not found!");
     }
   }
 
@@ -250,7 +247,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     int newTimeCommandStart = response.indexOf("Streaming.lastPoll=");
     if (newTimeCommandStart < 0)
     {
-      System.out.println("Stream closed: " + address);
+      LOG.error("KayakFlightObtainer: Streaming.lastPoll= not found in response!");
       return null;
     }
     newTimeCommandStart = response.indexOf("=", newTimeCommandStart) + 1;
@@ -262,11 +259,10 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
     catch (NumberFormatException e)
     {
-      //e.printStackTrace();
+      LOG.error("KayakFlightObtainer: Next call time parse failed", e);
       return null;
     }
 
-    //System.out.print(address + " ");
     return new KayakResult(newTime, response);
   }
 
@@ -274,7 +270,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   {
     String contentType = connection.getHeaderField("Content-Type");
 
-    String[] values = contentType.split(";"); //The values.length must be equal to 2...
+    String[] values = contentType.split(";");
     String charset = null;
 
     for (String value : values)
@@ -289,7 +285,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
     if (charset == null)
     {
-      charset = "UTF-8"; //Assumption....it's the mother of all f**k ups...lol
+      charset = "UTF-8";
     }
     return charset;
   }
@@ -304,7 +300,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     connection.addRequestProperty("Referer", url.toString());
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4");
-    return (HttpURLConnection)connection;
+    return (HttpURLConnection) connection;
   }
 
   private String readResponse(InputStream ins, String charset) throws IOException

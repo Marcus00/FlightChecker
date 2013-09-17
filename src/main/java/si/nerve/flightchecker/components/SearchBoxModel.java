@@ -1,20 +1,15 @@
 package si.nerve.flightchecker.components;
 
+import si.nerve.flightchecker.data.AirportData;
+
+import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.AbstractListModel;
-import javax.swing.ComboBoxEditor;
-import javax.swing.ComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
-
-import si.nerve.flightchecker.data.AirportData;
 
 /**
  * @author bratwurzt
@@ -99,7 +94,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
   public void keyReleased(KeyEvent e)
   {
     String str = cbe.getItem().toString();
-    JTextField jtf = (JTextField)cbe.getEditorComponent();
+    JTextField jtf = (JTextField) cbe.getEditorComponent();
     int currPos = jtf.getCaretPosition();
 
     if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED)
@@ -113,7 +108,7 @@ public class SearchBoxModel extends AbstractListModel implements ComboBoxModel, 
     else if (e.getKeyCode() == KeyEvent.VK_ENTER)
     {
       cb.setSelectedIndex(cb.getSelectedIndex());
-      cbe.setItem(((AirportData)cb.getSelectedItem()).getIataCode());
+      cbe.setItem(((AirportData) cb.getSelectedItem()).getIataCode());
     }
     else
     {

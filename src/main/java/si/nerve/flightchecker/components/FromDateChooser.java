@@ -1,14 +1,13 @@
 package si.nerve.flightchecker.components;
 
+import com.toedter.calendar.JDateChooser;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
-import com.toedter.calendar.JDateChooser;
 
 /**
  * @author bratwurzt
@@ -50,7 +49,7 @@ public class FromDateChooser extends JDateChooser
 
   public void actionPerformed(ActionEvent e)
   {
-    int x = calendarButton.getWidth() - (int)popup.getPreferredSize().getWidth();
+    int x = calendarButton.getWidth() - (int) popup.getPreferredSize().getWidth();
     int y = calendarButton.getY() + calendarButton.getHeight();
 
     Calendar calendar = Calendar.getInstance();
