@@ -80,7 +80,7 @@ public class SearchAndRefresh implements Runnable
               {
                 try
                 {
-                  Thread.sleep(300 + (int) (Math.random() * 400));
+                  Thread.sleep(80 + (int) (Math.random() * 100));
                 }
                 catch (InterruptedException e)
                 {

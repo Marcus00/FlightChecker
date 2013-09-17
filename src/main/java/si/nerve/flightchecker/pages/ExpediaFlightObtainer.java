@@ -37,7 +37,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
   public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
       throws Exception
   {
-    String hostAddress = "http://www.expedia.com/";
+    String hostAddress = "http://www.expedia." + addressRoot + "/";
     String address = hostAddress + "Flight-SearchResults?trip=multi&leg1=from:" + from1 + ",frCode:,to:" + to1 + ",toCode:,departure:" + m_formatter.format(date1)
         + "TANYT&leg2=from:" + from2 + "frCode:,to:" + to2 + ",toCode:,departure:" + m_formatter.format(date2)
         + "TANYT&passengers=children:0,adults:1,seniors:0,infantinlap:Y&options=cabinclass:economy,nopenalty:N,sortby:price&mode=search";
