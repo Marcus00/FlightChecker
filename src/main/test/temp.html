@@ -1,43 +1,25 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]> <html class="no-js ie6"> <![endif]-->
-<!--[if IE 7 ]> <html class="no-js ie7"> <![endif]-->
-<!--[if IE 8 ]> <html class="no-js ie8"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]--><head>
-	<title>Bitte helfen Sie uns mit einigen Zusatzinformationen</title>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="description" content="Find a Flight">
-	<meta name="language" content="de-DE">
-	<meta name="robots" content="ALL">
-	<meta name="rating" content="GENERAL">
-	<META HTTP-EQUIV="Set-Cookie" CONTENT="jscript=1; path=/">
-	<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-	
-<link rel="stylesheet" href="/minify/uitk-core-styles-bundle-min-1100083921.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
-<script src="/minify/uitk-lib-bundle-min-2665309148.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
-<script>
-$LAB.setGlobalDefaults({AlwaysPreserveOrder:true});
-$LAB
-.queueScript("/minify/uitk-core-bundle-min-830652914.js?v=release-2013-09-r1-1665-856245-1")
-.queueWait(function() {uitk.common.init();});
-</script>
-		
-<link rel="stylesheet" href="/minify/flights-bundle-min-2471823853.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
-	
-	<!--[if IE 7]>
+<html>
+    <head>
+        <META HTTP-EQUIV="Set-Cookie" CONTENT="jscript=1; path=/">
+        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<title>Der blev ikke fundet nogen fly, der stemte overens med søgekriterierne</title>
+
+    
+<link rel="stylesheet" href="/minify/flights-bundle-min-2043694336.css?v=release-2013-09-r1-1665-856245-1" /><!-- 15 ms -->
+    
+        <!--[if IE 7]>
 <link rel="stylesheet" href="/minify/flights-IE7-min-3227241518.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
-	<![endif]-->
-</head>
-<body>
-<script src="/minify/flightLoadUtils-min-1377049840.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
-<script src="/minify/exp-core-min-2026693002.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
-	
-	<!-- relinquish jQuery $() to prototype -->
-    <script type="text/javascript">
-      jQuery.noConflict();
-    </script>
-	
-<!--ActivityId:4fb6a820-39df-4a48-905b-30803422f848;-->
+        <![endif]-->
+        
+<link rel="stylesheet" href="/minify/uitoolkit.v1.0.tooltips-min-1100083921.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
+<link rel="stylesheet" href="/minify/flightsv2-min-1555248579.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
+<script src="/minify/uitk.modernizr-2.0.6.min-min-2665309148.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
+    </head>
+    
+    <body>
+<!--ActivityId:070fb16c-59a9-4930-ae4a-41ac423785b2;-->
 
 
 <script src="/minify/headUtil-min-1425006475.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
@@ -199,8 +181,8 @@ $LAB
  
  
  <div id="nav-head-logo" class="xp-hdr-logo">
-					<a title="Expedia.de" href="http://www.expedia.de/" onclick="window.top.location.href='http://www.expedia.de/?rfrr=Head:Nav:Multi:Home'; return false;">
-						 <img itemprop="image" src="http://media.expedia.com/media/content/shared/images/navigation/expedia.de.png?v=1" alt="Expedia.de"/>
+					<a title="Expedia.dk" href="http://www.expedia.dk/" onclick="window.top.location.href='http://www.expedia.dk/?rfrr=Head:Nav:Multi:Home'; return false;">
+						 <img itemprop="image" src="http://media.expedia.com/media/content/shared/images/navigation/expedia.dk.png?v=1" alt="Expedia.dk"/>
 					</a>	
 </div>	         <div style="clear: both;"></div>
 	         <div id="nav-head-service" class="xp-hdr-svc">
@@ -208,8 +190,8 @@ $LAB
 			
 			
 		                        <li id="nav-tool-welc" class="xp-no-border-right">
-		                            <span class="xp-hdr-bold">Willkommen - Sie sind bereits Benutzer?</span>
-		                            [ <a id="nav-tool-signin" rel="nofollow" target="_top" href="https://www.expedia.de/user/login?"  onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:SignIn')" >Anmelden</a> ]
+		                            <span class="xp-hdr-bold">Velkommen - allerede medlem?</span>
+		                            [ <a id="nav-tool-signin" rel="nofollow" target="_top" href="https://www.expedia.dk/user/login?"  onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:SignIn')" >Log på</a> ]
 		                        </li>
 
 
@@ -222,7 +204,7 @@ $LAB
         	.wait(function() {
         	
             authtk.init(function() {
-                fbtk.init('de_DE', '131538103586818', function() {
+                fbtk.init('da_DK', '131538103586818', function() {
                     fbtk.checkConnection(function(response) {
                         var authData = {
                             provider: 'Facebook',
@@ -246,7 +228,6 @@ $LAB
             
         });
 	}
-
 
 
 if (typeof inlinedLab === 'undefined') {
@@ -281,7 +262,7 @@ if (typeof $LAB === 'undefined') {
         inlinedLab.markLoadedAndFireCallbacks();
     };
     
-    a.src="//www.expedia.de/static/ui_toolkit/v1.0/js/libs/LAB.min.js";
+    a.src="/static/ui_toolkit/v1.0/js/libs/LAB.min.js";
     c.insertBefore(a,c.firstChild)},0);if(b[D]==null&&b[G]){b[D]="loading";b[G](F,d=function(){b.removeEventListener(F,d,false);b[D]="complete"},false)}})(this,document);
 } else {
     if (!window.suppressFacebook) {
@@ -294,34 +275,34 @@ if (typeof $LAB === 'undefined') {
 	
 </script>	                     <li class="">
 						 
-							<a id="nav-tool-itinerary" rel="nofollow" target="_top" href="https://www.expedia.de/itinerary-list" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:Trips')" >
+							<a id="nav-tool-itinerary" rel="nofollow" target="_top" href="https://www.expedia.dk/itinerary-list" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:Trips')" >
 				
-	                                Meine Reisepläne
+	                                Mine rejseplaner
 	                         </a>
 	                     </li>
 	                 
 						<li class="">
-							<a id="nav-tool-travelalert" rel="nofollow" target="_top" href="http://www.expedia.de/p/support/reisetools">
-								Reisehinweise
+							<a id="nav-tool-travelalert" rel="nofollow" target="_top" href="http://www.expedia.dk/p/support/rejsevaerktojer">
+								Rejseværktøjer
 							</a>
-						</li>
+						</li>		
 	                 
 						<li class="">
-	                        <a id="nav-tool-account" rel="nofollow" target="_top" href="https://www.expedia.de/user/account" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:Profile')" >
-	                            Mein Konto
+	                        <a id="nav-tool-account" rel="nofollow" target="_top" href="https://www.expedia.dk/user/account" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:Profile')" >
+	                            Min konto
 	                        </a>
 	                    </li>
 	                 
 	                	<li id="customersupport" class="">
-	                    	<a 	id="nav-tool-cs" rel="nofollow" target="_top" href="http://support.expedia.de/"
-	onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:CustSupport')">
-	<span>Kundenservice & Hilfe</span>
-	</a>
-	
+	                    	<a id="nav-tool-cs" rel="nofollow" target="_top"  href="http://support.expedia.dk/"
+onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:None:CustSupport');">
+	<span>Kundeservice<span>
+</a>
+
 						</li>	                    	
 	                    <li class="xp-no-border-right">
 	                         
-<script src="/minify/opinionlab-oo_engine-min-1821431261.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 16 ms -->
+<script src="/minify/opinionlab-oo_engine-min-1821431261.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
 
 
 <script type = "text/javascript">
@@ -330,7 +311,7 @@ if (typeof $LAB === 'undefined') {
         _sW=screen.width;
     function showModalPopUp()
     {
-        popUpObj=window.open("/p/support/feedback?langid=1031&referer="+OpinionLab_FB.O_HT()+"&customvar="+OpinionLab_FB.O_CV()+"&prev="+OpinionLab_FB.O_PRV(),
+        popUpObj=window.open("/p/support/feedback?langid=1030&referer="+OpinionLab_FB.O_HT()+"&customvar="+OpinionLab_FB.O_CV()+"&prev="+OpinionLab_FB.O_PRV(),
         "ModalPopUp",
         "toolbar=no," +
         "scrollbars=no," +
@@ -368,11 +349,11 @@ if (typeof $LAB === 'undefined') {
 				<div style="clear:both"></div>
 				<ul class="xp-hdr-svc" style="float:right; margin-top:6px;">
 					<li>
-						<a target="_top" rel="nofollow" href="http://www.expedia.de/p/support/check-in">Online Check-in</a>
+						<a target="_top" rel="nofollow" href="http://www.expedia.dk/p/support/check-in">Online indtjekning</a>
 					</li>
 					<li class="xp-no-border-right">
 						<img src="http://media.expedia.com/media/content/expuk/graphics/header/cookie-i.png" alt="info icon" style="vertical-align: middle">
-						<a target="_top" rel="nofollow" href="http://www.expedia.de/p/support/cookies">Diese Website verwendet Cookies</a>
+						<a target="_top" rel="nofollow" href="http://www.expedia.dk/p/support/cookies">Denne hjemmeside anvender cookies</a>
 					</li>
 					<li class="xp-no-border-right">
 					</li>
@@ -386,212 +367,138 @@ if (typeof $LAB === 'undefined') {
 		    <div id="tab-navigation" class="xp-hdr-width clearfix xp-hsprite xp-hdr-tab">
 		        
 
+
+<!-- in-line CSS for the tab widget -->
 <style>
-    #xp-hdr {position:relative;z-index:99;}
-	#xp-hdr .xp-hdr-tab ul li,#xp-hdr .xp-hdr-tab .hasSub ul li{background: url("http://media.expedia.com/media/content/shared/images/navigation/headersprites.png?v=1") no-repeat scroll right 0 transparent;}
-	#xp-hdr .xp-hdr-tab ul li.hasSub ul a,#xp-hdr .xp-hdr-tab ul li.hasSub a:hover{background:none;}
-	#xp-hdr .xp-hdr-tab ul li.hasSub ul a{padding:10px 0 10px 15px;}
-	#xp-hdr .xp-hdr-tab ul li.hasSub ul a:hover{background:#006699;color:#ffffff !important;}
-	#tab-navigation .hasSub {position:relative;height:30px;}
-	#tab-navigation .hasSub span {display:inline-block !important;margin-right:15px;position:relative;background:transparent url(http://media.expedia.com/media/content/expuk/graphics/header/arrow.png) 100% 80% no-repeat;}
-	#tab-navigation .hasSub ul{ display: none; position: absolute; z-index: 9000; float: left; top: 30px;left:0px;list-style-type: none;background:none repeat scroll 0 0 #FDEFB0 !important;-webkit-border-bottom-right-radius: 6px;-webkit-border-bottom-left-radius: 6px;-moz-border-radius-bottomright: 6px;-moz-border-radius-bottomleft: 6px;border-bottom-right-radius: 6px;border-bottom-left-radius: 6px; -moz-box-shadow: 0px 5px 5px #333; -webkit-box-shadow: 0px 5px 5px #333; box-shadow: 0px 5px 5px #333;}
-	#tab-navigation .hasSub li {background:none !important;clear: both;border-bottom:1px solid #ffdd54;padding:0px; }
-	#tab-navigation .hasSub li a { height:auto !important; float: left; width: 165px; margin: 0; padding: 6px 10px; font-size: 12px; line-height: auto; color: #003050; display: block; }
-	#tab-navigation .hasSub .lastSub{border-bottom:none;}
-	#xp-hdr .xp-hdr-tab ul li a{padding-right:0px;background:none;height:28px;}
-	#xp-hdr .xp-hdr-tab ul li a span { padding: 7px 10px 0;}
-	#xp-hdr .xp-hdr-tab ul li.hasSub a span { padding-right: 15px;}
-	#tab-navigation .hasSub .showSubNav{display:block;}
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-selected a,
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-selected a:hover,
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-lastselected a,
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-lastselected a:hover{background:none;}
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-selected,
-	#xp-hdr .xp-hdr-tab ul li.xp-hdr-tab-lastselected
-	{background: url("http://media.expedia.com/media/content/shared/images/navigation/headersprites.png?v=1") no-repeat scroll right -60px transparent;}
-	#xp-hdr .xp-hdr-tab ul li.hover,#xp-hdr .xp-hdr-tab ul li a:hover{background:none repeat scroll 0 0 #FDEFB0;color:#003E7E;}
-	#xp-hdr .xp-hdr-tab ul li#tab-sale {
-		background: url("//media.expedia.com/media/content/shared/images/navigation/headersprites.png?v=1") no-repeat scroll right 0 transparent;
+	.noFeesSticker { background:transparent url(http://media.expedia.com/media/content/shared/images/navigation/no_no_fees.png);background-repeat:no-repeat;border:0; height:38px; width:56px; position:absolute; top:-24px; }
+	.flightOnlySticker { left:135px; }
+	.flightHotelSticker { left: 205px; }
+	#tab-navigation .meat-sticker {
+	    background: url("//media.expedia.com/media/content/shared/images/navigation/nav-tag-gratis-app.png") no-repeat scroll 0 0 transparent;
+	    border: 0 none;
+	    height: 38px;
+	    width: 56px;
+	    left: 840px !important;
 	}
 	#xp-hdr .xp-hdr-tab ul li#tab-sale a {
 		background: url("//media.expedia.com/media/content/expuk/images/header/red-tile.png") top left repeat-x;
 		color: #fff;
 		text-transform: uppercase;
 	}
-	#tab-navigation #meat-sticker {
-		background:transparent url(http://media.expedia.com/media/content/shared/images/navigation/neu.png?v=1) 0 0 no-repeat;border:0;
-		height:28px;width:44px;
-	} 
 </style>
-<div id="meat-sticker" style="position:absolute; top:-20px; left:875px;" ></div>
+<div style="position:absolute; top:-25px; left:740px;" class="meat-sticker"></div>
+
+<!--[if IE 6]>
+<style type="text/css">
+	.noFeesSticker {background:none;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://media.expedia.com/media/content/shared/images/navigation/no_no_fees.png',sizingMethod='scale');}
+</style>
+<![endif]-->
+
 <ul>
 <li id="tab-home">
-<a target="_top" title="" href="http://www.expedia.de/" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Multi:Home' );"
+<a target="_top" title="" href="http://www.expedia.dk/" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Home' );"
 >
-<span>Home</span>
+<span>Forside</span>
 </a>
-</li>	<li id="tab-hotels" class="hasSub ">
-		<a onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Hotels' );" href="http://www.expedia.de/Hotels" title="" target="_top">
-			<span>Hotel</span>
-		</a>
-		<ul id="hotels-SubNav">
-			<li>
-				<a target="_top" href="http://www.expedia.de/Hotels" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Expediahotels' );">Hotels bei Expedia</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/urlaubsangebote/eigenanreise.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Eigenanreise' );">Eigenanreise</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/vc/ferienwohnung" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Ferienwohnungen' );">Ferienwohnungen</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/skiurlaub/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Ski' );">Skihotels</a>
-			</li>
-			<li class="lastSub">
-				<a target="_top" href="http://www.expedia.de/urlaub-in-deutschland" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Hotels:Domestic' );">Urlaub in Deutschland</a>
-			</li>
-		</ul>
-	</li>
-	<li id="tab-flights" class="hasSub xp-hdr-tab-selected">
-		<a onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Flights:Flights' );" href="http://www.expedia.de/Fluege" title="" target="_top">
-			<span>Flug</span>
-		</a>
-		<ul id="flights-SubNav">
-			<li>
-				<a target="_top" href="http://www.expedia.de/Fluege" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Flights:ExpediaFLT' );">Flug inkl. Billigflieger</a>
-			</li>
-			<li class="lastSub">
-				<a target="_top" href="http://www.expedia.de/fluege/charterflug/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Flights:CharterFLT' );">Charterflüge</a>
-			</li>
-		</ul>
-	</li>
-	<li id="tab-flthotel"  class="hasSub ">
-		<a onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Package:FltHotel' );" href="http://www.expedia.de/Flug-und-Hotel" title="" target="_top">
-			<span>Click &amp; Mix</span>
-		</a>
-		<ul id="flthotel-SubNav">
-			<li>
-				<a target="_top" href="http://www.expedia.de/Flug-und-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Package:ExpediaFltHotel' );">Flug &amp; Hotel</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/Flug-und-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Package:FltHotelCar' );">Flug &amp; Hotel &amp; Mietwagen</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/Flug-und-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Package:FltCar' );">Flug &amp; Mietwagen</a>
-			</li>
-			<li class="lastSub">
-				<a target="_top" href="http://www.expedia.de/staedtereisen" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Package:FltHotel:Stadtereisen' );">Städtereisen</a>
-			</li>
-		</ul>
-	</li>
-	<li id="tab-packages"  class="hasSub ">
-		<a onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package' );" href="http://www.expedia.de/pauschalreisen/default.aspx" title="" target="_top">
-			<span>Pauschalreisen</span>
-		</a>
-		<ul id="packages-SubNav">
-			<li>
-				<a target="_top" href="http://www.expedia.de/pauschalreisen/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Urlaubsreisen' );">Urlaubsreisen</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/p/strandurlaub" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Beach' );">Strandreisen</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/cluburlaub/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Cluburlaub' );">Clubreisen</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/cluburlaub/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Allinclusive' );">All-inclusive</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/familienurlaub/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Familienurlaub' );">Familienreisen</a>
-			</li>
-			<li class="lastSub">
-				<a target="_top" href="http://rundreisen.expedia.de/" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:3PP:Package:Rundreisen' );">Rundreisen</a>
-			</li>
-			
-		</ul>
-	</li>
-	<li id="tab-cars"  class="hasSub ">
-		<a onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Cars:Cars' );" href="http://www.expedia.de/mietwagen" title="" target="_top">
-			<span>Mietwagen</span>
-		</a>
-		<ul id="cars-SubNav">
-			<li>
-				<a target="_top" href="http://www.expedia.de/mietwagen" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Cars:ExpediaCars' );">Autovermietung</a>
-			</li>
-			<li>
-				<a target="_top" href="http://www.expedia.de/Flug-und-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Cars:FltCar' );">Flug &amp; Mietwagen</a>
-			</li>
-			<li class="lastSub">
-				<a target="_top" href="http://www.expedia.de/Flug-und-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Cars:FltHotelCar' );">Flug &amp; Hotel &amp; Mietwagen</a>
-			</li>
-		</ul>
-	</li>
+</li><li id="tab-hotels">
+<a target="_top" title="" href="http://www.expedia.dk/Hoteller" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Hotels:Hotels' );"
+>
+<span>Hotel</span>
+</a>
+</li><li id="tab-flights" class="xp-hdr-tab-selected">
+<a target="_top" title="" href="http://www.expedia.dk/Flybilletter" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Flights:Flights' );"
+>
+<span>Fly</span>
+</a>
+</li><li id="tab-flthotel">
+<a target="_top" title="" href="http://www.expedia.dk/Fly-Hotel" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Package:FltHotel' );"
+>
+<span>Fly+Hotel</span>
+</a>
+</li><li id="tab-cars">
+<a target="_top" title="" href="http://www.expedia.dk/biludlejning" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Cars:Cars' );"
+>
+<span>Biludlejning</span>
+</a>
+</li><li id="tab-beach">
+<a target="_top" title="" href="http://www.expedia.dk/p/badeferie-solferie" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Beach' );"
+>
+<span>Solferie</span>
+</a>
+</li>	
 <li id="tab-deals">
-<a target="_top" title="" href="http://www.expedia.de/billig-reisen" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Multi:Deals' );"
->
-<span>Deals</span>
+<a target="_top" title="" href="http://www.expedia.dk/billige-rejser" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Deals' );"
+class="xp-hdr-tab-highlight" >
+<span>REJSETILBUD</span>
 </a>
-</li><li id="tab-lastminute">
-<a target="_top" title="" href="http://www.expedia.de/reiseangebote" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Multi:LastMinute' );"
+</li>		
+<li id="tab-citybreaks">
+<a target="_top" title="" href="http://www.expedia.dk/storbyferie" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:CityBreaks' );"
 >
-<span>Lastminute</span>
+<span>Storbyferie</span>
+</a>
+</li><li id="tab-domestic">
+<a target="_top" title="" href="http://www.expedia.dk/danmark-ferie" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Domestic' );"
+>
+<span>Norden</span>
+</a>
+</li>	
+<li id="tab-lastminute">
+<a target="_top" title="" href="http://www.expedia.dk/afbudsrejser" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Lastminute' );"
+>
+<span>Afbudsrejser</span>
 </a>
 </li><li id="tab-tshop">
-<a target="_top" title="" href="http://www.expedia.de/events-tickets" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Tshop:Tshop' );"
+<a target="_top" title="" href="http://www.expedia.dk/aktiviteter" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Tshop:Tshop' );"
 >
-<span>Events &amp; Tickets</span>
-</a>
-</li><li id="tab-cruises">
-<a target="_top" title="" href="http://kreuzfahrten.expedia.de" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:AB:Cruise:Kreuzfahrten' );"
->
-<span>Kreuzfahrten</span>
+<span>Oplevelser</span>
 </a>
 </li><li id="tab-mobile" class="xp-hdr-tab-last">
-<a target="_top" title="" href="http://www.expedia.de/p/iphone-ipad-app" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Mobile' );"
+<a target="_top" title="" href="http://www.expedia.dk/p/app" onclick="xp.nav.trackAnalytics(this,'a','Head:Nav:Multi:Mobile' );"
 >
-<span>App</span>
+<span>Mobil</span>
 </a>
 </li></ul>
-<script>
-	var subNavHandler = {
-		subNavs : ['hotels','flights', 'packages', 'flthotel','cars'],
-		init : function() {
-			this.addEventHandlers();
-		},
-		addClass:function( classname, element ) {
-		    var cn = element.className;
-		    if( cn.indexOf( classname ) != -1 ) {
-		    	return;
-		    }
-		    if( cn != '' ) {
-		    	classname = ' '+classname;
-		    }
-		    element.className = cn+classname;
-		},
-		removeClass:function( classname, element ) {
-		    var cn = element.className;
-		    var rxp = new RegExp( "\\s?\\b"+classname+"\\b", "g" );
-		    cn = cn.replace( rxp, '' );
-		    element.className = cn;
-		},
-		addEventHandlers : function() {
-			var numbOfSubNavs = this.subNavs.length, subNavId;
-			for (var i=0; i<numbOfSubNavs; i++) {
-				document.getElementById('tab-'+this.subNavs[i]).onmouseover = function() {
-					subNavHandler.addClass("hover",this);
-					subNavId = this.id.replace('tab-', '') +"-SubNav";
-					document.getElementById(subNavId).className = "showSubNav";
-				}
-				document.getElementById('tab-'+this.subNavs[i]).onmouseout = function() {
-					subNavHandler.removeClass("hover",this)
-					subNavId = this.id.replace('tab-', '') +"-SubNav";
-					document.getElementById(subNavId).className = "";
-				}
-			}
-		}
-	};
-	subNavHandler.init();
-</script>
+
+
+<div style="float:right;height:30px;">
+    <div style="float:left;margin-top:4px;"><style>
+#xp-hdr .xp-hdr-svc ul .xp-srch-zeropad
+{
+  margin:3.5px;
+}
+</style>
+
+<div id="button-facebook"></div>
+<![if !(IE 7)]>
+    <script>xp.nav.event.onDOMReady(function(){if (!hasMetaDataSet("ROBOTS", ["NOFACEBOOK"])){document.getElementById('button-facebook').innerHTML='<iframe src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fexpedia.dk&amp;layout=button_count&amp;show_faces=false&amp;width=150&amp;action=like&amp;colorscheme=light&amp;height=21&ref=header&locale=da_DK" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true" class="tl_block"></iframe>'}})</script>
+<![endif]>
+</div>
+</div>
+
+<style type="text/css">
+	#xp-hdr {
+		position:relative;
+		z-index:2;
+	}
+	#container {
+		position:relative;
+	}
+	.pop-up-link {
+    color: #006699;
+    text-decoration: underline;
+	}
+</style>
+<div id="buildYourOwnTripPopup" style="position:absolute; left:231px; top:28px; border:1px solid #D1B11F; border-top:0px; width:230px; background:9px 9px #FFFFFF; padding:10px; font-family:Arial; -webkit-box-shadow:0px 3px 8px #808080; -moz-box-shadow:0px 3px 8px #808080; -o-box-shadow:0px 3px 8px #808080; box-shadow:0px 3px 8px #808080; display:none; z-index:2; line-height:1.0;">
+	<div style="position:absolute; right:0px; top:0px; left:91px;  border-top:1px solid #FFFFFF; height:1px"></div>
+	<div>
+		<img src="/static/default/default/images/packages/4963-logo-hover-dk.gif">
+	</div>
+	<div style="float:left; color:#333333; text-align:left; margin-right:5px; margin-top:5px">
+		<p style="font-size:12px; margin:0px">Hvis du finder den samme rejse med fly+hotel billigere p&aring; en anden webside, s&aring; refunderer vi prisforskellen. <a href="http://www.expedia.dk/daily/price-guarantee/default.aspx" class="pop-up-link">Betingelser g&aelig;lder</a></p>
+	</div>
+</div>
+<script type="text/javascript" src="/static/default/default/scripts/packages/FlightAndHotel.BuildYourOwnTrip.js" ></script>
 
 		    </div>
 
@@ -624,607 +531,53 @@ if (typeof $LAB === 'undefined') {
 
 
 
-	
-	<table id="idColumnsAB" cellpadding="0" cellspacing="0" border="0">
-		<tr>
-			<td id="idACol">
-				<div class="aColInclude">
-					<div class="aColInclude"></div>
-					
-				</div>
-			</td>
-			<td class="main">
-			<div id="divFlightPackage" onkeydown="enterForSubmit(event);">
-	            <div id="divFlightSecond">
-<FORM NAME="manual" method="get" action="/Flight-SearchResults?c=dc74085a-3178-4cf9-8ff8-dbab72ace57b&"  id="flightSecondLaunch"
->	
-		        
-
-<script src="/minify/exp.flight.disambig.typeahead-min-1629164346.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
-	
-<link rel="stylesheet" href="/minify/flight-disambig-min-3994938783.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
-	
-	<script type="text/javascript" id="flightDisambigJS">
-		function initTypeAhead(id)
-		{
-			var typeahead = {};
-			typeahead.id = id;
-			typeahead.On = true;
-			typeahead.MinChar = 3;
-			typeahead.MaxItems =  10;
-			typeahead.Path = 'http://suggest.expedia.com/hint/es/v1/ac';
-			typeahead.Locale = "de_DE";
-			typeahead.lob = "FLIGHTS";
-			typeahead.closeText = "Schließen";
-			typeahead.contiueText = "Bitte weiter tippen, um Ihre Suche zu verfeinern";
-			typeahead.itemClickedEvent = function(ta) {
-										    if(ta && ta.On){
-										    	tlaSelector.selectedTypeAhead(ta.inputId, 'hidden_tla_'+ta.inputId, ta);
-										    	tlaSelector.selectedTypeAhead(ta.inputId, 'hidden_location_'+ta.inputId, ta);
-										    }
-										};
-			TA.setup(typeahead);
-			TA.init(id);
-		}		
-	</script>
-	
-	<!-- b style was changed by UI ToolKit, we need to work around the highlight string. -->
-	<style type="text/css">
-		b {font-weight: bold;}
-	</style>
-
-			<input type="hidden" name="action" value="" />
-<input type="hidden" name="inpFlightRouteType" value="3" id="inpFlightRouteType" />
-			<input type="hidden" id="pageId" value="page.MD-Flight-Disambig" />
-			<div id="divFlightSearchParameterControlSL">
-				<div id="divFlightFont">
-					<span class="flightsFont">
-						Bitte helfen Sie uns mit einigen Zusatzinformationen
-					</span>
-				</div>
-				<div id="divFlightTypeControlSL">
-					<script>var errorIndex=1;</script>
-						
-						<div>
-							<div style="height:20px;  padding-top: 15px;">
-								<div style="display:inline;padding:0 5px 0 5px;background-color:#999999;color:#FFFFFF;text-align: center;font-size:11;font-weight:bold">FLUG&nbsp;1</div>
-							</div
-						
-						<!-- begin departure location block -->
-    						<label for="">Von</label><br>
-<input type="text" name="inpDepartureLocations" value="Venedig, Italien (VCE-Alle Flughäfen)"class="enterNewLocation" id="inpDepartureLocations0" maxlength="100" />
-	                       	<input type="hidden" name="inpDepartureLocations" value="VCE" id="hidden_location_inpDepartureLocations0"/>
-	                       	<input type="hidden" name="inpDepartureLocationCodes" value="VCE" id="hidden_tla_inpDepartureLocations0"/>                       	
-	                    <!-- ending departure location block -->
-						<!-- begin arrival location block -->
-	                    	<br><label for="">Nach</label><br>
-<input type="text" name="inpArrivalLocations" value="Bangkok, Thailand (BKK-Alle Flughäfen)"class="enterNewLocation" id="inpArrivalLocations0" maxlength="100" />
-	                        <input type="hidden" name="inpArrivalLocations" value="BKK" id="hidden_location_inpArrivalLocations0" name="inpArrivalLocations"/>
-	                        <input type="hidden" name="inpArrivalLocationCodes" value="BKK" id="hidden_tla_inpArrivalLocations0" name="inpArrivalLocations"/>
-	                    </div>
-	                    <!-- ending arrival location block -->
-	                    <div id="divStartTime1" class="inputError dateError">
-    <div class="errDivContent" id="unableToParseDepartingDate">
-		<div class="errDivContentInline">
-			<script>
-				document.write('<div class="sprite-gif errorImg error-'+errorIndex+'">');
-				document.write('</div>');
-				errorIndex++;
-			</script>
-			<div class="errorTxt errorTextStd">
-				Das Abflugdatum konnte nicht erkannt werden. Bitte geben Sie das Datum erneut ein.
-			</div>
-			<div class="clearer"></div>
-		</div>
-		<span class="corners"><b class="tl"></b><b class="tr"></b><b class="bl"></b><b class="br"></b></span>
-    </div>
-						
-							<div class="departingDate">
-								<label for="">Hinflug</label>
-								<br class="clearer" />
-<input type="text" name="inpDepartureDates" value="12/20/2013"class="width88" id="inpDepartDate1" maxlength="12" />
-							</div>
-							<div class="departingTime">
-							    <br class="clearer" />
-<select name="inpDepartureTimes" id="inpDepartureTimes0" class="width81">
-<option value="1" > 12.00
-</option>
-<option value="60" > 1.00
-</option>
-<option value="120" > 2.00
-</option>
-<option value="180" > 3.00
-</option>
-<option value="240" > 4.00
-</option>
-<option value="300" > 5.00
-</option>
-<option value="360" > 6.00
-</option>
-<option value="420" > 7.00
-</option>
-<option value="480" > 8.00
-</option>
-<option value="540" > 9.00
-</option>
-<option value="600" > 10.00
-</option>
-<option value="660" > 11.00
-</option>
-<option value="720" > 00.00
-</option>
-<option value="780" > 13.00
-</option>
-<option value="840" > 14.00
-</option>
-<option value="900" > 15.00
-</option>
-<option value="960" > 16.00
-</option>
-<option value="1020" > 17.00
-</option>
-<option value="1080" > 18.00
-</option>
-<option value="1140" > 19.00
-</option>
-<option value="1200" > 20.00
-</option>
-<option value="1260" > 21.00
-</option>
-<option value="1320" > 22.00
-</option>
-<option value="1380" > 23.00
-</option>
-<option value="361" > Morgens
-</option>
-<option value="362" selected="selected"> Jederzeit
-</option>
-<option value="721" > Mittags
-</option>
-<option value="1081" > Abends
-</option></select>
-						    </div>
-						</div>
-						<div class="clearer"></div>
-						
-						<div>
-							<div style="height:20px;  padding-top: 15px;">
-								<div style="display:inline;padding:0 5px 0 5px;background-color:#999999;color:#FFFFFF;text-align: center;font-size:11;font-weight:bold">FLUG&nbsp;2</div>
-							</div
-						
-						<!-- begin departure location block -->
-    						<label for="">Von</label><br>
-<input type="text" name="inpDepartureLocations" value="Bangkok, Thailand (BKK-Alle Flughäfen)"class="enterNewLocation" id="inpDepartureLocations1" maxlength="100" />
-	                       	<input type="hidden" name="inpDepartureLocations" value="BKK" id="hidden_location_inpDepartureLocations1"/>
-	                       	<input type="hidden" name="inpDepartureLocationCodes" value="BKK" id="hidden_tla_inpDepartureLocations1"/>                       	
-	                    <!-- ending departure location block -->
-						<!-- begin arrival location block -->
-	                    	<br><label for="">Nach</label><br>
-<input type="text" name="inpArrivalLocations" value="Venedig, Italien (VCE-Alle Flughäfen)"class="enterNewLocation" id="inpArrivalLocations1" maxlength="100" />
-	                        <input type="hidden" name="inpArrivalLocations" value="VCE" id="hidden_location_inpArrivalLocations1" name="inpArrivalLocations"/>
-	                        <input type="hidden" name="inpArrivalLocationCodes" value="VCE" id="hidden_tla_inpArrivalLocations1" name="inpArrivalLocations"/>
-	                    </div>
-	                    <!-- ending arrival location block -->
-	                    <div id="divStartTime1" class="inputError">
-						
-							<div class="departingDate">
-								<label for="">Hinflug</label>
-								<br class="clearer" />
-<input type="text" name="inpDepartureDates" value="1.6.2014"class="width88" id="inpDepartDate2" maxlength="12" />
-							</div>
-							<div class="departingTime">
-							    <br class="clearer" />
-<select name="inpDepartureTimes" id="inpDepartureTimes1" class="width81">
-<option value="1" > 12.00
-</option>
-<option value="60" > 1.00
-</option>
-<option value="120" > 2.00
-</option>
-<option value="180" > 3.00
-</option>
-<option value="240" > 4.00
-</option>
-<option value="300" > 5.00
-</option>
-<option value="360" > 6.00
-</option>
-<option value="420" > 7.00
-</option>
-<option value="480" > 8.00
-</option>
-<option value="540" > 9.00
-</option>
-<option value="600" > 10.00
-</option>
-<option value="660" > 11.00
-</option>
-<option value="720" > 00.00
-</option>
-<option value="780" > 13.00
-</option>
-<option value="840" > 14.00
-</option>
-<option value="900" > 15.00
-</option>
-<option value="960" > 16.00
-</option>
-<option value="1020" > 17.00
-</option>
-<option value="1080" > 18.00
-</option>
-<option value="1140" > 19.00
-</option>
-<option value="1200" > 20.00
-</option>
-<option value="1260" > 21.00
-</option>
-<option value="1320" > 22.00
-</option>
-<option value="1380" > 23.00
-</option>
-<option value="361" > Morgens
-</option>
-<option value="362" selected="selected"> Jederzeit
-</option>
-<option value="721" > Mittags
-</option>
-<option value="1081" > Abends
-</option></select>
-						    </div>
-						</div>
-						<div class="clearer"></div>
-				</div>					
-			</div>						
-
-<script type="text/javascript">		
-		
-    function selectRadioButtonByLabel(radioId, hiddenLocationField, hiddenLocationCodeField, locVal)
-    {
-        $(radioId).checked = true;
-
-        if(hiddenLocationField) {
-        	$(hiddenLocationField).value = locVal;
-        }
-        if(hiddenLocationCodeField) {
-        	$(hiddenLocationCodeField).value = locVal;
-        }
-    }
-    
-	function selectRadioButton(hiddenLocationField, hiddenLocationCodeField, locVal)
-	{
-		$(hiddenLocationField).value = locVal;
-		$(hiddenLocationCodeField).value = locVal;
-    }
-    
-</script> 
-  
-		        
-
-<input type="hidden" name="inpAdultCounts" value="1" id="inpAdult1" />
-<input type="hidden" name="inpSeniorCounts" value="0" id="inpSenior1" />
-<input type="hidden" name="inpChildCounts" value="0" id="inpChildren1" />
-<input type="hidden" name="inpInfants" value="2" id="radInfantOnSeat" />
-
-<div style="display:none">
-<input type="checkbox" name="inpIsNonstopOnly" value="ON" id="inpIsNonstopOnly">
-</input><input type="checkbox" name="inpRefundableFlightsOnly" value="ON" id="inpRefundableFlightsOnly">
-</input>	
-<select name="inpFlightAirlinePreference" >
-		<option value=""  selected="selected">Alle</option>
-
-<option value="U/" >				5vorFlug Charter
-</option>
-<option value="JP" >				Adria Airways
-</option>
-<option value="A3" >				Aegean
-</option>
-<option value="EI" >				Aer Lingus
-</option>
-<option value="SU" >				Aeroflot-Russian Airlines
-</option>
-<option value="AM" >				Aeromexico
-</option>
-<option value="VV" >				Aerosvit Airlines
-</option>
-<option value="3O" >				Air Arabia Maroc
-</option>
-<option value="KC" >				Air Astana
-</option>
-<option value="BT" >				Air Baltic
-</option>
-<option value="BP" >				Air Botswana
-</option>
-<option value="AC" >				Air Canada
-</option>
-<option value="HF" >				Air Côte d'Ivoire
-</option>
-<option value="EN" >				Air Dolomiti
-</option>
-<option value="UX" >				Air Europa
-</option>
-<option value="AF" >				Air France
-</option>
-<option value="AI" >				Air India
-</option>
-<option value="MD" >				Air Madagascar
-</option>
-<option value="KM" >				Air Malta
-</option>
-<option value="MK" >				Air Mauritius
-</option>
-<option value="SW" >				Air Namibia
-</option>
-<option value="NZ" >				Air New Zealand
-</option>
-<option value="OG" >				Air Onix
-</option>
-<option value="HM" >				Air Seychelles
-</option>
-<option value="VT" >				Air Tahiti
-</option>
-<option value="TN" >				Air Tahiti Nui
-</option>
-<option value="TS" >				Air Transat
-</option>
-<option value="AB" >				airberlin
-</option>
-<option value="N/" >				airberlin Charter
-</option>
-<option value="AN" >				Airlinair
-</option>
-<option value="AZ" >				Alitalia
-</option>
-<option value="NH" >				All Nippon Airways
-</option>
-<option value="P/" >				Alltours Charter
-</option>
-<option value="E8" >				Alpieagles
-</option>
-<option value="AA" >				American Airlines
-</option>
-<option value="OZ" >				Asiana Airlines
-</option>
-<option value="IQ" >				Augsburg Airways
-</option>
-<option value="OS" >				Austrian Airlines
-</option>
-<option value="AV" >				Avianca
-</option>
-<option value="4T" >				Belair Airlines
-</option>
-<option value="KF" >				Blue 1
-</option>
-<option value="BA" >				British Airways
-</option>
-<option value="BM" >				British Midland Regional
-</option>
-<option value="SN" >				Brussels Airlines
-</option>
-<option value="S/" >				Bucher Charter
-</option>
-<option value="FB" >				Bulgaria Air
-</option>
-<option value="V3" >				Carpatair
-</option>
-<option value="CX" >				Cathay Pacific
-</option>
-<option value="CI" >				China Airlines
-</option>
-<option value="MU" >				China Eastern Airlines
-</option>
-<option value="CZ" >				China Southern Airlines
-</option>
-<option value="DE" >				Condor
-</option>
-<option value="/P" >				Condor Charter
-</option>
-<option value="OU" >				Croatia Airlines
-</option>
-<option value="OK" >				Czech Airlines
-</option>
-<option value="DL" >				Delta
-</option>
-<option value="B5" >				East African Safari Air Express
-</option>
-<option value="MS" >				Egyptair
-</option>
-<option value="LY" >				El Al
-</option>
-<option value="EK" >				Emirates
-</option>
-<option value="OV" >				Estonian Air
-</option>
-<option value="ET" >				Ethiopian Airlines
-</option>
-<option value="EY" >				Etihad Airways
-</option>
-<option value="BR" >				EVA Airways
-</option>
-<option value="7V" >				Federal Air
-</option>
-<option value="AY" >				Finnair
-</option>
-<option value="5H" >				Five Forty Air
-</option>
-<option value="BE" >				Flybe
-</option>
-<option value="O/" >				Frosch Touristik Charter
-</option>
-<option value="ST" >				Germania Express
-</option>
-<option value="4U" >				Germanwings
-</option>
-<option value="GF" >				Gulf Air
-</option>
-<option value="HU" >				Hainan Airlines
-</option>
-<option value="HK" >				Hamburg Airways
-</option>
-<option value="2L" >				Helvetic Airways
-</option>
-<option value="IB" >				Iberia
-</option>
-<option value="FI" >				Icelandair
-</option>
-<option value="4O" >				Interjet
-</option>
-<option value="JU" >				JAT Airways
-</option>
-<option value="9W" >				Jet Airways
-</option>
-<option value="KL" >				KLM
-</option>
-<option value="KE" >				Korean Air
-</option>
-<option value="KU" >				Kuwait Airways
-</option>
-<option value="LA" >				LAN Airlines
-</option>
-<option value="4M" >				Lan Argentina
-</option>
-<option value="XL" >				LAN Ecuador
-</option>
-<option value="LO" >				LOT-Polish Airlines
-</option>
-<option value="LH" >				Lufthansa
-</option>
-<option value="LG" >				Luxair
-</option>
-<option value="MH" >				Malaysia Airlines
-</option>
-<option value="IG" >				Meridiana fly
-</option>
-<option value="ME" >				Middle East Airlines
-</option>
-<option value="ZB" >				Monarch Airlines
-</option>
-<option value="M/" >				Neckermann NEC Charter
-</option>
-<option value="V/" >				Neckermann TIP Charter
-</option>
-<option value="HG" >				Niki
-</option>
-<option value="DY" >				Norwegian Air Shuttle
-</option>
-<option value="T/" >				Öger Tours Charter
-</option>
-<option value="OL" >				OLT-Ostfriesische Lufttransport
-</option>
-<option value="OA" >				Olympic
-</option>
-<option value="WY" >				Oman Air
-</option>
-<option value="PC" >				Pegasus Airlines
-</option>
-<option value="PW" >				PrecisionAir
-</option>
-<option value="QF" >				Qantas Airways
-</option>
-<option value="QR" >				Qatar Airways
-</option>
-<option value="AT" >				Royal Air Maroc
-</option>
-<option value="BI" >				Royal Brunei Airlines
-</option>
-<option value="RJ" >				Royal Jordanian
-</option>
-<option value="S7" >				S7 Airlines
-</option>
-<option value="SK" >				SAS
-</option>
-<option value="S4" >				SATA Internacional
-</option>
-<option value="R/" >				Schauinsland Reisen Charter
-</option>
-<option value="SQ" >				Singapore Airlines
-</option>
-<option value="QS" >				Smart Wings
-</option>
-<option value="SA" >				South African Airways
-</option>
-<option value="JK" >				Spanair
-</option>
-<option value="UL" >				SriLankan Airlines
-</option>
-<option value="LX" >				Swiss International Air Lines
-</option>
-<option value="JJ" >				TAM Airlines
-</option>
-<option value="TP" >				TAP Portugal
-</option>
-<option value="RO" >				Tarom-Romanian Air Transport
-</option>
-<option value="TG" >				Thai Airways International
-</option>
-<option value="UN" >				Transaero Airlines
-</option>
-<option value="HV" >				Transavia Airlines
-</option>
-<option value="TO" >				Transavia.com
-</option>
-<option value="TU" >				Tunis Air
-</option>
-<option value="TK" >				Turkish Airlines
-</option>
-<option value="VO" >				Tyrolean Air
-</option>
-<option value="PS" >				Ukraine International Airlines
-</option>
-<option value="UA" >				UNITED
-</option>
-<option value="US" >				US Airways
-</option>
-<option value="VN" >				Vietnam Airlines
-</option>
-<option value="VS" >				Virgin Atlantic
-</option>
-<option value="2W" >				Welcome Air
-</option>
-<option value="K/" >				Wow Air
-</option>
-</select>
-				
-<select name="inpFlightClass" >
-<option value="3"  selected="selected">         Economy 
-</option>
-<option value="5" >         Premium Economy 
-</option>
-<option value="2" >         Business 
-</option>
-<option value="1" >         First Class 
-</option>
-</select>
-</div>
-
-
-
-	<div id="disambigPageMainControl">
-		<div id="divHrLine" class="hrLine"><img src="/static/default/default/images/eta/yellowDot.gif" /></div>
-		<div id="topSpaceContinue">
-			<a id="linkForDisambiguation" class="sprite-gif" href="javascript:void(0)">
-				<strong>Weiter</strong>
-			</a>
-		</div>
-		<div id="starSearchOption">
-			<a id="startSearchOptionLinkId" class="sprite-gif" href="/Fluege?numAdults=1&cabinClass=3&tripType=Multi&origin=Venedig%2C+Italien+%28VCE-Alle+Flugh%C3%A4fen%29&destination=Bangkok%2C+Thailand+%28BKK-Alle+Flugh%C3%A4fen%29&fromDate=12%2F20%2F2013&fromTime=362&fromAirport2=Bangkok%2C+Thailand+%28BKK-Alle+Flugh%C3%A4fen%29&toAirport2=Venedig%2C+Italien+%28VCE-Alle+Flugh%C3%A4fen%29&date2=01.06.2014&time2=362">
-				Neue Suche
-			</a>
-		</div>
-	</div>
-
-			
-</FORM>
-				</div>
-			</div>					
-				
-			</td>
-			<td class="dCol">
-                
-			</td>
-		</tr>
-	</table>
-		
+        
+        <div id="idColumnsAB">
+            <div id="idACol" class="cssv2">
+                <div class="aColInclude">
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                    <div class="aColInclude"> </div>
+                </div>
+            </div>
+            
+            <div class="main">
+                <div id="FlightSearchResults">
+                    <div id="divFlightResultErrInfo">
+                        <div id="divFlightResultErrContent">
+                                <div id="divFlightResultErrTitle" class="pageHeading">Der blev ikke fundet nogen fly, der stemte overens med søgekriterierne</div>
+                                <div id="divHrLine" class="hrLine"><img src="/static/default/default/images/eta/yellowDot.gif" /></div>
+                                
+                        
+                                <div id="divhelpSuggestedAction">
+                                    Du kan eventuelt ændre datoer, afrejsetidspunkter, destinationer eller søgevalgmuligheder. Klik på knappen <strong>Gå tilbage</strong> nedenfor for at gå tilbage og prøve en anden handling, eller klik på knappen <strong>Begynd forfra</strong> nedenfor for at gå tilbage til startsiden.
+                                </div>
+                            <div id="divFlightResultErrButton">
+                                    <div id="divSearchMoreFlightsLink">
+                                        <a class="errMoreSearchLinkTxt" href="javascript:history.back()">
+                                            <img src="/static/default/default/images/eta/btn_def.gif" class="iconBtnDef" align="left" />
+                                            <span>Gå tilbage</span>
+                                        </a>
+                                    </div>
+                                <div id="divSearchMoreFlightsLink">
+                                    
+                                  
+                                    <a class="cancelBackLinkTxt" href="/Flybilletter?numAdults=1&cabinClass=3&tripType=Multi&origin=Wien%2C+%C3%98strig+%28VIE-Vienna+Intl.%29&destination=Bangkok%2C+Thailand+%28BKK-All+Airports%29&fromDate=20.12.2013&fromTime=362&fromAirport2=Bangkok%2C+Thailand+%28BKK-All+Airports%29&toAirport2=Paris%2C+Frankrig+%28CDG-Roissy-Charles+de+Gaulle%29&date2=06.01.2014&time2=362">
+                                        <img src="/static/default/default/eta/btn_cnl.gif" class="iconBtnDef" align="left" />
+                                        <span>Begynd forfra</span>
+                                    </a>
+                                </div>
+                                <div class="clearer"></div>
+                            </div>
+                        </div>
+                </div>
+                <div id="showAfterFlightResults"></div>
+            </div>
+        </div>
 <link rel="stylesheet" href="/minify/footer-min-1415314429.css?v=release-2013-09-r1-1665-856245-1" /><!-- 0 ms -->
 <script src="/minify/footer-min-2341569675.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
 <div id="footer" class="footer">
@@ -1235,67 +588,58 @@ if (typeof $LAB === 'undefined') {
              
 	<!-- SWXL widget : c -->
 
-                        <div id="footer-local-links" class="footer-list-container">
-                <div id="footer-local-links-header">Suche:</div>
+                       <div id="footer-local-links" class="footer-list-container">
+                <div id="footer-local-links-header">Flere rejsemuligheder:</div>
                 <ul class="footer-list">
-                    <li><a href="http://www.expedia.de/katalog/pauschalreisen/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Pauschal-Reisen</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/katalog/lastminute-reisen/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Last Minute Reisen</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/billig-reisen.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Billigreisen</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/fluege/flugangebote/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Billigflüge</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/Ziele-In-Deutschland.d64.Hotel-Ziele" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Hotels in Deutschland</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/katalog/pauschalreisen/europa/deutschland/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Pauschalreisen in Deutschland</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/informationen/weltreise.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Weltreise</a><span>|</span></li>
-					<li><a href="http://www.expedia.de/informationen/hotelstaedte-deutschland.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Deutschlandreise</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/pauschalreisen/hotel/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Pauschalhotels</a><span>|</span></li>
-                    <li><a href="http://www.expedia.de/vc/billigfluege" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Flugrouten</a></li>
+                   <li><a href="http://www.expedia.dk/vc/rejser" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:LocalLinks')">Rejseinspiration</a></li>
                 </ul>
-            </div>
+            </div>  
             <div class="footer-separator-thin-up"><!-- --></div>
             <div class ="footer-links-inner footer-links-inner-background">
                 <div id="footer-partner-services" class="footer-list-container">
-                     <div id="footer-partner-services-header">Partnerprogramme:</div>
-                     <ul class="footer-list">
-                        <li><a href="https://joinexpedia.com/default.asp?lang=de" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')" rel="nofollow">Hotel Partnerprogramm</a><span>|</span></li>
-                        <li><a href="http://access.expedia.de/Home/NetworkAffiliateOverview" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')" rel="nofollow">Partnerprogramm</a><span>|</span></li>
-                        <li><a href="http://access.expedia.de/Home/TravelAgentOverview" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')" rel="nofollow">Reisebüro Partnerprogramm</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/service/privatelabel.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')">Private Label</a></li>
-                    </ul>
+                    <div id="footer-partner-services-header">Partnertjenester:</div>
+                    <ul class="footer-list">
+                        <li><a href="https://joinexpedia.com/default.asp?lang=dk" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')">Bliv partner hos Expedia</a><span>|</span></li>
+                        <li><a href="http://access.expedia.dk/Home/NetworkAffiliateOverview" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')">Bliv tilknyttet Expedia</a><span>|</span></li>
+                        <li><a href="http://www.expedia.dk/dk/privatelabel.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')">Private label</a><span>|</span></li>
+						<li><a href="http://access.expedia.dk/Home/TravelAgentOverview" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:PartnerService')">Rejsebureau</a></li>
+					</ul>
                 </div>
                 <div id="footer-expedia-partners" class="footer-list-container">
-                    <div id="footer-expedia-partners-header">Unsere Partnersites:</div>
+                    <div id="footer-expedia-partners-header">Expedia partnere:</div>
                     <ul class="footer-list">
-                        <li><a href="http://de.hotels.com/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Hotels.com</a><span>|</span></li>
-                        <li><a href="http://www.venere.com/de/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Venere</a><span>|</span></li>
-                        <li><a href="http://www.hotwire.com/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Hotwire</a><span>|</span></li>
-                        <li><a href="https://www.egencia.de/public/de/de/was-spricht-fuer-egencia/geschaftsreisemanagement-verstehen/?Campaign_ID=701200000004Icj" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Egencia Geschäftsreise</a><span>|</span></li>
-                        <li><a href="http://www.trivago.de/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Trivago</a></li>
+                        <li><a href="http://da.hotels.com/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Hotels.com</a><span>|</span></li>
+                        <li><a href="http://www.venere.com" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Venere</a><span>|</span></li>
+                        <li><a href="http://www.hotwire.com" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Hotwire</a><span>|</span></li>
+                        <li><a href="http://www.trivago.dk/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:Epartners')">Trivago</a></li>
                     </ul>
                 </div>
                 <div id="footer-corporate-links" class="footer-list-container">
-                    <img id="footer-corporate-links-image" alt="expedia.de" src="//media.expedia.com/media/content/shared/images/navigation/footer/sm_logo.png"/>
+                	<script src="//media.expedia.com/media/content/shared/scripts/external/opinionlab/oo_engine.js?v=1" type="text/javascript" language="JavaScript"></script>
+                    <img id="footer-corporate-links-image" alt="expedia.dk" src="//media.expedia.com/media/content/shared/images/navigation/footer/sm_logo.png"/>
                     <ul class="footer-list">
-                        <li><a href="http://www.expedia.de/service/impressum.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Impressum</a><span>|</span></li>
-                        <li><a href="http://www.advertising.expedia.com/German/Pages/default.aspx/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Werbung</a><span>|</span></li>
-                        <li><a href="http://inside.expedia.de/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Presse</a><span>|</span></li>
-                        <li><a href="http://expediajobseurope.com/index_germany.html" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Jobs</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/service/safecc.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Datenschutz</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/service/agb.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Expedia.de AGB</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/daily/service/veranstalter_agb.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Veranstalter AGB</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/pub/agent.dll?qscr=fbak&itid=0&text=" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" rel="nofollow">Kontakt</a><span>|</span></li>
-                        <li><a href="http://www.expedia.de/tip/default.aspx" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')" target="_blank" rel="nofollow">Einreisebestimmungen</a></li>
+                        <li><a href="http://guiden.expedia.dk/om-os" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Om Expedia</a><span>|</span></li>
+                        <li><a href="http://www.advertising.expedia.com/en-GB/Pages/default.aspx" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Reklamér hos os </a><span>|</span></li>
+                        <li><a href="http://guiden.expedia.dk/pressecenter" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:ExpediaPress')">Pressekontor</a><span>|</span></li>
+                        <li><a href="http://guiden.expedia.dk/" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:ExpediaGuide')">Expedia-guiden</a><span>|</span></li>
+                        <li><a href="http://expediajobseurope.com/index.html" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Job</a><span>|</span></li>
+                        <li><a href="http://www.expedia.dk/pub/agent.dll?qscr=hgen&hfnm=PrivacyPol.htx" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Regler for beskyttelse af personlige oplysninger</a><span>|</span></li>
+                        <li><a href="http://www.expedia.dk/pub/agent.dll?qscr=hgen&hfnm=TermsOfUse.htx" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Generelle vilkår for brug af hjemmesiden</a><span>|</span></li>
+                        <li><a href="https://secure.opinionlab.com/ccc01/comment_card.asp" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink');OpinionLab.O_LC();return false;" rel="nofollow">Feedback</a><span>|</span></li>
+                        <li><a href="http://www.expedia.dk/dk/tandc.aspx" rel="nofollow" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:CorporateLink')">Generelle reservationsvilkår og -betingelser</a></li>
                     </ul>
                 </div>
                 <div class="footer-separator-thin-down"><!-- --></div>
                 <div id="footer-global-sites" class="footer-list-container">
-                    <div id="footer-global-sites-header">Internationale Websites:</div>                    
+                    <div id="footer-global-sites-header">Websteder:</div>                    
 					<ul class="footer-list">
 						<li><a href="http://www.expedia.com.ar/" title="Expedia.com.ar" class="flag-ar" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.at/" title="Expedia.at" class="flag-at" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.com.au/" title="Expedia.com.au" class="flag-au" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>		
 						<li><a href="http://www.expedia.be/" title="Expedia.be" class="flag-be" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.com.br/" title="Expedia.com.br" class="flag-br" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
-						<li><a href="http://www.expedia.ca/" title="Expedia.ca" class="flag-ca" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>						
-						<li><a href="http://www.expedia.dk/" title="Expedia.dk" class="flag-dk" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
+						<li><a href="http://www.expedia.ca/" title="Expedia.ca" class="flag-ca" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
+						<li><a href="http://www.expedia.de/" title="Expedia.de" class="flag-de" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>						
 						<li><a href="http://www.expedia.es/" title="Expedia.es" class="flag-es" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.fi/" title="Expedia.fi" class="flag-fi" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.fr/" title="Expedia.fr" class="flag-fr" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
@@ -1319,7 +663,7 @@ if (typeof $LAB === 'undefined') {
 						<li><a href="http://www.expedia.co.uk/" title="Expedia.co.uk" class="flag-uk" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.com/" title="Expedia.com" class="flag-us" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
 						<li><a href="http://www.expedia.com.vn/" title="Expedia.com.vn" class="flag-vn" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AllSites')"></a></li>
-				
+					
 					</ul>
                 </div>
             </div>
@@ -1327,56 +671,30 @@ if (typeof $LAB === 'undefined') {
         </div>
         <span class="footer-rounded-box-tr-bot"><span><!-- --></span></span>
     </div>
-    	<div class="footer-statements">
+        <div class="footer-statements">
         <div id="footer-legal-text">
             <ul class="footer-list">
                 <li>
-                    Expedia Inc. ist für den Inhalt externer Links nicht verantwortlich.
+                    Pakkerejser tilbydes af Travelscape, LLC, 10190 Covington Cross Drive, Suite 300, Las Vegas, NV 89144, USA
+                </li>
+                <li>
+					Expedia Inc er ikke ansvarlig for indhold fra eksterne websider.
                 </li>
             </ul>
         </div>
-        <div id="footer-awards-badges" class="footer-awards-badges-de">
-            <a rel="nofollow" target="_blank" href="http://www.safer-shopping.de/zertifikat/expedia-de.html" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AwardBadge')"><img id="footer-awards-badges-tuv" height="50" width="50" alt="Expedia TÜV-Zertifikat" src="//media.expedia.com/media/content/expuk/graphics/logos/tuv-logo1.png"></a>
-            <span id="footer-awards-badges-tuv-text">Expedia.de ist TÜV- geprüft auf Sicherheit, Qualität und Transparenz.</span>
-            
-            <a rel="nofollow" target="_blank" href="http://www.safer-shopping.de/zertifikat/expedia-de.html" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AwardBadge')"><img id="footer-awards-badges-tuv2" height="50" width="50" alt="Expedia TÜV-Zertifikat" src="//media.expedia.com/media/content/expuk/graphics/logos/tuv-logo2.png"></a>
-            <span id="footer-awards-badges-tuv2-text">Kundenzufriedenheit ist bei Expedia.de TÜV-geprüft.</span>
-            
-            
-            <a rel="nofollow" target="_blank" href="http://www.v-i-r.de" onclick="xp.nav.trackAnalytics(this,'a','Footer:All:AwardBadge')"><img id="footer-awards-badges-vir" height="38" width="58" alt="Verband Internet Reisevertrieb" src="//media.expedia.com/media/content/expde/graphics/images/logos/vir_logo_footer_58x38.gif"></a>
-            <span id="footer-awards-badges-vir-text">Expedia.de ist Gründungsmitglied im Verband Internet Reisevertrieb.</span>
+        <div id="footer-awards-badges">
         	<div id="footer-awards-badges-iata" title="IATA" class="iata_emea"><!-- --></div>
         </div>
         <div id="footer-copyright" class="footer-list-container">
-            &copy; 2013, Expedia, Inc. Alle Rechte vorbehalten.
+            &copy; 2013, Expedia, Inc Alle rettigheder forbeholdes.
         </div>
     </div>
-
-	<script src="//media.expedia.com/media/content/expde/scripts/3pp_click_events.js"></script>
-    
 
 </div>	
 	
   
 
 
-<!-- AGOF -->
-<!-- SZM VERSION="1.3" -->
-<div id="controImgDiv"><!-- img will load here --></div>
-<script language="Javascript">
-    var ivw="//expedia.ivwbox.de/cgi-bin/ivw/CP/DAILY/CONTRO";
-    document.getElementById('controImgDiv').innerHTML = "<img src=\"" + ivw + "?r=" + escape(document.referrer) + "\" width=\"1\" height=\"1\">";
-</script>
-<noscript>
-    <img src="//expedia.ivwbox.de/cgi-bin/ivw/CP/DAILY/CONTRO" width="1" height="1">
-</noscript>
-<!-- /SZM -->
-
-<!-- SZMFRABO VERSION="1.1" -->
-<script language="Javascript">var szmvars="expedia//CP//DAILY/CONTRO";</script>
-<script src="//expedia.ivwbox.de/2004/01/survey.js" language="Javascript"></script>
-<!-- /SZMFRABO -->
-<!-- /AGOF -->
 
 <iframe src="javascript:'';" id="ecos_iframe" style="position:absolute; left: 0; top: 0; width: 1px; height: 1px; visibility: hidden;" title=""></iframe><iframe src="javascript:'';" id="ecos_iframe2" style="position:absolute; left: 0; top: 0; width: 1px; height: 1px; visibility: hidden;" title=""></iframe><div id="ecos_surveylayer" style="position:absolute; left: 0; top: 0; width: 1px; height: 1px; visibility: hidden;" title="Visitor Survey (dynamically generated)"></div>
 <script src="/minify/npssurvey-min-3254262304.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
@@ -1438,9 +756,9 @@ if (typeof $LAB === 'undefined') {
 
 <div class="ie6-frame-wrapper">
     <div class="ie6-frame">
-        <h3>Der verwendete Browser – Internet Explorer 6 – ist veraltert.</h3>
-        <p>Bitte installieren Sie einen <a href="http://www.browsehappy.com" target="_blank" rel="external">neuen Browser</a>.</p>
-        <p>Besuchen Sie Expedia dann erneut und genießen Sie ein schnelleres und sichereres Browser-Erlebnis.</p>
+        <h3>Den browser, du bruger, (Internet Explorer 6) er forældet.</h3>
+        <p>Opgrader til en <a href="http://www.browsehappy.com" target="_blank" rel="external">ny browser</a>.</p>
+        <p>Kom derefter tilbage til Expedia, og nyd en hurtigere og mere sikker oplevelse.</p>
         <a title="close dialog" class="btn-close" href="#"><span class="icn">×</span></a>
     </div>
 </div>
@@ -1448,23 +766,359 @@ if (typeof $LAB === 'undefined') {
 
 
 <!-- above EIF -->
-<!-- new date template, uses a jquery specific date.js --> 
-<!-- SITE ID DEFAULT -->
-<script src="/minify/exp.core.date-v2-min-1711457002.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
+
+<div id="omnituretag" style="display:none;">
+	<input type="hidden" id="pageId" value="page.Flight-Error-NoFlight" />
+</div>
 <script type="text/javascript">
 
-exp.core.date.CalendarControl.config = exp.core.date.CalendarControl.Config;
-exp.core.date.CalendarControl.config.setFormatConfig('ddmmyy', '.');
-exp.core.date.CalendarControl.config.setUnitConfig(1, ['JAN','FEB','MÄR','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'], ['S','M','D','M','D','F','S']);
-exp.core.date.CalendarControl.config.setTextConfig('Schließen');
-exp.core.date.datePickerDisplay = exp.core.date.DatePickerDisplay('CalFrame', '/static/default/default/html/calendar/v2.0.0/calendar.html');
-exp.core.date.calendar = exp.core.date.Calendar(exp.core.date.CalendarControl.config);
-exp.core.date.datePicker = exp.core.date.DatePickerControl(exp.core.date.calendar);
-
-var g_calendar = exp.core.date.calendar;  
+if('undefined' != typeof(fnTHJSInc) && fnTHJSInc && !hasMetaDataSet("ROBOTS", ["NOTHOOK"]))
+{
+	fnTHJSInc();
+}
+function trackClick(linkObj,linkType,linkID)
+{
+	if('undefined' != typeof(s_exp_trackClick) && s_exp_trackClick)
+	{
+		s_exp_trackClick(linkObj,linkType,linkID);
+	}
+}
 </script>
+
+<script src="/minify/exp.core.tracking-min-2283554046.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
+	<script language="javascript" type="text/javascript">
+		
+	var s_account = "expedia67";
 	
-<script src="/minify/exp.flights.disambig-min-1846978048.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
+	//We only want to log s_BrandEAPID for a select group of tpid/eapid pairs.  
+	//Enter the pair below and set the value to the logged eapid
+	//s_BrandEAPID table, lookup is 'expedia<Tpid>-<EAPID>'
+	s_BrandEAPIDTable = new Object();
+	s_BrandEAPIDTable['expedia30035-327'] = '327';
+	s_BrandEAPIDTable['expedia30036-392'] = '392';
+	s_BrandEAPIDTable['expedia30009-314'] = '314';
+	s_BrandEAPIDTable['expedia6-10122'] = '10122';
+	s_BrandEAPIDTable['expedia30007-711'] = '711';
+	s_BrandEAPIDTable['expedia30007-712'] = '712';
+
+	var s_BrandEAPID = '';
+	if('undefined' != typeof(s_BrandEAPIDTable['expedia67-']))
+	{
+		s_BrandEAPID = s_BrandEAPIDTable['expedia67-'];
+	}
+	
+	//This returns empty string if not in test env
+	var s_accountDevPostfix = '';
+	
+	//If s_BrandEAPID is set then the OM code will append it to s_account
+	//So append the dev postfix to account if blank, but s_BrandEAPID otherwise
+	if (s_BrandEAPID.length > 0) {
+		s_BrandEAPID += s_accountDevPostfix;
+	} else {
+		s_account += s_accountDevPostfix;
+	}
+	
+	//This is for future use so that OM can add 'dev' by itself
+	s_exp_isTest = s_accountDevPostfix.length > 0;
+	</script>
+<script src="/minify/siteAnalytics-min-2002081950.js?v=release-2013-09-r1-1665-856245-1"></script><!-- 0 ms -->
+	<script language='javascript' type='text/javascript' >
+		s_exp.pageName = 'page.Flight-Error-NoFlight'; s_exp.server = 'www.expedia.dk'; s_exp.channel = 'Flight'; 
+		s_exp.prop2 = 'Flight';
+		s_exp.prop3 = '';		
+		s_exp.prop4 = '';
+		s_exp.prop5 = '';
+		s_exp.prop6 = '';
+		s_exp.prop12 = '7a4133de7929491ebb016d56f338522f';
+		if(s_exp.prop2 == "") {
+			s_exp.prop2 = document.getElementById('modelName').innerHTML;
+			s_exp.prop3 = document.getElementById('origin_region').innerHTML;		
+			s_exp.prop4 = document.getElementById('detination_region').innerHTML;
+			s_exp.prop5 = document.getElementById('travelWindow').innerHTML;
+			s_exp.prop6 = document.getElementById('travelDuration').innerHTML;
+			s_exp.prop12 = '7a4133de7929491ebb016d56f338522f';
+		}
+	
+	if(typeof flightsAndPrices1 == 'undefined')
+	{
+	   flightsAndPrices1 = '';
+	}
+	if(typeof flightsAndPrices2 == 'undefined')
+	{
+	   flightsAndPrices2 = '';
+	}
+    if(typeof flightsAndPrices3 == 'undefined')
+	{
+	   flightsAndPrices3 = '';
+	}
+    if(typeof flightsAndPrices4 == 'undefined')
+	{
+	   flightsAndPrices4 = '';
+	}
+    if(typeof flightsAndPrices5 == 'undefined')
+	{
+	   flightsAndPrices5 = '';
+	}
+    s_exp.prop17 = flightsAndPrices1;
+    s_exp.prop18 = flightsAndPrices2;
+    s_exp.prop19 = flightsAndPrices3;
+    s_exp.prop20 = flightsAndPrices4;
+    s_exp.prop29 = flightsAndPrices5; 
+
+		if (typeof(s_prop34)!='undefined') {
+            flight_page_abacus_delimeter = "|";
+            s_exp.prop34 = s_prop34 + flight_page_abacus_delimeter + "703.1";
+            s_exp.eVar34=s_prop34 + flight_page_abacus_delimeter + "703.1";
+        } else {
+            s_exp.prop34 = "703.1";
+            s_exp.eVar34 = "703.1";           
+        }
+    
+	var abacusTrackingValues = document.getElementById("flightAbacusTrackingValues").innerHTML;
+	if(abacusTrackingValues) {
+		var values = abacusTrackingValues.split(",");
+		for (var i = 0; i < values.length; i++) {
+			var experimentValue = values[i].replace(/^\s+|\s+$/g, ''); // trim off whitespace
+			if(experimentValue.length > 0) {
+				PLSetABTestIDAndValue(experimentValue);
+			}
+		}
+	}
+
+	if (typeof(globalAirVsAiUIExperimentId)!='undefined')
+	{
+		PLSetABTestIDAndValue(globalAirVsAiUIExperimentId);
+	}
+
+    s_exp.prop11 = "-1";//Customer TUID
+    s_exp.prop22 = "Flight"; 
+    s_exp.prop23 = "Search"; 
+    s_exp.prop24 = "Results"; 
+    s_exp.prop25 = "Shopper"; 
+    s_exp.prop26 = "FLT Shopper"; 
+    s_exp.prop27 = "Flight>Search"; 
+    s_exp.prop28 = "Flight>Search>Results"; 
+    s_exp.eVar25 = "D=c25"; 
+    s_exp.eVar26 = "D=c26"; 
+	
+	s_exp.eVar2 = s_exp.prop2;
+	s_exp.eVar3 = s_exp.prop3;	
+	s_exp.eVar4 = s_exp.prop4;
+	s_exp.eVar5 = s_exp.prop5;
+	s_exp.eVar6 = s_exp.prop6;
+	s_exp.eVar28 = '';
+	s_exp.eVar45 = '';
+    s_exp.prop1 = '';
+    s_exp.prop30 = '1030';
+    s_exp.eVar54 = s_exp.prop30;           
+    s_exp.eVar37 = '';
+    s_exp.prop37 = s_exp.eVar37;
+    s_exp.prop10 = '';
+    
+    //Capture Flight SR for data mart analytics into eVar47
+    var OldUIElement =  document.getElementById('inpAdult');
+    var multidest = document.getElementById("inpDepartureTime1");
+    if(typeof(OldUIElement) != 'undefined' || typeof(multidest) != 'undefined') {
+    	s_exp.eVar47 = trackingOmnitureeVar47();
+    }
+
+    
+    function trackingOmnitureeVar47(){
+    	if(typeof(flightRouteType) == "undefined"){
+    		return;
+    	}
+    	var TWO_DASH_SYMBOL = "|--";
+		var TREE_DASH_SYMBOL = "|---";
+    
+    	var omnitrueeVar47 = "FLT|--";
+	    if("ONE_WAY" == flightRouteType){
+	    	omnitrueeVar47 += "|OW";
+	    }else if("ROUND_TRIP" == flightRouteType){
+	    	omnitrueeVar47 += "|RT";
+	    }else if("MULTIPLE_DESTINATION" == flightRouteType){
+	    	omnitrueeVar47+= "|MD";
+	    }else{
+	    	omnitrueeVar47 += TWO_DASH_SYMBOL;
+	    }
+	    var adultValue, seniorValue, childrenNumber, infantOnLapChecked, flightClassValue, isNonstopOnly, isRefundableFlightsOnly, flightAirlinePreference;
+		var newUIElement =  document.getElementById('adultCount');
+		var OldUIElement =  document.getElementById('inpAdult');
+
+
+			if (typeof(OldUIElement) != 'undefined' && OldUIElement != null)
+			{	    	
+		    	adultValue = document.getElementById("inpAdult").value;
+		    	seniorValue = document.getElementById("inpSenior").value;
+		    	childrenNumber =  document.getElementById("inpChildren1").value;
+		    	infantOnLapChecked = document.getElementById("radInfantOnLap").checked;
+		    	flightClassValue = document.getElementById("inpFlightClass").value;
+		    	isNonstopOnly = document.getElementById("inpIsNonstopOnly").checked;
+				isRefundableFlightsOnly = document.getElementById("inpRefundableFlightsOnly").checked;
+				flightAirlinePreference = document.getElementById("inpFlightAirlinePreference").value;
+			}
+	   
 	    
-</body>
-</html>   
+	    if(adultValue > 0){
+	    	omnitrueeVar47 += "|A" + adultValue;
+	    }else{
+	    	omnitrueeVar47 += TWO_DASH_SYMBOL;
+	    }
+	    
+	    if(seniorValue > 0){
+	    	omnitrueeVar47 += "|S" + seniorValue;
+	    }else{
+	    	omnitrueeVar47 += TWO_DASH_SYMBOL;
+	    }
+	    
+	    //Number of Children age over 2. who can not be on Lap for flight.  
+	    //Also include children age under 2 but user choose to be on seats.
+	    if(infantOnLapChecked){
+	    	if(childrenNumber > 0){
+	    		var infantOnLapCount = 0;
+	    		for(var i=1; i<=childrenNumber; i++){
+	    			//Child age under 2. on Lap. 
+	    			if(thinListing != 0 && typeof(newUIElement) != 'undefined' && newUIElement != null){
+		    			if($("#child"+i+"Age").val() < 2){
+		    				infantOnLapCount++;
+		    			}
+	    			}
+	    			else
+	    			{
+	    				if(jQuery("#inpChildAgesDetail" + i).val() < 2){
+		    				infantOnLapCount++;
+		    			}
+	    			}
+	    		}
+	    		if(infantOnLapCount == 0){
+	    			omnitrueeVar47 += "|C" + childrenNumber;
+	    			omnitrueeVar47 += TREE_DASH_SYMBOL;
+	    		}else{
+	    			if(childrenNumber > infantOnLapCount){
+		    			omnitrueeVar47 += "|C" + (childrenNumber-infantOnLapCount);
+		    			omnitrueeVar47 += "|IL" + infantOnLapCount;
+		    		}else if(childrenNumber == infantOnLapCount){
+		    			omnitrueeVar47 += TWO_DASH_SYMBOL;
+		    			omnitrueeVar47 += "|IL" + infantOnLapCount;
+		    		}else{
+		    			omnitrueeVar47 += "|C" + (childrenNumber-infantOnLapCount);
+		    			omnitrueeVar47 += "|IL" + infantOnLapCount;
+		    		}
+	    		}
+	    	}else{
+		    	omnitrueeVar47 += TWO_DASH_SYMBOL;
+		    	omnitrueeVar47 += TREE_DASH_SYMBOL;
+		    }
+		}else{
+			if(childrenNumber > 0){
+	    		omnitrueeVar47 += "|C" + childrenNumber;
+	    		omnitrueeVar47 += TREE_DASH_SYMBOL;
+	    	}else{
+		    	omnitrueeVar47 += TWO_DASH_SYMBOL;
+		    	omnitrueeVar47 += TREE_DASH_SYMBOL;
+		    }
+		}
+		omnitrueeVar47 += TREE_DASH_SYMBOL;
+				
+		
+		if(flightClassValue == 1){
+			omnitrueeVar47 += "|F";
+		}else if(flightClassValue == 2){
+			omnitrueeVar47 += "|B";
+		}else if(flightClassValue == 3){
+			omnitrueeVar47 += "|E";
+		}else if(flightClassValue == 5){
+			omnitrueeVar47 += "|P";
+		}else{
+			omnitrueeVar47 += "|E";
+		}
+		
+		omnitrueeVar47 += TREE_DASH_SYMBOL;
+		
+		if(isNonstopOnly && isRefundableFlightsOnly){
+			omnitrueeVar47 += "|D-R";
+		}else if(isNonstopOnly){
+			omnitrueeVar47 += "|Dir";
+		}else if(isRefundableFlightsOnly){
+			omnitrueeVar47 += "|Rfd";
+		}else{
+			omnitrueeVar47 += TREE_DASH_SYMBOL;
+		}
+		omnitrueeVar47 += "|-|";
+		var multidest = document.getElementById("inpDepartureTime1");
+		if(typeof(multidest) != 'undefined' && multidest != null)	{
+			var inpDepartureTime1Value = document.getElementById("inpDepartureTime1").text;
+			var inpArrivalTime1Value = document.getElementById("inpArrivalTime1").text;
+			
+			omnitrueeVar47 += translateMinstoTimeString(inpDepartureTime1Value);
+			omnitrueeVar47 += "|";
+			omnitrueeVar47 += translateMinstoTimeString(inpArrivalTime1Value);
+		}
+		
+		if(flightAirlinePreference == ""){
+			omnitrueeVar47 += TWO_DASH_SYMBOL;
+		}else{
+			omnitrueeVar47 += "|" + flightAirlinePreference;
+		}
+		
+		omnitrueeVar47 += "|---|NA";
+	    return omnitrueeVar47;
+    }
+    
+    function translateMinstoTimeString(mins){
+    
+    	if(document.URL.indexOf("Flights-SearchResults-RoundTrip") != -1){
+    		return "---";
+    	}
+    	if(typeof(mins) == "undifined" || mins == ""){
+    		return "---";
+    	}
+    	
+    	
+    	var timeString = "---";
+    	
+    	switch(mins){
+    		case   "0":  timeString = "24h";break;
+    		case   "1":  timeString = "24h";break;
+    		case  "60":  timeString = "01h";break;
+    		case "120":  timeString = "02h";break;
+    		case "180":  timeString = "03h";break;
+    		case "240":  timeString = "04h";break;
+    		case "300":  timeString = "05h";break;
+    		case "360":  timeString = "06h";break;
+    		case "420":  timeString = "07h";break;
+    		case "480":  timeString = "08h";break;
+    		case "540":  timeString = "09h";break;
+    		case "600":  timeString = "10h";break;
+    		case "660":  timeString = "11h";break;
+    		case "720":  timeString = "12h";break;
+    		case "780":  timeString = "13h";break;
+    		case "840":  timeString = "14h";break;
+    		case "900":  timeString = "15h";break;
+    		case "960":  timeString = "16h";break;
+    		case "1020": timeString = "17h";break;
+    		case "1080": timeString = "18h";break;
+    		case "1140": timeString = "19h";break;
+    		case "1200": timeString = "20h";break;
+    		case "1260": timeString = "21h";break;
+    		case "1320": timeString = "22h";break;
+    		case "1380": timeString = "23h";break;
+    		
+    		case "361":  timeString = "Mor";break;
+    		case "362":  timeString = "Any";break;
+    		case "721":  timeString = "Aft";break;
+    		case "1081": timeString = "Eve";break;
+    	
+    	}
+    	
+    	return timeString;
+	    
+    }
+	
+  </script>
+	<script language="javascript" type="text/javascript">
+		<!--
+		var s_code=s_exp.t();if(s_code)document.write(s_code)//-->
+	</script>
+    
+    </body>
+</html>

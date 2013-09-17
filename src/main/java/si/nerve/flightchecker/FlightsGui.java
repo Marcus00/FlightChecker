@@ -22,6 +22,7 @@ import java.io.*;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,20 +35,20 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   public static final String SEARCH = "SEARCH";
   public static final String STOP_SEARCH = "STOP_SEARCH";
   public static final String CHECKBOX_CHANGED = "CHECKBOX_CHANGED";
-  public static final int QUEUE_SIZE = 50;
+  public static final int QUEUE_SIZE = 100;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
   private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
   private JButton m_searchButton;
   private DoubleDateChooser m_dateChooser;
   private JCheckBox m_combined;
-  private JCheckBox m_kayakNl, m_kayakCom, m_kayakDe, m_kayakIt, m_kayakCoUk, m_kayakEs, m_kayakFr, m_kayakPl,
-      m_expediaCom, m_expediaDe, m_expediaEs, m_expediaFr, m_expediaIt;
-  private JLabel m_kayakNlStatusLabel, m_kayakComStatusLabel, m_kayakDeStatusLabel, m_kayakItStatusLabel, m_kayakCoUkStatusLabel, m_kayakEsStatusLabel, m_kayakFrStatusLabel, m_kayakPlStatusLabel,
-      m_expediaComStatusLabel, m_expediaDeStatusLabel, m_expediaEsStatusLabel, m_expediaFrStatusLabel, m_expediaItStatusLabel;
+  private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
+      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "pl", "ca", "ie", "be", "se"));
+  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap;
+  private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
-  private String[] m_codes = {
+  private String[] m_roshadaCodes = {
       "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
       "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
   private Map<String, JToggleButton> m_airportGroupBtnMap;
@@ -74,7 +75,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     initLogging();
 
     m_mainTable = new MultiCityFlightTable(new MultiCityFlightTableModel(new ArrayList<MultiCityFlightData>()));
-    m_mainTable.setPreferredScrollableViewportSize(new Dimension(1300, 800));
+    m_mainTable.setPreferredScrollableViewportSize(new Dimension(1000, 800));
     m_mainTable.setFillsViewportHeight(true);
     m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel) m_mainTable.getModel());
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
@@ -89,79 +90,38 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
     m_searchButton = new JButton("Išči");
 
-    m_kayakNlStatusLabel = new JLabel();
-    m_kayakComStatusLabel = new JLabel();
-    m_kayakDeStatusLabel = new JLabel();
-    m_kayakItStatusLabel = new JLabel();
-    m_kayakCoUkStatusLabel = new JLabel();
-    m_kayakEsStatusLabel = new JLabel();
-    m_kayakFrStatusLabel = new JLabel();
-    m_kayakPlStatusLabel = new JLabel();
-    m_expediaComStatusLabel = new JLabel();
-    m_expediaDeStatusLabel = new JLabel();
-    m_expediaFrStatusLabel = new JLabel();
-    m_expediaEsStatusLabel = new JLabel();
-    m_expediaItStatusLabel = new JLabel();
-
-    m_kayakPl = new JCheckBox("www.kayak.pl");
-    m_kayakNl = new JCheckBox("www.kayak.nl");
-    m_kayakCom = new JCheckBox("www.kayak.com");
-    m_kayakDe = new JCheckBox("www.kayak.de");
-    m_kayakIt = new JCheckBox("www.kayak.it");
-    m_kayakCoUk = new JCheckBox("www.kayak.co.uk");
-    m_kayakEs = new JCheckBox("www.kayak.es");
-    m_kayakFr = new JCheckBox("www.kayak.fr");
-    m_expediaCom = new JCheckBox("www.expedia.com");
-    m_expediaDe = new JCheckBox("www.expedia.de");
-    m_expediaEs = new JCheckBox("www.expedia.es");
-    m_expediaFr = new JCheckBox("www.expedia.fr");
-    m_expediaIt = new JCheckBox("www.expedia.it");
+    m_kayakLabelMap = new HashMap<String, JLabel>();
+    m_kayakCBMap = new HashMap<String, JCheckBox>();
+    m_expediaLabelMap = new HashMap<String, JLabel>();
+    m_expediaCBMap = new HashMap<String, JCheckBox>();
 
     Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
-    m_kayakNlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakNl.getText()));
-    m_kayakComStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakCom.getText()));
-    m_kayakDeStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakDe.getText()));
-    m_kayakItStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakIt.getText()));
-    m_kayakCoUkStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakCoUk.getText()));
-    m_kayakEsStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakEs.getText()));
-    m_kayakFrStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakFr.getText()));
-    m_kayakPlStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_kayakPl.getText()));
-    m_expediaComStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
-    m_expediaDeStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
-    m_expediaFrStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
-    m_expediaEsStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
-    m_expediaItStatusLabel.setBorder(BorderFactory.createTitledBorder(lineBorder, m_expediaCom.getText()));
+    for (String root : m_kayakRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.kayak." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_kayakLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(false);
+      m_kayakCBMap.put(root, checkBox);
+    }
+
+    for (String root : m_expediaRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.expedia." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_expediaLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_expediaCBMap.put(root, checkBox);
+    }
 
     m_combined = new JCheckBox("Rošada");
     m_showInEuro = new JCheckBox("€");
-
-    m_kayakPl.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakNl.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakCom.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakDe.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakIt.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakCoUk.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakEs.setActionCommand(CHECKBOX_CHANGED);
-    m_kayakFr.setActionCommand(CHECKBOX_CHANGED);
-    m_expediaCom.setActionCommand(CHECKBOX_CHANGED);
-    m_expediaDe.setActionCommand(CHECKBOX_CHANGED);
-    m_expediaEs.setActionCommand(CHECKBOX_CHANGED);
-    m_expediaFr.setActionCommand(CHECKBOX_CHANGED);
-    m_expediaIt.setActionCommand(CHECKBOX_CHANGED);
-
-    m_kayakPl.setSelected(false);
-    m_kayakNl.setSelected(false);
-    m_kayakCom.setSelected(false);
-    m_kayakDe.setSelected(false);
-    m_kayakIt.setSelected(false);
-    m_kayakCoUk.setSelected(false);
-    m_kayakEs.setSelected(false);
-    m_kayakFr.setSelected(false);
-    m_expediaCom.setSelected(true);
-    m_expediaDe.setSelected(true);
-    m_expediaEs.setSelected(true);
-    m_expediaFr.setSelected(true);
-    m_expediaIt.setSelected(true);
 
     m_searchButton.addActionListener(this);
     m_searchButton.setActionCommand(SEARCH);
@@ -171,7 +131,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_showInEuro.setSelected(true);
 
     m_airportGroupBtnMap = new HashMap<String, JToggleButton>();
-    for (String code : m_codes)
+    for (String code : m_roshadaCodes)
     {
       m_airportGroupBtnMap.put(code, new JToggleButton(code));
     }
@@ -218,21 +178,16 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_searchButton, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
-    JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+    JPanel groupPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupPanel.setBorder(BorderFactory.createTitledBorder("Strani"));
-    groupPanel.add(m_kayakDe);
-    groupPanel.add(m_kayakIt);
-    groupPanel.add(m_kayakCom);
-    groupPanel.add(m_kayakCoUk);
-    groupPanel.add(m_kayakEs);
-    groupPanel.add(m_kayakFr);
-    groupPanel.add(m_kayakNl);
-    groupPanel.add(m_kayakPl);
-    groupPanel.add(m_expediaCom);
-    groupPanel.add(m_expediaDe);
-    groupPanel.add(m_expediaEs);
-    groupPanel.add(m_expediaFr);
-    groupPanel.add(m_expediaIt);
+    for (String root : m_kayakRoots)
+    {
+      groupPanel.add(m_kayakCBMap.get(root));
+    }
+    for (String root : m_expediaRoots)
+    {
+      groupPanel.add(m_expediaCBMap.get(root));
+    }
 
     JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
@@ -280,21 +235,21 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
     }
 
-    JPanel groupStatusPanel = new JPanel(new GridBagLayout());
+//    JPanel groupStatusPanel = new JPanel(new GridBagLayout());
+    JPanel groupStatusPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
-    groupStatusPanel.add(m_kayakDeStatusLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakItStatusLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakComStatusLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakCoUkStatusLabel, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakEsStatusLabel, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakFrStatusLabel, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakNlStatusLabel, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_kayakPlStatusLabel, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_expediaComStatusLabel, new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_expediaDeStatusLabel, new GridBagConstraints(9, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_expediaEsStatusLabel, new GridBagConstraints(10, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_expediaFrStatusLabel, new GridBagConstraints(11, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    groupStatusPanel.add(m_expediaItStatusLabel, new GridBagConstraints(12, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
+    int i = 0;
+    for (String root : m_kayakRoots)
+    {
+      groupStatusPanel.add(m_kayakLabelMap.get(root));
+//      groupStatusPanel.add(m_kayakLabelMap.get(root), new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    for (String root : m_expediaRoots)
+    {
+      groupStatusPanel.add(m_expediaLabelMap.get(root));
+//      groupStatusPanel.add(m_expediaLabelMap.get(root), new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }
 
     JPanel panel = new JPanel(new GridBagLayout());
     panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -497,110 +452,31 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
     if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
     {
-      if (m_kayakCom.isSelected())
+      for (String root : m_kayakRoots)
       {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "com", this, m_kayakComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
+        JLabel label = m_kayakLabelMap.get(root);
+        if (m_kayakCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
       }
-      else
+      for (String root : m_expediaRoots)
       {
-        m_kayakComStatusLabel.setForeground(Color.GRAY);
+        JLabel label = m_expediaLabelMap.get(root);
+        if (m_expediaCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
       }
-      if (m_kayakDe.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "de", this, m_kayakDeStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakDeStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakIt.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "it", this, m_kayakItStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakItStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakCoUk.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "co.uk", this, m_kayakCoUkStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakCoUkStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakEs.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "es", this, m_kayakEsStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakEsStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakFr.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "fr", this, m_kayakFrStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakFrStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakNl.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "nl", this, m_kayakNlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakNlStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_kayakPl.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), "pl", this, m_kayakPlStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_kayakPlStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_expediaCom.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "com", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_expediaComStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_expediaDe.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "de", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_expediaDeStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_expediaEs.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "es", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_expediaEsStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_expediaFr.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "fr", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_expediaFrStatusLabel.setForeground(Color.GRAY);
-      }
-      if (m_expediaIt.isSelected())
-      {
-        m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), "it", this, m_expediaComStatusLabel, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_codes));
-      }
-      else
-      {
-        m_expediaItStatusLabel.setForeground(Color.GRAY);
-      }
+
       m_executorService.shutdown();
       new SwingWorker()
       {
@@ -625,9 +501,21 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
   private boolean nothingSelected()
   {
-    return !m_kayakCom.isSelected() && !m_kayakCoUk.isSelected() && !m_kayakDe.isSelected() && !m_kayakEs.isSelected()
-        && !m_kayakFr.isSelected() && !m_kayakIt.isSelected() && !m_kayakNl.isSelected() && !m_kayakPl.isSelected()
-        && !m_expediaCom.isSelected() && !m_expediaDe.isSelected() && !m_expediaEs.isSelected() && !m_expediaFr.isSelected() && !m_expediaIt.isSelected();
+    for (String root : m_kayakRoots)
+    {
+      if (m_kayakCBMap.get(root).isSelected())
+      {
+        return false;
+      }
+    }
+    for (String root : m_expediaRoots)
+    {
+      if (m_expediaCBMap.get(root).isSelected())
+      {
+        return false;
+      }
+    }
+    return true;
   }
 
   public MultiCityFlightTable getMainTable()
