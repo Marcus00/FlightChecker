@@ -10,6 +10,7 @@ import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
+import si.nerve.flightchecker.helper.Helper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,7 +54,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
 
     int streamingStartLocation = response.indexOf("window.Streaming");
     int streamingEndLocation = response.indexOf(";", streamingStartLocation);
@@ -242,7 +243,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       ins = new GZIPInputStream(ins);
     }
 
-    String response = readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
 
     int newTimeCommandStart = response.indexOf("Streaming.lastPoll=");
     if (newTimeCommandStart < 0)
@@ -301,21 +302,6 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4");
     return (HttpURLConnection) connection;
-  }
-
-  private String readResponse(InputStream ins, String charset) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    byte[] buffer = new byte[4096];
-    int cnt;
-    while ((cnt = ins.read(buffer)) >= 0)
-    {
-      if (cnt > 0)
-      {
-        bos.write(buffer, 0, cnt);
-      }
-    }
-    return bos.toString(charset);
   }
 
   public static void main(String[] args)

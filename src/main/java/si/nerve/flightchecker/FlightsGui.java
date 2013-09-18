@@ -45,7 +45,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private JCheckBox m_combined;
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
       m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "pl", "ca", "ie", "be", "se")),
-      m_ebookersRoots = new ArrayList<String>(Arrays.asList("com"));
+      m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be"));
   private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap;
   private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap, m_ebookersLabelMap;
   private JCheckBox m_showInEuro;
@@ -77,14 +77,14 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     initLogging();
 
     m_mainTable = new MultiCityFlightTable(new MultiCityFlightTableModel(new ArrayList<MultiCityFlightData>()));
-    m_mainTable.setPreferredScrollableViewportSize(new Dimension(1000, 800));
+    Dimension size = new Dimension(1000, 800);
+    m_mainTable.setPreferredScrollableViewportSize(size);
     m_mainTable.setFillsViewportHeight(true);
     m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel) m_mainTable.getModel());
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_mainTable.setRowSorter(m_sorter);
     m_sorter.setSortsOnUpdates(true);
     JScrollPane scrollPane = new JScrollPane(m_mainTable);
-
     m_fromAP1 = new JComboBox();
     m_toAP1 = new JComboBox();
     m_fromAP2 = new JComboBox();
@@ -190,8 +190,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     commandPanel.add(m_fromAP2, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_toAP2, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_dateChooser, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_combined, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_combined, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
     commandPanel.add(m_searchButton, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     JPanel groupPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
@@ -297,6 +297,16 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     };
 
     buildMenus();
+    Dimension preferredSize = new Dimension(30, m_fromAP1.getSize().height);
+    m_fromAP1.setPreferredSize(preferredSize);
+    m_fromAP1.setMaximumSize(preferredSize);
+    m_toAP1.setPreferredSize(preferredSize);
+    m_toAP1.setMaximumSize(preferredSize);
+    m_fromAP2.setPreferredSize(preferredSize);
+    m_fromAP2.setMaximumSize(preferredSize);
+    m_toAP2.setPreferredSize(preferredSize);
+    m_toAP2.setMaximumSize(preferredSize);
+
   }
 
   private void buildMenus()

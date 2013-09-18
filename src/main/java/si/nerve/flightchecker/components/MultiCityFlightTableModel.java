@@ -130,7 +130,7 @@ public class MultiCityFlightTableModel extends DefaultTableModel
 
       case COL_LEG1_STOPS:
       case COL_LEG2_STOPS:
-        return "Layover";
+        return "Layover(s)";
 
       case COL_PRICE:
         return "Cena";

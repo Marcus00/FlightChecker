@@ -1,20 +1,6 @@
 package si.nerve.flightchecker.pages;
 
-import org.apache.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
-import si.nerve.flightchecker.FlightsGui;
-import si.nerve.flightchecker.components.MultiCityFlightTableModel;
-import si.nerve.flightchecker.data.FlightLeg;
-import si.nerve.flightchecker.data.MultiCityFlightData;
-import si.nerve.flightchecker.data.PriceType;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -23,9 +9,27 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import javax.swing.JLabel;
+
+import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
+import si.nerve.flightchecker.FlightsGui;
+import si.nerve.flightchecker.components.MultiCityFlightTableModel;
+import si.nerve.flightchecker.data.FlightLeg;
+import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
+import si.nerve.flightchecker.helper.Helper;
 
 /**
  * Created: 10.8.13 20:39
@@ -35,6 +39,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
   private SimpleDateFormat m_formatter;
   private SimpleDateFormat m_dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
   private static final Logger LOG = Logger.getLogger(EbookersFlightObtainer.class);
+  private Pattern m_pattern = Pattern.compile("\\d+");
 
   @Override
   public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
@@ -108,7 +113,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
     try
     {
       Document doc = Jsoup.parse(response);
@@ -116,15 +121,26 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
       for (Element link : links)
       {
         Element priceElement = link.select("span.price > span").first();
-        String priceNumber, monSign;
-        if (priceElement.childNodes().size() == 3)
+        String monSign = "";
+        int priceAmount = -1;
+
+        for (Node node : priceElement.childNodes())
         {
-          monSign = priceElement.select("span.money-symbol").first().text();
-          priceNumber = ((TextNode) priceElement.childNodes().get(1)).text();
-        }
-        else
-        {
-          return;
+          if (node instanceof TextNode)
+          {
+            String priceStringWithCurrency = ((TextNode)node).text();
+            priceAmount = Integer.parseInt(priceStringWithCurrency.replaceAll("[\\D]", "").replace("&nbsp;", ""));
+
+            Elements moneySymbol = priceElement.select("span.money-symbol");
+            if (moneySymbol != null && moneySymbol.size() > 0)
+            {
+              monSign = moneySymbol.first().text();
+            }
+            else
+            {
+              monSign = PriceType.getInstance(priceStringWithCurrency).getMonSign();
+            }
+          }
         }
 
         LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
@@ -135,13 +151,26 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
           Element fromAirport = departureInfo.select("span.airportCode > abbr").first();
           String fromAirportName = fromAirport.attr("title");
           String fromAirportCode = fromAirport.text();
-          String fromLocalTime = m_dateFormatter.format(date1) + " " + departureInfo.select("span.heading").text() + ":00"; //todo wtf
+          String fromLocalTime = m_dateFormatter.format(date1) + " " + departureInfo.select("span.heading").text() + ":00";
 
           Element arrivalInfo = leg.select("div[class=info infoArrival]").first();
           Element toAirport = arrivalInfo.select("span.airportCode > abbr").first();
           String toAirportName = toAirport.attr("title");
           String toAirportCode = toAirport.text();
-          String toLocalTime = arrivalInfo.select("span.heading").text();
+          String alerts = leg.select("div.messages > p.alert").text();
+          int days = 0;
+          if (alerts != null && alerts.contains("later"))
+          {
+            Matcher matcher = m_pattern.matcher(alerts);
+            if (matcher.find())
+            {
+              days = Integer.parseInt(matcher.group());
+            }
+          }
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date1);
+          calendar.add(Calendar.DAY_OF_YEAR, days);
+          String toLocalTime = m_dateFormatter.format(calendar.getTime()) + " " + arrivalInfo.select("span.heading").text() + ":00";
 
           Element stopsInfo = leg.select("div[class=info stops]").first();
           String duration = stopsInfo.select("span.duration").text();
@@ -160,15 +189,21 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
         if (legs.size() > 1)
         {
-          String ticketsLeft = link.select("a.actFastAlert > em").first().text();
-          if (ticketsLeft != null && ticketsLeft.length() > 0)
+          Elements select = link.select("a.actFastAlert > em");
+          String ticketsLeft = null;
+          if (select != null && select.size() > 0)
           {
-            ticketsLeft += " left";
+            ticketsLeft = select.first().text();
+            if (ticketsLeft != null && ticketsLeft.length() > 0)
+            {
+              ticketsLeft += " left";
+            }
           }
+
           MultiCityFlightData flightData = new MultiCityFlightData(
               0,
               hostAddress,
-              Integer.parseInt(priceNumber),
+              priceAmount,
               PriceType.getInstance(monSign),
               legs,
               ticketsLeft,
@@ -191,7 +226,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
               if (!flightData.equals(removed))
               {
-                MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
+                MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
                 tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
                 tableModel.fireTableDataChanged();
               }
@@ -202,9 +237,8 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     }
     catch (Exception e)
     {
-      LOG.error("KayakFlightObtainer: Jsoup parsing failed!", e);
+      LOG.error("EbookersFlightObtainer: Jsoup parsing failed!", e);
     }
-
   }
 
   private String getCharSetFromConnection(URLConnection connection)
@@ -235,29 +269,14 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
   {
     URLConnection connection = url.openConnection();
     connection.addRequestProperty("Connection", "keep-alive");
-//    connection.addRequestProperty("Cache-Control", "max-age");
+    //    connection.addRequestProperty("Cache-Control", "max-age");
     connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
     connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
     connection.addRequestProperty("Host", url.getHost());
     connection.addRequestProperty("Referer", url.toString());
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4,en-US,en;q=0.8");
-    return (HttpURLConnection) connection;
-  }
-
-  private String readResponse(InputStream ins, String charset) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    byte[] buffer = new byte[4096];
-    int cnt;
-    while ((cnt = ins.read(buffer)) >= 0)
-    {
-      if (cnt > 0)
-      {
-        bos.write(buffer, 0, cnt);
-      }
-    }
-    return bos.toString(charset);
+    return (HttpURLConnection)connection;
   }
 
   public static void main(String[] args)
