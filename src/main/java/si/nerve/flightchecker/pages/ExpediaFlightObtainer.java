@@ -34,7 +34,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
   private static final Logger LOG = Logger.getLogger(ExpediaFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
+  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
       throws Exception
   {
     if ("com".equals(addressRoot))
@@ -173,7 +173,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
               hostAddress
           );
           returnList.add(flightData);
-          kayakStatusLabel.setForeground(kayakStatusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
+          statusLabel.setForeground(statusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
         }
       }
 
@@ -240,7 +240,11 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
         JSONObject arrivalAirport = (JSONObject) segment.get("arrivalAirport");
         builder.append((String) arrivalAirport.get("airportCode"));
       }
-      builder.append(" (").append(days).append("days ").append(hours).append("h ").append(minutes).append("min)");
+      if (days > 0)
+      {
+        builder.append(" (").append(days).append("days ");
+      }
+      builder.append(hours).append("h ").append(minutes).append("min)");
       return builder.toString();
     }
   }

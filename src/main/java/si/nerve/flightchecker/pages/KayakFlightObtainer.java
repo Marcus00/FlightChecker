@@ -37,7 +37,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   private static final Logger LOG = Logger.getLogger(KayakFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel kayakStatusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
+  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
       throws Exception
   {
     m_addressDot = addressRoot;
@@ -89,7 +89,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       {
         time = result.getTime();
         response = result.getResponse();
-        addToQueue(flightGui, kayakStatusLabel, hostAddress, response);
+        addToQueue(flightGui, statusLabel, hostAddress, response);
       }
       else
       {

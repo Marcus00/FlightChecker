@@ -6,6 +6,7 @@ import org.apache.log4j.PropertyConfigurator;
 import si.nerve.flightchecker.components.*;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.pages.EbookersFlightObtainer;
 import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
 import si.nerve.flightchecker.pages.KayakFlightObtainer;
 import si.nerve.flightchecker.process.ComboDocument;
@@ -43,9 +44,10 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private DoubleDateChooser m_dateChooser;
   private JCheckBox m_combined;
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
-      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "pl", "ca", "ie", "be", "se"));
-  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap;
-  private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap;
+      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "pl", "ca", "ie", "be", "se")),
+      m_ebookersRoots = new ArrayList<String>(Arrays.asList("com"));
+  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap;
+  private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap, m_ebookersLabelMap;
   private JCheckBox m_showInEuro;
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
@@ -93,7 +95,9 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakLabelMap = new HashMap<String, JLabel>();
     m_kayakCBMap = new HashMap<String, JCheckBox>();
     m_expediaLabelMap = new HashMap<String, JLabel>();
+    m_ebookersLabelMap = new HashMap<String, JLabel>();
     m_expediaCBMap = new HashMap<String, JCheckBox>();
+    m_ebookersCBMap = new HashMap<String, JCheckBox>();
 
     Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
     for (String root : m_kayakRoots)
@@ -116,8 +120,20 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       m_expediaLabelMap.put(root, label);
       JCheckBox checkBox = new JCheckBox(cbText);
       checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(true);
+      checkBox.setSelected(false);
       m_expediaCBMap.put(root, checkBox);
+    }
+
+    for (String root : m_ebookersRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.ebookers." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_ebookersLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_ebookersCBMap.put(root, checkBox);
     }
 
     m_combined = new JCheckBox("Rošada");
@@ -189,6 +205,11 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       groupPanel.add(m_expediaCBMap.get(root));
     }
 
+    for (String root : m_ebookersRoots)
+    {
+      groupPanel.add(m_ebookersCBMap.get(root));
+    }
+
     JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
 
@@ -235,20 +256,22 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       }
     }
 
-//    JPanel groupStatusPanel = new JPanel(new GridBagLayout());
     JPanel groupStatusPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
 
-    int i = 0;
     for (String root : m_kayakRoots)
     {
       groupStatusPanel.add(m_kayakLabelMap.get(root));
-//      groupStatusPanel.add(m_kayakLabelMap.get(root), new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     }
+
     for (String root : m_expediaRoots)
     {
       groupStatusPanel.add(m_expediaLabelMap.get(root));
-//      groupStatusPanel.add(m_expediaLabelMap.get(root), new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }
+
+    for (String root : m_ebookersRoots)
+    {
+      groupStatusPanel.add(m_ebookersLabelMap.get(root));
     }
 
     JPanel panel = new JPanel(new GridBagLayout());
@@ -464,12 +487,26 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           label.setForeground(Color.GRAY);
         }
       }
+
       for (String root : m_expediaRoots)
       {
         JLabel label = m_expediaLabelMap.get(root);
         if (m_expediaCBMap.get(root).isSelected())
         {
           m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
+      }
+
+      for (String root : m_ebookersRoots)
+      {
+        JLabel label = m_ebookersLabelMap.get(root);
+        if (m_ebookersCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new EbookersFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
         }
         else
         {
@@ -508,9 +545,18 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         return false;
       }
     }
+
     for (String root : m_expediaRoots)
     {
       if (m_expediaCBMap.get(root).isSelected())
+      {
+        return false;
+      }
+    }
+
+    for (String root : m_ebookersRoots)
+    {
+      if (m_ebookersCBMap.get(root).isSelected())
       {
         return false;
       }
