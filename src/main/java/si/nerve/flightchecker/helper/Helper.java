@@ -49,7 +49,7 @@ public class Helper
         }
         else // 3x
         {
-          return 4;
+          return 3;
         }
       }
     }

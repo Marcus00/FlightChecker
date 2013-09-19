@@ -197,6 +197,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_dateChooser = new DoubleDateChooser();
     m_dateXChooser = new JDateChooser();
     m_dateXChooser.setEnabled(false);
+    m_dateXChooser.setDateFormatString("dd.MM.yyyy");
 
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportMap);
     JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
@@ -438,7 +439,6 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           }
           catch (InterruptedException ignored)
           {
-            System.out.println();
           }
           return null;
         }
@@ -474,7 +474,6 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           }
           catch (InterruptedException ignored)
           {
-            System.out.println();
           }
           return null;
         }
