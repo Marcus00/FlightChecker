@@ -469,7 +469,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private void search(boolean combined)
   {
     int numOfSelected = numOfSelected();
-    if (numOfSelected > 0)
+    if (numOfSelected == 0)
     {
       return;
     }
