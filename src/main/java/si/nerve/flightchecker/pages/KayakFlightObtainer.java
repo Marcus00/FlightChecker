@@ -38,16 +38,20 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
   private static final Logger LOG = Logger.getLogger(KayakFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2, Integer numOfPersons)
+  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons)
       throws Exception
   {
     m_formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     m_addressDot = addressRoot;
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     String hostAddress = "http://www.kayak." + m_addressDot;
-    String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
-        "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
+    String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + m_formatter.format(date1) +
+        "/" + from2 + "-" + to2 + "/" + m_formatter.format(date2);
+    if (from3 != null && to3 != null && date3 != null)
+    {
+      address += "/" + from3 + "-" + to3 + "/" + m_formatter.format(date3);
+    }
     if (numOfPersons > 1)
     {
       address += "/" + numOfPersons + "adults";
@@ -316,7 +320,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
     }
     catch (Exception e)
     {

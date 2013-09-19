@@ -43,7 +43,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1,
-      Date date1, String from2, String to2, Date date2, Integer numOfPersons) throws Exception
+      Date date1, String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
   {
     if ("com".equals(addressRoot))
     {
@@ -82,9 +82,9 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
         .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".dest.key=").append(URLEncoder.encode(to2, "UTF-8"))
         .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".date=").append(URLEncoder.encode(m_formatter.format(date2), "UTF-8"))
         .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".time=Anytime")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".orig.key=")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".dest.key=")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".date=")
+        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".orig.key=").append(URLEncoder.encode(from3, "UTF-8"))
+        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".dest.key=").append(URLEncoder.encode(to3, "UTF-8"))
+        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".date=").append(URLEncoder.encode(m_formatter.format(date3), "UTF-8"))
         .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".time=Anytime")
         .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".orig.key=")
         .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".dest.key=")
@@ -151,14 +151,26 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
           Element fromAirport = departureInfo.select("span.airportCode > abbr").first();
           String fromAirportName = fromAirport.attr("title");
           String fromAirportCode = fromAirport.text();
-          String fromLocalTime = departureInfo.select("span.heading").text();
+          String fromLocalTime = m_dateFormatter.format(date1) + " " + departureInfo.select("span.heading").text() + ":00";
 
           Element arrivalInfo = leg.select("div[class=info infoArrival]").first();
           Element toAirport = arrivalInfo.select("span.airportCode > abbr").first();
           String toAirportName = toAirport.attr("title");
           String toAirportCode = toAirport.text();
-
-          String toLocalTime = arrivalInfo.select("span.heading").text();
+          String alerts = leg.select("div.messages > p.alert").text();
+          int days = 0;
+          if (alerts != null && alerts.contains("later"))
+          {
+            Matcher matcher = m_pattern.matcher(alerts);
+            if (matcher.find())
+            {
+              days = Integer.parseInt(matcher.group());
+            }
+          }
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date1);
+          calendar.add(Calendar.DAY_OF_YEAR, days);
+          String toLocalTime = m_dateFormatter.format(calendar.getTime()) + " " + arrivalInfo.select("span.heading").text() + ":00";
 
           Element stopsInfo = leg.select("div[class=info stops]").first();
           String duration = stopsInfo.select("span.duration").text();
@@ -273,7 +285,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
     }
     catch (Exception e)
     {

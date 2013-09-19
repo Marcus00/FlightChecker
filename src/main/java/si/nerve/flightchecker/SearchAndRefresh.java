@@ -4,7 +4,8 @@ import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Date;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author bratwurzt
@@ -12,35 +13,42 @@ import java.util.Date;
 public class SearchAndRefresh implements Runnable
 {
   private FlightsGui m_flightsGui;
-  private String m_codeFrom;
-  private String m_codeTo;
-  private String m_codeFromStatic;
-  private String m_codeToStatic;
-  private Date m_fromDate;
-  private Date m_toDate;
+  private String m_codeFrom1;
+  private String m_codeTo2;
+  private String m_codeFrom2;
+  private String m_codeTo1;
+  private Date m_date1;
+  private Date m_date2;
+  private Date m_date3;
   private String m_root;
-  private boolean m_combined;
+  private int m_selectedRadio;
   private String[] m_codes;
   private JLabel m_statusLabel;
   private Integer m_numOfPersons;
   private MultiCityFlightObtainer m_multiCityFlightObtainer;
+  private List<String[]> m_a1xCombinations;
+  private List<String[]> m_a3xCombinations;
 
-  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom,
-      String codeTo, String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, Integer numOfPersons, boolean combined, String[] codes)
+  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom1,
+      String codeTo2, String codeTo1, String codeFrom2, Date date1, Date date2, Date from1xDate, Integer numOfPersons, int selectedRadio,
+      String[] codes, List<String[]> a1xCombinations, List<String[]> a3xCombinations)
   {
     m_root = root;
     m_flightsGui = flightsGui;
-    m_codeFrom = codeFrom;
-    m_codeTo = codeTo;
-    m_codeFromStatic = codeFromStatic;
-    m_codeToStatic = codeToStatic;
-    m_fromDate = fromDate;
-    m_toDate = toDate;
+    m_codeFrom1 = codeFrom1;
+    m_codeTo2 = codeTo2;
+    m_codeFrom2 = codeFrom2;
+    m_codeTo1 = codeTo1;
+    m_date1 = date1;
+    m_date2 = date2;
+    m_date3 = from1xDate;
     m_numOfPersons = numOfPersons;
-    m_combined = combined;
+    m_selectedRadio = selectedRadio;
     m_codes = codes;
     m_statusLabel = statusLabel;
     m_multiCityFlightObtainer = multiCityFlightObtainer;
+    m_a1xCombinations = a1xCombinations;
+    m_a3xCombinations = a3xCombinations;
   }
 
   @Override
@@ -48,53 +56,99 @@ public class SearchAndRefresh implements Runnable
   {
     try
     {
-      try
+      switch (m_selectedRadio)
       {
-        if (m_codeFrom != null && m_codeTo != null && m_codeFrom.length() == 3 && m_codeTo.length() == 3)
-        {
-          m_statusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
-          m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate, m_numOfPersons);
-        }
-      }
-      catch (InterruptedException e)
-      {
-        m_statusLabel.setForeground(Color.DARK_GRAY);
-        return;
-      }
-
-      if (m_combined)
-      {
-        for (final String codeFrom : m_codes)
-        {
-          for (final String codeTo : m_codes)
+        case 0:
+        case 1:
+          if (m_codeFrom1 != null && m_codeTo2 != null && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3)
           {
-            if (!codeFrom.equals(m_codeFrom) && !codeTo.equals(m_codeTo))
+            m_statusLabel.setText(m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+            m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons);
+          }
+
+          if (m_selectedRadio == 1) //todo randomize combination call order
+          {
+            for (final String codeFrom : m_codes)
             {
-              JToggleButton toggleButtonFrom, toggleButtonTo;
-              synchronized (m_flightsGui.getAirportGroupBtnMap())
+              for (final String codeTo : m_codes)
               {
-                toggleButtonFrom = m_flightsGui.getAirportGroupBtnMap().get(codeFrom);
-                toggleButtonTo = m_flightsGui.getAirportGroupBtnMap().get(codeTo);
-              }
-
-              if (toggleButtonFrom.isSelected() && toggleButtonTo.isSelected())
-              {
-                try
+                if (!codeFrom.equals(m_codeFrom1) && !codeTo.equals(m_codeTo2))
                 {
-                  Thread.sleep(80 + (int) (Math.random() * 100));
-                }
-                catch (InterruptedException e)
-                {
-                  return;
-                }
+                  JToggleButton toggleButtonFrom, toggleButtonTo;
+                  synchronized (m_flightsGui.getAirportGroupBtnMap())
+                  {
+                    toggleButtonFrom = m_flightsGui.getAirportGroupBtnMap().get(codeFrom);
+                    toggleButtonTo = m_flightsGui.getAirportGroupBtnMap().get(codeTo);
+                  }
 
-                m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate, m_numOfPersons);
+                  if (toggleButtonFrom.isSelected() && toggleButtonTo.isSelected())
+                  {
+                    Thread.sleep(100 + (int) (Math.random() * 100));
 
-                m_statusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
+                    m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons);
+
+                    m_statusLabel.setText(codeFrom + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + codeTo);
+                  }
+                }
               }
             }
           }
-        }
+          break;
+        case 2: // 1x
+          for (final String[] codePairs : m_a1xCombinations)
+          {
+            String from3 = codePairs[0];
+            String to3 = codePairs[1];
+            if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
+                && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
+            {
+              m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              m_multiCityFlightObtainer.search(
+                  m_flightsGui,
+                  m_statusLabel,
+                  m_root,
+                  from3,
+                  to3,
+                  m_date3,
+                  m_codeFrom1,
+                  m_codeTo1,
+                  m_date1,
+                  m_codeFrom2,
+                  m_codeTo2,
+                  m_date2,
+                  m_numOfPersons
+              );
+            }
+          }
+          break;
+        case 3: // 3x
+          for (final String[] codePairs : m_a3xCombinations)
+          {
+            String from3 = codePairs[0];
+            String to3 = codePairs[1];
+            if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
+                && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
+            {
+              m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              m_multiCityFlightObtainer.search(
+                  m_flightsGui,
+                  m_statusLabel,
+                  m_root,
+                  m_codeFrom1,
+                  m_codeTo1,
+                  m_date1,
+                  m_codeFrom2,
+                  m_codeTo2,
+                  m_date2,
+                  from3,
+                  to3,
+                  m_date3,
+                  m_numOfPersons
+              );
+            }
+          }
+          break;
+
       }
     }
     catch (InterruptedException e)

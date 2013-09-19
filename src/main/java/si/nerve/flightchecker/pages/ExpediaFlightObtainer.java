@@ -1,7 +1,18 @@
 package si.nerve.flightchecker.pages;
 
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import si.nerve.flightchecker.FlightsGui;
+import si.nerve.flightchecker.components.MultiCityFlightTableModel;
+import si.nerve.flightchecker.data.FlightLeg;
+import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
+import si.nerve.flightchecker.helper.Helper;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -14,17 +25,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import javax.swing.JLabel;
-
-import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import si.nerve.flightchecker.FlightsGui;
-import si.nerve.flightchecker.components.MultiCityFlightTableModel;
-import si.nerve.flightchecker.data.FlightLeg;
-import si.nerve.flightchecker.data.MultiCityFlightData;
-import si.nerve.flightchecker.data.PriceType;
 
 /**
  * Created: 10.8.13 20:39
@@ -36,7 +36,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
-      String from2, String to2, Date date2, Integer numOfPersons) throws Exception
+      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
   {
     if ("com".equals(addressRoot))
     {
@@ -65,10 +65,14 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     }
 
     String hostAddress = "http://www.expedia." + addressRoot + "/";
-    String address = hostAddress + "Flight-SearchResults?trip=multi&leg1=" +
-        URLEncoder.encode("from:" + from1 + ",frCode:undefined,to:" + to1 + ",toCode:undefined,departure:" + m_formatter.format(date1) + "TANYT", "UTF-8") + "&leg2=" +
-        URLEncoder.encode("from:" + from2 + ",frCode:undefined,to:" + to2 + ",toCode:undefined,departure:" + m_formatter.format(date2) + "TANYT", "UTF-8") +
-        "&passengers=" + URLEncoder.encode("children:0,adults:" + numOfPersons + ",seniors:0,infantinlap:Y", "UTF-8") +
+    String address = hostAddress + "Flight-SearchResults?trip=multi" +
+        "&leg1=" + URLEncoder.encode("from:" + from1 + ",frCode:undefined,to:" + to1 + ",toCode:undefined,departure:" + m_formatter.format(date1) + "TANYT", "UTF-8") +
+        "&leg2=" + URLEncoder.encode("from:" + from2 + ",frCode:undefined,to:" + to2 + ",toCode:undefined,departure:" + m_formatter.format(date2) + "TANYT", "UTF-8");
+    if (from3 != null && to3 != null && date3 != null)
+    {
+      address += "&leg3=" + URLEncoder.encode("from:" + from3 + ",frCode:undefined,to:" + to3 + ",toCode:undefined,departure:" + m_formatter.format(date3) + "TANYT", "UTF-8");
+    }
+    address += "&passengers=" + URLEncoder.encode("children:0,adults:" + numOfPersons + ",seniors:0,infantinlap:Y", "UTF-8") +
         "&options=" + URLEncoder.encode("cabinclass:economy,nopenalty:N,sortby:price", "UTF-8") +
         "&mode=search";
 
@@ -80,7 +84,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
     int streamingStartLocation = response.indexOf("Flight-SearchResults");
     int streamingEndLocation = response.indexOf("';", streamingStartLocation);
     try
@@ -115,7 +119,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    response = readResponse(ins, getCharSetFromConnection(connection));
+    response = Helper.readResponse(ins, getCharSetFromConnection(connection));
     String startJsonString = "<script id='jsonData' type=\"text/x-jquery-tmpl\">";
     int startIndex = response.indexOf(startJsonString);
     if (startIndex == -1)
@@ -314,28 +318,13 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     return (HttpURLConnection)connection;
   }
 
-  private String readResponse(InputStream ins, String charset) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    byte[] buffer = new byte[4096];
-    int cnt;
-    while ((cnt = ins.read(buffer)) >= 0)
-    {
-      if (cnt > 0)
-      {
-        bos.write(buffer, 0, cnt);
-      }
-    }
-    return bos.toString(charset);
-  }
-
   public static void main(String[] args)
   {
     MultiCityFlightObtainer obtainer = new ExpediaFlightObtainer();
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1);
     }
     catch (Exception e)
     {

@@ -1,8 +1,10 @@
 package si.nerve.flightchecker.helper;
 
+import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 
 /**
  * @author bratwurzt
@@ -22,5 +24,36 @@ public class Helper
       }
     }
     return bos.toString(charset);
+  }
+
+  public static int getSelectedButtonText(ButtonGroup buttonGroup)
+  {
+    for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements(); )
+    {
+      AbstractButton button = buttons.nextElement();
+
+      if (button.isSelected())
+      {
+        String text = button.getText();
+        if ("N".equals(text))
+        {
+          return 0;
+        }
+        else if ("Rošada".equals(text))
+        {
+          return 1;
+        }
+        else if ("1x".equals(text))
+        {
+          return 2;
+        }
+        else // 3x
+        {
+          return 4;
+        }
+      }
+    }
+
+    return -1;
   }
 }
