@@ -22,11 +22,11 @@ public class SearchAndRefresh implements Runnable
   private boolean m_combined;
   private String[] m_codes;
   private JLabel m_statusLabel;
+  private Integer m_numOfPersons;
   private MultiCityFlightObtainer m_multiCityFlightObtainer;
 
-  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer,
-                          String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom, String codeTo,
-                          String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, boolean combined, String[] codes)
+  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom,
+      String codeTo, String codeToStatic, String codeFromStatic, Date fromDate, Date toDate, Integer numOfPersons, boolean combined, String[] codes)
   {
     m_root = root;
     m_flightsGui = flightsGui;
@@ -36,6 +36,7 @@ public class SearchAndRefresh implements Runnable
     m_codeToStatic = codeToStatic;
     m_fromDate = fromDate;
     m_toDate = toDate;
+    m_numOfPersons = numOfPersons;
     m_combined = combined;
     m_codes = codes;
     m_statusLabel = statusLabel;
@@ -52,7 +53,7 @@ public class SearchAndRefresh implements Runnable
         if (m_codeFrom != null && m_codeTo != null && m_codeFrom.length() == 3 && m_codeTo.length() == 3)
         {
           m_statusLabel.setText(m_codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + m_codeTo);
-          m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate);
+          m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, m_codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, m_codeTo, m_toDate, m_numOfPersons);
         }
       }
       catch (InterruptedException e)
@@ -87,7 +88,7 @@ public class SearchAndRefresh implements Runnable
                   return;
                 }
 
-                m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate);
+                m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeToStatic, m_fromDate, m_codeFromStatic, codeTo, m_toDate, m_numOfPersons);
 
                 m_statusLabel.setText(codeFrom + "-" + m_codeToStatic + " | " + m_codeFromStatic + "-" + codeTo);
               }

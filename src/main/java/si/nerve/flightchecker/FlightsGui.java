@@ -39,7 +39,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   public static final int QUEUE_SIZE = 100;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
-  private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2;
+  private JComboBox m_fromAP1, m_toAP1, m_fromAP2, m_toAP2, m_numOfPersons;
   private JButton m_searchButton;
   private DoubleDateChooser m_dateChooser;
   private JCheckBox m_combined;
@@ -89,7 +89,9 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_toAP1 = new JComboBox();
     m_fromAP2 = new JComboBox();
     m_toAP2 = new JComboBox();
+    Integer[] numOfPersons = {1, 2};
 
+    m_numOfPersons = new JComboBox(numOfPersons);
     m_searchButton = new JButton("Išči");
 
     m_kayakLabelMap = new HashMap<String, JLabel>();
@@ -99,42 +101,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_expediaCBMap = new HashMap<String, JCheckBox>();
     m_ebookersCBMap = new HashMap<String, JCheckBox>();
 
-    Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
-    for (String root : m_kayakRoots)
-    {
-      JLabel label = new JLabel();
-      String cbText = "www.kayak." + root;
-      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
-      m_kayakLabelMap.put(root, label);
-      JCheckBox checkBox = new JCheckBox(cbText);
-      checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(true);
-      m_kayakCBMap.put(root, checkBox);
-    }
-
-    for (String root : m_expediaRoots)
-    {
-      JLabel label = new JLabel();
-      String cbText = "www.expedia." + root;
-      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
-      m_expediaLabelMap.put(root, label);
-      JCheckBox checkBox = new JCheckBox(cbText);
-      checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(true);
-      m_expediaCBMap.put(root, checkBox);
-    }
-
-    for (String root : m_ebookersRoots)
-    {
-      JLabel label = new JLabel();
-      String cbText = "www.ebookers." + root;
-      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
-      m_ebookersLabelMap.put(root, label);
-      JCheckBox checkBox = new JCheckBox(cbText);
-      checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(true);
-      m_ebookersCBMap.put(root, checkBox);
-    }
+    fillCheckBoxMaps();
 
     m_combined = new JCheckBox("Rošada");
     m_showInEuro = new JCheckBox("€");
@@ -190,9 +157,10 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     commandPanel.add(m_fromAP2, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_toAP2, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_dateChooser, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_combined, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    commandPanel.add(m_showInEuro, new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
-    commandPanel.add(m_searchButton, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_numOfPersons, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_combined, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_showInEuro, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
+    commandPanel.add(m_searchButton, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     JPanel groupPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupPanel.setBorder(BorderFactory.createTitledBorder("Strani"));
@@ -219,6 +187,190 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       groupCodesPanel.add(button);
     }
 
+    JPanel groupStatusPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
+    groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
+
+    for (String root : m_kayakRoots)
+    {
+      groupStatusPanel.add(m_kayakLabelMap.get(root));
+    }
+
+    for (String root : m_expediaRoots)
+    {
+      groupStatusPanel.add(m_expediaLabelMap.get(root));
+    }
+
+    for (String root : m_ebookersRoots)
+    {
+      groupStatusPanel.add(m_ebookersLabelMap.get(root));
+    }
+
+    loadLastSavedGroups();
+
+    JPanel panel = new JPanel(new GridBagLayout());
+    panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupCodesPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(scrollPane, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupStatusPanel, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.setOpaque(true);
+    add(panel, BorderLayout.CENTER);
+
+    pack();
+    setVisible(true);
+    m_mainTable.setColumnWidths(c_columnWidths);
+
+    m_comparator = new Comparator<MultiCityFlightData>()
+    {
+      @Override
+      public int compare(MultiCityFlightData o1, MultiCityFlightData o2)
+      {
+        return o1.getPriceAmount(true) > o2.getPriceAmount(true) ? -1 : o1.getPriceAmount(true) < o2.getPriceAmount(true) ? 1 : 0;
+      }
+    };
+
+    buildMenus();
+    setPrefferedComponentSize();
+  }
+
+  private void search(boolean combined)
+  {
+    int numOfSelected = numOfSelected();
+    if (numOfSelected == 0)
+    {
+      return;
+    }
+
+    final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
+    final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
+
+    m_executorService = Executors.newFixedThreadPool(numOfSelected);
+    final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
+    final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
+    final Date fromDate = m_dateChooser.getFromDateChooser().getDate();
+    final Date toDate = m_dateChooser.getToDateChooser().getDate();
+    final Integer numOfPersons = (Integer) m_numOfPersons.getSelectedItem();
+    m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
+
+    if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
+    {
+      for (String root : m_kayakRoots)
+      {
+        JLabel label = m_kayakLabelMap.get(root);
+        if (m_kayakCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, numOfPersons, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
+      }
+
+      for (String root : m_expediaRoots)
+      {
+        JLabel label = m_expediaLabelMap.get(root);
+        if (m_expediaCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, numOfPersons, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
+      }
+
+      for (String root : m_ebookersRoots)
+      {
+        JLabel label = m_ebookersLabelMap.get(root);
+        if (m_ebookersCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(new EbookersFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, numOfPersons, combined, m_roshadaCodes));
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
+      }
+
+      m_executorService.shutdown();
+      new SwingWorker()
+      {
+        @Override
+        protected Object doInBackground() throws Exception
+        {
+          try
+          {
+            m_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            m_searchButton.setText("Išči");
+            m_searchButton.setActionCommand(SEARCH);
+            resetCursor();
+          }
+          catch (InterruptedException ignored)
+          {
+          }
+          return null;
+        }
+      }.execute();
+    }
+  }
+
+  private void setPrefferedComponentSize()
+  {
+    Dimension preferredSize = new Dimension(30, m_fromAP1.getSize().height);
+    m_fromAP1.setPreferredSize(preferredSize);
+    m_fromAP1.setMaximumSize(preferredSize);
+    m_toAP1.setPreferredSize(preferredSize);
+    m_toAP1.setMaximumSize(preferredSize);
+    m_fromAP2.setPreferredSize(preferredSize);
+    m_fromAP2.setMaximumSize(preferredSize);
+    m_toAP2.setPreferredSize(preferredSize);
+    m_toAP2.setMaximumSize(preferredSize);
+    m_searchButton.setMaximumSize(new Dimension(40, m_searchButton.getSize().height));
+  }
+
+  private void fillCheckBoxMaps()
+  {
+    Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
+    for (String root : m_kayakRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.kayak." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_kayakLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_kayakCBMap.put(root, checkBox);
+    }
+
+    for (String root : m_expediaRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.expedia." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_expediaLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_expediaCBMap.put(root, checkBox);
+    }
+
+    for (String root : m_ebookersRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.ebookers." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_ebookersLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_ebookersCBMap.put(root, checkBox);
+    }
+  }
+
+  private void loadLastSavedGroups() throws IOException
+  {
     File settingsFile = getSettingsFile();
     if (settingsFile != null && settingsFile.exists() && settingsFile.isFile())
     {
@@ -255,58 +407,6 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         br.close();
       }
     }
-
-    JPanel groupStatusPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
-    groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
-
-    for (String root : m_kayakRoots)
-    {
-      groupStatusPanel.add(m_kayakLabelMap.get(root));
-    }
-
-    for (String root : m_expediaRoots)
-    {
-      groupStatusPanel.add(m_expediaLabelMap.get(root));
-    }
-
-    for (String root : m_ebookersRoots)
-    {
-      groupStatusPanel.add(m_ebookersLabelMap.get(root));
-    }
-
-    JPanel panel = new JPanel(new GridBagLayout());
-    panel.add(commandPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(groupCodesPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(groupPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(scrollPane, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(groupStatusPanel, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.setOpaque(true);
-    add(panel, BorderLayout.CENTER);
-
-    pack();
-    setVisible(true);
-    m_mainTable.setColumnWidths(c_columnWidths);
-
-    m_comparator = new Comparator<MultiCityFlightData>()
-    {
-      @Override
-      public int compare(MultiCityFlightData o1, MultiCityFlightData o2)
-      {
-        return o1.getPriceAmount(true) > o2.getPriceAmount(true) ? -1 : o1.getPriceAmount(true) < o2.getPriceAmount(true) ? 1 : 0;
-      }
-    };
-
-    buildMenus();
-    Dimension preferredSize = new Dimension(30, m_fromAP1.getSize().height);
-    m_fromAP1.setPreferredSize(preferredSize);
-    m_fromAP1.setMaximumSize(preferredSize);
-    m_toAP1.setPreferredSize(preferredSize);
-    m_toAP1.setMaximumSize(preferredSize);
-    m_fromAP2.setPreferredSize(preferredSize);
-    m_fromAP2.setMaximumSize(preferredSize);
-    m_toAP2.setPreferredSize(preferredSize);
-    m_toAP2.setMaximumSize(preferredSize);
-
   }
 
   private void buildMenus()
@@ -464,87 +564,6 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private PriorityQueue<MultiCityFlightData> readFlightsFile(String absolutePath)
   {
     return new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
-  }
-
-  private void search(boolean combined)
-  {
-    int numOfSelected = numOfSelected();
-    if (numOfSelected == 0)
-    {
-      return;
-    }
-
-    final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
-    final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
-
-    m_executorService = Executors.newFixedThreadPool(numOfSelected);
-    final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
-    final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
-    final Date fromDate = m_dateChooser.getFromDateChooser().getDate();
-    final Date toDate = m_dateChooser.getToDateChooser().getDate();
-
-    m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
-    if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
-    {
-      for (String root : m_kayakRoots)
-      {
-        JLabel label = m_kayakLabelMap.get(root);
-        if (m_kayakCBMap.get(root).isSelected())
-        {
-          m_executorService.execute(new SearchAndRefresh(new KayakFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
-        }
-        else
-        {
-          label.setForeground(Color.GRAY);
-        }
-      }
-
-      for (String root : m_expediaRoots)
-      {
-        JLabel label = m_expediaLabelMap.get(root);
-        if (m_expediaCBMap.get(root).isSelected())
-        {
-          m_executorService.execute(new SearchAndRefresh(new ExpediaFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
-        }
-        else
-        {
-          label.setForeground(Color.GRAY);
-        }
-      }
-
-      for (String root : m_ebookersRoots)
-      {
-        JLabel label = m_ebookersLabelMap.get(root);
-        if (m_ebookersCBMap.get(root).isSelected())
-        {
-          m_executorService.execute(new SearchAndRefresh(new EbookersFlightObtainer(), root, this, label, from, to, toStatic, fromStatic, fromDate, toDate, combined, m_roshadaCodes));
-        }
-        else
-        {
-          label.setForeground(Color.GRAY);
-        }
-      }
-
-      m_executorService.shutdown();
-      new SwingWorker()
-      {
-        @Override
-        protected Object doInBackground() throws Exception
-        {
-          try
-          {
-            m_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            m_searchButton.setText("Išči");
-            m_searchButton.setActionCommand(SEARCH);
-            resetCursor();
-          }
-          catch (InterruptedException ignored)
-          {
-          }
-          return null;
-        }
-      }.execute();
-    }
   }
 
   private int numOfSelected()

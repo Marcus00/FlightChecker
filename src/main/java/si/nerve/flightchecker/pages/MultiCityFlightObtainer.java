@@ -10,6 +10,6 @@ import java.util.Date;
  */
 public interface MultiCityFlightObtainer
 {
-  public void search(FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
-      throws Exception;
+  public void search(FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2,
+      Date date2, Integer numOfPersons) throws Exception;
 }

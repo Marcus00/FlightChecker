@@ -25,7 +25,6 @@ import si.nerve.flightchecker.components.MultiCityFlightTableModel;
 import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
-import si.nerve.flightchecker.helper.Helper;
 
 /**
  * Created: 10.8.13 20:39
@@ -36,8 +35,8 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
   private static final Logger LOG = Logger.getLogger(ExpediaFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
-      throws Exception
+  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+      String from2, String to2, Date date2, Integer numOfPersons) throws Exception
   {
     if ("com".equals(addressRoot))
     {
@@ -69,7 +68,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     String address = hostAddress + "Flight-SearchResults?trip=multi&leg1=" +
         URLEncoder.encode("from:" + from1 + ",frCode:undefined,to:" + to1 + ",toCode:undefined,departure:" + m_formatter.format(date1) + "TANYT", "UTF-8") + "&leg2=" +
         URLEncoder.encode("from:" + from2 + ",frCode:undefined,to:" + to2 + ",toCode:undefined,departure:" + m_formatter.format(date2) + "TANYT", "UTF-8") +
-        "&passengers=" + URLEncoder.encode("children:0,adults:1,seniors:0,infantinlap:Y", "UTF-8") +
+        "&passengers=" + URLEncoder.encode("children:0,adults:" + numOfPersons + ",seniors:0,infantinlap:Y", "UTF-8") +
         "&options=" + URLEncoder.encode("cabinclass:economy,nopenalty:N,sortby:price", "UTF-8") +
         "&mode=search";
 
@@ -336,7 +335,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"));
+      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), 1);
     }
     catch (Exception e)
     {

@@ -14,7 +14,6 @@ import si.nerve.flightchecker.helper.Helper;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,19 +32,26 @@ import java.util.zip.GZIPInputStream;
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
   private String m_addressDot;
+  private SimpleDateFormat m_formatter;
   private static final int MAX_RETRIES = 45;
   public static final int TIME_MILLIS = 30000;
   private static final Logger LOG = Logger.getLogger(KayakFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
+  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2, Integer numOfPersons)
       throws Exception
   {
+    m_formatter = new SimpleDateFormat("yyyy-MM-dd");
+
     m_addressDot = addressRoot;
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     String hostAddress = "http://www.kayak." + m_addressDot;
     String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + formatter.format(date1) +
         "/" + from2 + "-" + to2 + "/" + formatter.format(date2);
+    if (numOfPersons > 1)
+    {
+      address += "/" + numOfPersons + "adults";
+    }
     URL url = new URL(address);
     URLConnection connection = createHttpConnection(url);
     InputStream ins = connection.getInputStream();
@@ -310,7 +316,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      //      obtainer.search(, "de", "LJU", "NYC", formatter.parse("18.8.2013"), "NYC", "VIE", formatter.parse("25.8.2013"));
+      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
     }
     catch (Exception e)
     {
