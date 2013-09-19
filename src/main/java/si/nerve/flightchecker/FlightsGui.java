@@ -58,7 +58,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private List<String[]> m_1xCombinations, m_3xCombinations;
 
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
-      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se")),
+      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se", "ir")),
       m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be"));
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {

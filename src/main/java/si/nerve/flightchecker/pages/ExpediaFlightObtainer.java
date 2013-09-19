@@ -51,7 +51,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       m_formatter = new SimpleDateFormat("dd-MM-yyyy");
     }
     else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
-        || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot))
+        || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot) || "ir".equals(addressRoot))
     {
       m_formatter = new SimpleDateFormat("dd/MM/yyyy");
     }
