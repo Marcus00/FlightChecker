@@ -468,7 +468,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
   private void search(boolean combined)
   {
-    if (nothingSelected())
+    int numOfSelected = numOfSelected();
+    if (numOfSelected > 0)
     {
       return;
     }
@@ -476,7 +477,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
     final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
 
-    m_executorService = Executors.newFixedThreadPool(7);
+    m_executorService = Executors.newFixedThreadPool(numOfSelected);
     final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
     final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
     final Date fromDate = m_dateChooser.getFromDateChooser().getDate();
@@ -546,13 +547,14 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     }
   }
 
-  private boolean nothingSelected()
+  private int numOfSelected()
   {
+    int count = 0;
     for (String root : m_kayakRoots)
     {
       if (m_kayakCBMap.get(root).isSelected())
       {
-        return false;
+        count++;
       }
     }
 
@@ -560,7 +562,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       if (m_expediaCBMap.get(root).isSelected())
       {
-        return false;
+        count++;
       }
     }
 
@@ -568,10 +570,10 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       if (m_ebookersCBMap.get(root).isSelected())
       {
-        return false;
+        count++;
       }
     }
-    return true;
+    return count;
   }
 
   public MultiCityFlightTable getMainTable()
