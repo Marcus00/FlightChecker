@@ -130,17 +130,14 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     }
     streamingStartLocation = startIndex + startJsonString.length();
     streamingEndLocation = response.indexOf("</script>", streamingStartLocation);
-    LOG.info("streamingStartLocation and streamingEndLocation: " + streamingStartLocation + ", " + streamingEndLocation);
     try
     {
       String jsonString = response.substring(streamingStartLocation, streamingEndLocation);
       jsonString = jsonString.substring(jsonString.indexOf('['), jsonString.length());
-      LOG.info("jsonString length: " + jsonString.length());
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
       SimpleDateFormat localFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
       Object obj = JSONValue.parse(jsonString);
-      LOG.info("JSON acquired successfully!");
       JSONArray array = (JSONArray)obj;
       List<MultiCityFlightData> returnList = new ArrayList<MultiCityFlightData>();
       for (Object anArray : array)

@@ -44,11 +44,11 @@ public class MultiCityFlightData
       switch (m_priceType)
       {
         case DOLLAR:
-          return (int) (m_priceAmount * 0.749288176);
+          return (int) m_priceType.getConversionToEuro(m_priceAmount);
         case EURO:
           return m_priceAmount;
         case POUND:
-          return (int) (m_priceAmount * 1.19646336);
+          return (int) m_priceType.getConversionToEuro(m_priceAmount);
       }
     }
     return m_priceAmount;

@@ -36,71 +36,88 @@ import si.nerve.flightchecker.helper.Helper;
  */
 public class EbookersFlightObtainer implements MultiCityFlightObtainer
 {
-  private SimpleDateFormat m_formatter;
   private SimpleDateFormat m_dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
   private static final Logger LOG = Logger.getLogger(EbookersFlightObtainer.class);
   private Pattern m_pattern = Pattern.compile("\\d+");
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1,
+  public void search(
+      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1,
       Date date1, String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
   {
+    SimpleDateFormat formatter;
     if ("com".equals(addressRoot))
     {
-      m_formatter = new SimpleDateFormat("dd/MM/yy");
+      formatter = new SimpleDateFormat("dd/MM/yy");
     }
     else if ("de".equals(addressRoot) || "dk".equals(addressRoot) || "at".equals(addressRoot))
     {
-      m_formatter = new SimpleDateFormat("dd.MM.yyyy");
+      formatter = new SimpleDateFormat("dd.MM.yyyy");
     }
     else if ("nl".equals(addressRoot))
     {
-      m_formatter = new SimpleDateFormat("dd-MM-yyyy");
+      formatter = new SimpleDateFormat("dd-MM-yyyy");
     }
     else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
         || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot))
     {
-      m_formatter = new SimpleDateFormat("dd/MM/yyyy");
+      formatter = new SimpleDateFormat("dd/MM/yyyy");
     }
     else if ("se".equals(addressRoot))
     {
-      m_formatter = new SimpleDateFormat("yyyy-MM-dd");
+      formatter = new SimpleDateFormat("yyyy-MM-dd");
     }
     else
     {
-      m_formatter = new SimpleDateFormat("MM/dd/yyyy");
+      formatter = new SimpleDateFormat("MM/dd/yyyy");
     }
     String hostAddress = "http://www.ebookers." + addressRoot;
     StringBuilder builder = new StringBuilder(hostAddress).append("/shop/airsearch?type=air&ar.type=multiCity");
 
+    String encode0 = URLEncoder.encode("[0]", "UTF-8");
+    String encode1 = URLEncoder.encode("[1]", "UTF-8");
+    String encode2 = URLEncoder.encode("[2]", "UTF-8");
+    String encode3 = URLEncoder.encode("[3]", "UTF-8");
     builder
-        .append("&ar.mc.slc").append(URLEncoder.encode("[0]", "UTF-8")).append(".orig.key=").append(URLEncoder.encode(from1, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[0]", "UTF-8")).append(".dest.key=").append(URLEncoder.encode(to1, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[0]", "UTF-8")).append(".date=").append(URLEncoder.encode(m_formatter.format(date1), "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[0]", "UTF-8")).append(".time=Anytime")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".orig.key=").append(URLEncoder.encode(from2, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".dest.key=").append(URLEncoder.encode(to2, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".date=").append(URLEncoder.encode(m_formatter.format(date2), "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[1]", "UTF-8")).append(".time=Anytime")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".orig.key=").append(URLEncoder.encode(from3, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".dest.key=").append(URLEncoder.encode(to3, "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".date=").append(URLEncoder.encode(m_formatter.format(date3), "UTF-8"))
-        .append("&ar.mc.slc").append(URLEncoder.encode("[2]", "UTF-8")).append(".time=Anytime")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".orig.key=")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".dest.key=")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".date=")
-        .append("&ar.mc.slc").append(URLEncoder.encode("[3]", "UTF-8")).append(".time=Anytime")
-        .append("&ar.mc.numAdult=").append(numOfPersons).append("&ar.mc.numSenior=0&ar.mc.numChild=0&ar.mc.child").append(URLEncoder.encode("[0]", "UTF-8"))
-        .append("=&ar.mc.child").append(URLEncoder.encode("[1]", "UTF-8"))
-        .append("=&ar.mc.child").append(URLEncoder.encode("[2]", "UTF-8"))
-        .append("=&ar.mc.child").append(URLEncoder.encode("[3]", "UTF-8"))
+        .append("&ar.mc.slc").append(encode0).append(".orig.key=").append(URLEncoder.encode(from1, "UTF-8"))
+        .append("&ar.mc.slc").append(encode0).append(".dest.key=").append(URLEncoder.encode(to1, "UTF-8"))
+        .append("&ar.mc.slc").append(encode0).append(".date=").append(URLEncoder.encode(formatter.format(date1), "UTF-8"))
+        .append("&ar.mc.slc").append(encode0).append(".time=Anytime")
+        .append("&ar.mc.slc").append(encode1).append(".orig.key=").append(URLEncoder.encode(from2, "UTF-8"))
+        .append("&ar.mc.slc").append(encode1).append(".dest.key=").append(URLEncoder.encode(to2, "UTF-8"))
+        .append("&ar.mc.slc").append(encode1).append(".date=").append(URLEncoder.encode(formatter.format(date2), "UTF-8"))
+        .append("&ar.mc.slc").append(encode1).append(".time=Anytime")
+        .append("&ar.mc.slc").append(encode2).append(".orig.key=");
+    if (from3 != null)
+    {
+      builder.append(URLEncoder.encode(from3, "UTF-8"));
+    }
+    builder.append("&ar.mc.slc").append(encode2).append(".dest.key=");
+    if (to3 != null)
+    {
+      builder.append(URLEncoder.encode(to3, "UTF-8"));
+    }
+    builder.append("&ar.mc.slc").append(encode2).append(".date=");
+    if (date3 != null)
+    {
+      builder.append(URLEncoder.encode(formatter.format(date3), "UTF-8"));
+    }
+    builder.append("&ar.mc.slc").append(encode2).append(".time=Anytime")
+        .append("&ar.mc.slc").append(encode3).append(".orig.key=")
+        .append("&ar.mc.slc").append(encode3).append(".dest.key=")
+        .append("&ar.mc.slc").append(encode3).append(".date=")
+        .append("&ar.mc.slc").append(encode3).append(".time=Anytime")
+        .append("&ar.mc.numAdult=").append(numOfPersons).append("&ar.mc.numSenior=0&ar.mc.numChild=0&ar.mc.child").append(encode0)
+        .append("=&ar.mc.child").append(encode1)
+        .append("=&ar.mc.child").append(encode2)
+        .append("=&ar.mc.child").append(encode3)
         .append("=&ar.mc.child").append(URLEncoder.encode("[4]", "UTF-8"))
         .append("=&ar.mc.child").append(URLEncoder.encode("[5]", "UTF-8"))
         .append("=&ar.mc.child").append(URLEncoder.encode("[6]", "UTF-8"))
         .append("=&ar.mc.child").append(URLEncoder.encode("[7]", "UTF-8"))
-        .append("=&_ar.mc.nonStop=0&_ar.mc.narrowSel=0&ar.mc.narrow=airlines&ar.mc.carriers").append(URLEncoder.encode("[0]", "UTF-8"))
-        .append("=&ar.mc.carriers").append(URLEncoder.encode("[1]", "UTF-8"))
-        .append("=&ar.mc.carriers").append(URLEncoder.encode("[2]", "UTF-8"))
+        .append("=&_ar.mc.nonStop=0&_ar.mc.narrowSel=0&ar.mc.narrow=airlines&ar.mc.carriers").append(encode0)
+        .append("=&ar.mc.carriers").append(encode1)
+        .append("=&ar.mc.carriers").append(encode2)
         .append("=&ar.mc.cabin=C&search=").append(URLEncoder.encode("Search Flights", "UTF-8"));
 
     String address = builder.toString();

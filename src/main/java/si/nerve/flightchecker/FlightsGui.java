@@ -58,7 +58,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private List<String[]> m_1xCombinations, m_3xCombinations;
 
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
-      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "pl", "ca", "ie", "be", "se")),
+      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se")),
       m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be"));
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
@@ -196,6 +196,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_toAP2.setEditable(true);
     m_dateChooser = new DoubleDateChooser();
     m_dateXChooser = new JDateChooser();
+    m_dateXChooser.setEnabled(false);
 
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportMap);
     JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
@@ -437,6 +438,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           }
           catch (InterruptedException ignored)
           {
+            System.out.println();
           }
           return null;
         }
@@ -472,6 +474,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           }
           catch (InterruptedException ignored)
           {
+            System.out.println();
           }
           return null;
         }
@@ -558,7 +561,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       m_kayakLabelMap.put(root, label);
       JCheckBox checkBox = new JCheckBox(cbText);
       checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(true);
+      checkBox.setSelected(false);
       m_kayakCBMap.put(root, checkBox);
     }
 
@@ -977,6 +980,5 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   {
     URL url = Thread.currentThread().getContextClassLoader().getResource("config/log4j.properties");
     PropertyConfigurator.configure(url);
-    LOG.info("Flights Logger configured.");
   }
 }

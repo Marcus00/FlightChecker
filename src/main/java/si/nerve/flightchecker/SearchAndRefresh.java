@@ -1,5 +1,8 @@
 package si.nerve.flightchecker;
 
+import si.nerve.flightchecker.pages.EbookersFlightObtainer;
+import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
+import si.nerve.flightchecker.pages.KayakFlightObtainer;
 import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 
 import javax.swing.*;
@@ -63,7 +66,8 @@ public class SearchAndRefresh implements Runnable
           if (m_codeFrom1 != null && m_codeTo2 != null && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3)
           {
             m_statusLabel.setText(m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
-            m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons);
+            m_multiCityFlightObtainer
+                .search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons);
           }
 
           if (m_selectedRadio == 1) //todo randomize combination call order
@@ -83,9 +87,10 @@ public class SearchAndRefresh implements Runnable
 
                   if (toggleButtonFrom.isSelected() && toggleButtonTo.isSelected())
                   {
-                    Thread.sleep(100 + (int) (Math.random() * 100));
+                    Thread.sleep(getSleepMillis() + (int)(Math.random() * 100));
 
-                    m_multiCityFlightObtainer.search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons);
+                    m_multiCityFlightObtainer
+                        .search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons);
 
                     m_statusLabel.setText(codeFrom + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + codeTo);
                   }
@@ -148,19 +153,25 @@ public class SearchAndRefresh implements Runnable
             }
           }
           break;
-
       }
+      m_statusLabel.setForeground(Color.GREEN);
     }
     catch (InterruptedException e)
     {
       m_statusLabel.setForeground(Color.DARK_GRAY);
-      return;
     }
     catch (Exception e)
     {
-      e.printStackTrace();
       m_statusLabel.setForeground(Color.RED);
     }
-    m_statusLabel.setForeground(Color.GREEN);
+  }
+
+  public int getSleepMillis()
+  {
+    if (m_multiCityFlightObtainer instanceof KayakFlightObtainer)
+    {
+      return 600;
+    }
+    return 100;
   }
 }
