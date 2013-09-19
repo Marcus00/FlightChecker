@@ -108,7 +108,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       m_kayakLabelMap.put(root, label);
       JCheckBox checkBox = new JCheckBox(cbText);
       checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(false);
+      checkBox.setSelected(true);
       m_kayakCBMap.put(root, checkBox);
     }
 
@@ -120,7 +120,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       m_expediaLabelMap.put(root, label);
       JCheckBox checkBox = new JCheckBox(cbText);
       checkBox.setActionCommand(CHECKBOX_CHANGED);
-      checkBox.setSelected(false);
+      checkBox.setSelected(true);
       m_expediaCBMap.put(root, checkBox);
     }
 

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,10 +39,39 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
   public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1, String from2, String to2, Date date2)
       throws Exception
   {
-    String hostAddress = "http://www.expedia.com/";
-    String address = hostAddress + "Flight-SearchResults?trip=multi&leg1=from:" + from1 + ",frCode:,to:" + to1 + ",toCode:,departure:" + m_formatter.format(date1)
-        + "TANYT&leg2=from:" + from2 + "frCode:,to:" + to2 + ",toCode:,departure:" + m_formatter.format(date2)
-        + "TANYT&passengers=children:0,adults:1,seniors:0,infantinlap:Y&options=cabinclass:economy,nopenalty:N,sortby:price&mode=search";
+    if ("com".equals(addressRoot))
+    {
+      m_formatter = new SimpleDateFormat("MM/dd/yyyy");
+    }
+    else if ("de".equals(addressRoot) || "dk".equals(addressRoot) || "at".equals(addressRoot))
+    {
+      m_formatter = new SimpleDateFormat("dd.MM.yyyy");
+    }
+    else if ("nl".equals(addressRoot))
+    {
+      m_formatter = new SimpleDateFormat("dd-MM-yyyy");
+    }
+    else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
+        || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot))
+    {
+      m_formatter = new SimpleDateFormat("dd/MM/yyyy");
+    }
+    else if ("se".equals(addressRoot))
+    {
+      m_formatter = new SimpleDateFormat("yyyy-MM-dd");
+    }
+    else
+    {
+      m_formatter = new SimpleDateFormat("MM/dd/yyyy");
+    }
+
+    String hostAddress = "http://www.expedia." + addressRoot + "/";
+    String address = hostAddress + "Flight-SearchResults?trip=multi&leg1=" +
+        URLEncoder.encode("from:" + from1 + ",frCode:undefined,to:" + to1 + ",toCode:undefined,departure:" + m_formatter.format(date1) + "TANYT", "UTF-8") + "&leg2=" +
+        URLEncoder.encode("from:" + from2 + ",frCode:undefined,to:" + to2 + ",toCode:undefined,departure:" + m_formatter.format(date2) + "TANYT", "UTF-8") +
+        "&passengers=" + URLEncoder.encode("children:0,adults:1,seniors:0,infantinlap:Y", "UTF-8") +
+        "&options=" + URLEncoder.encode("cabinclass:economy,nopenalty:N,sortby:price", "UTF-8") +
+        "&mode=search";
 
     URL url = new URL(address);
     URLConnection connection = createHttpConnection(url);
@@ -51,7 +81,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+    String response = readResponse(ins, getCharSetFromConnection(connection));
     int streamingStartLocation = response.indexOf("Flight-SearchResults");
     int streamingEndLocation = response.indexOf("';", streamingStartLocation);
     try
@@ -67,28 +97,32 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     }
     url = new URL(address);
     StringBuilder sbuf = new StringBuilder();
+
     for (String cookie : connection.getHeaderFields().get("Set-Cookie"))
     {
       if (sbuf.length() > 0)
       {
-        sbuf.append("; ");
+        sbuf.append(";");
       }
       sbuf.append(cookie);
     }
+    String cookies = sbuf.toString();
+
     connection = createHttpConnection(url);
-    connection.addRequestProperty("Cookie", sbuf.toString());
+    connection.addRequestProperty("Cookie", cookies);
     ins = connection.getInputStream();
     encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
       ins = new GZIPInputStream(ins);
     }
-    response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+    response = readResponse(ins, getCharSetFromConnection(connection));
     String startJsonString = "<script id='jsonData' type=\"text/x-jquery-tmpl\">";
     int startIndex = response.indexOf(startJsonString);
     if (startIndex == -1)
     {
       LOG.error("ExpediaFlightObtainer: JSON decoding failed for www.expedia." + addressRoot);
+      statusLabel.setForeground(Color.RED);
       return;
     }
     streamingStartLocation = startIndex + startJsonString.length();
@@ -158,21 +192,14 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       {
         for (MultiCityFlightData flightData : returnList)
         {
-          try
+          if (!flightGui.getFlightQueue().contains(flightData))
           {
-            if (!flightGui.getFlightQueue().contains(flightData))
-            {
-              flightGui.getFlightQueue().add(flightData);
+            flightGui.getFlightQueue().add(flightData);
 
-              if (flightGui.getFlightQueue().size() > FlightsGui.QUEUE_SIZE)
-              {
-                flightGui.getFlightQueue().remove();
-              }
+            if (flightGui.getFlightQueue().size() > FlightsGui.QUEUE_SIZE)
+            {
+              flightGui.getFlightQueue().remove();
             }
-          }
-          catch (Exception e)
-          {
-            e.printStackTrace();
           }
         }
 
@@ -218,9 +245,10 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
         JSONObject arrivalAirport = (JSONObject)segment.get("arrivalAirport");
         builder.append((String)arrivalAirport.get("airportCode"));
       }
+      builder.append(" (");
       if (days > 0)
       {
-        builder.append(" (").append(days).append("days ");
+        builder.append(days).append("days ");
       }
       builder.append(hours).append("h ").append(minutes).append("min)");
       return builder.toString();
@@ -287,7 +315,20 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     return (HttpURLConnection)connection;
   }
 
-
+  private String readResponse(InputStream ins, String charset) throws IOException
+  {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] buffer = new byte[4096];
+    int cnt;
+    while ((cnt = ins.read(buffer)) >= 0)
+    {
+      if (cnt > 0)
+      {
+        bos.write(buffer, 0, cnt);
+      }
+    }
+    return bos.toString(charset);
+  }
 
   public static void main(String[] args)
   {
@@ -295,11 +336,12 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"));
+      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"));
     }
     catch (Exception e)
     {
       e.printStackTrace();
     }
   }
+
 }
