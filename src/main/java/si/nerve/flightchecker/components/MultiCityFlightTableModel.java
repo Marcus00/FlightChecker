@@ -26,7 +26,7 @@ public class MultiCityFlightTableModel extends DefaultTableModel
   public static final int COL_LEG2_STOPS = 11;
   public static final int COL_PRICE = 12;
   public static final int COL_MON_ID = 13;
-  public static final int COL_HOST_ADDRESS = 14;
+  public static final int COL_ADDRESS = 14;
   protected static final int COLUMN_COUNT = 15;
 
   protected List<MultiCityFlightData> m_entityList;
@@ -98,8 +98,8 @@ public class MultiCityFlightTableModel extends DefaultTableModel
       case COL_MON_ID:
         return m_convertToEuro ? PriceType.EURO.getMonSign() : flightData.getPriceType().getMonSign();
 
-      case COL_HOST_ADDRESS:
-        return flightData.getHostAddress();
+      case COL_ADDRESS:
+        return flightData.getAddress();
 
       default:
         return "damn you, sky!";
@@ -112,33 +112,33 @@ public class MultiCityFlightTableModel extends DefaultTableModel
     {
       case COL_LEG1_FROM_AIRPORT:
       case COL_LEG2_FROM_AIRPORT:
-        return "Let od";
+        return "From";
 
       case COL_LEG1_FROM_TIME:
       case COL_LEG1_TO_TIME:
       case COL_LEG2_FROM_TIME:
       case COL_LEG2_TO_TIME:
-        return "Čas";
+        return "Time";
 
       case COL_LEG1_TO_AIRPORT:
       case COL_LEG2_TO_AIRPORT:
-        return "Let do";
+        return "To";
 
       case COL_LEG1_DURATION:
       case COL_LEG2_DURATION:
-        return "Trajanje";
+        return "Duration";
 
       case COL_LEG1_STOPS:
       case COL_LEG2_STOPS:
         return "Layover(s)";
 
       case COL_PRICE:
-        return "Cena";
+        return "Price";
       case COL_MON_ID:
-        return "Enota";
+        return "Currency";
 
-      case COL_HOST_ADDRESS:
-        return "Vir";
+      case COL_ADDRESS:
+        return "Link (Double click)";
 
       default:
         return "?";
@@ -161,7 +161,7 @@ public class MultiCityFlightTableModel extends DefaultTableModel
       case COL_LEG2_TO_TIME:
       case COL_LEG2_DURATION:
       case COL_LEG2_STOPS:
-      case COL_HOST_ADDRESS:
+      case COL_ADDRESS:
         return String.class;
 
       case COL_PRICE:

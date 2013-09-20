@@ -224,7 +224,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
               PriceType.getInstance(monSign),
               legs,
               ticketsLeft,
-              hostAddress
+              address
           );
 
           statusLabel.setForeground(statusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);

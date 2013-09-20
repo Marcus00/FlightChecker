@@ -31,7 +31,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class KayakFlightObtainer implements MultiCityFlightObtainer
 {
-  private String m_addressDot;
+  private String m_addressDot, m_address;
   private SimpleDateFormat m_formatter;
   private static final int MAX_RETRIES = 45;
   public static final int TIME_MILLIS = 30000;
@@ -46,17 +46,17 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
     m_addressDot = addressRoot;
     String hostAddress = "http://www.kayak." + m_addressDot;
-    String address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + m_formatter.format(date1) +
+    m_address = hostAddress + "/flights/" + from1 + "-" + to1 + "/" + m_formatter.format(date1) +
         "/" + from2 + "-" + to2 + "/" + m_formatter.format(date2);
     if (from3 != null && to3 != null && date3 != null)
     {
-      address += "/" + from3 + "-" + to3 + "/" + m_formatter.format(date3);
+      m_address += "/" + from3 + "-" + to3 + "/" + m_formatter.format(date3);
     }
     if (numOfPersons > 1)
     {
-      address += "/" + numOfPersons + "adults";
+      m_address += "/" + numOfPersons + "adults";
     }
-    URL url = new URL(address);
+    URL url = new URL(m_address);
     URLConnection connection = createHttpConnection(url);
     InputStream ins = connection.getInputStream();
     String encoding = connection.getHeaderField("Content-Encoding");
@@ -95,12 +95,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
     while ((System.currentTimeMillis() - startTime < TIME_MILLIS) && i <= MAX_RETRIES)
     {
-      KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, address, searchId, connection.getHeaderFields());
+      KayakResult result = fetchResult(i, time, i++ == MAX_RETRIES, m_address, searchId, connection.getHeaderFields());
       if (result != null)
       {
         time = result.getTime();
         response = result.getResponse();
-        addToQueue(flightGui, statusLabel, hostAddress, response);
+        addToQueue(flightGui, statusLabel, response);
       }
       else
       {
@@ -109,7 +109,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
   }
 
-  private void addToQueue(FlightsGui flightGui, JLabel kayakStatusLabel, String hostAddress, String response)
+  private void addToQueue(FlightsGui flightGui, JLabel kayakStatusLabel, String response)
   {
     if (response.contains("content_div"))
     {
@@ -149,7 +149,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                 PriceType.getInstance(price),
                 legs,
                 link.select("div.seatsPromo").text(),
-                hostAddress
+                m_address
             );
 
             kayakStatusLabel.setForeground(kayakStatusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
@@ -184,7 +184,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     }
     else
     {
-      LOG.error("KayakFlightObtainer: content_div not found!");
+      LOG.error("KayakFlightObtainer: content_div not found! Instead:\n" + response);
     }
   }
 

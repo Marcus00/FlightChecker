@@ -181,7 +181,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
               PriceType.getInstance(localeTotalPrice),
               legList,
               "Tickets left: " + flight.get("noOfTicketsLeft"),
-              hostAddress
+              address
           );
           returnList.add(flightData);
           statusLabel.setForeground(statusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);

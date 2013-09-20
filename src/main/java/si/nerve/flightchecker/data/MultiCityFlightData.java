@@ -69,9 +69,27 @@ public class MultiCityFlightData
     return m_seatsPromo;
   }
 
-  public String getHostAddress()
+  public String getAddress()
   {
     return m_hostAddress;
+  }
+
+  public String getPopupLinkName()
+  {
+    StringBuilder builder = new StringBuilder();
+    for (FlightLeg leg : getFlightLegs())
+    {
+      if (builder.length() > 0)
+      {
+        builder.append(" | ");
+      }
+      else
+      {
+        builder.append(getPriceAmount(true)).append(" ").append(getPriceType().getMonSign()).append("   ");
+      }
+      builder.append(leg.getFromAirportCode()).append(" - ").append(leg.getToAirportCode());
+    }
+    return builder.toString();
   }
 
   @Override
@@ -90,7 +108,8 @@ public class MultiCityFlightData
         + flightLeg2.getToAirportCode()
         + flightLeg2.getArrivalLocalTime()
         + flightLeg2.getDuration()
-        + flightLeg2.getLayovers()).hashCode();
+        + flightLeg2.getLayovers()
+        + getAddress()).hashCode();
   }
 
   @Override
@@ -117,6 +136,7 @@ public class MultiCityFlightData
         && flightLeg2.getToAirportCode().equals(otherFlightLeg2.getToAirportCode())
         && flightLeg2.getArrivalLocalTime().equals(otherFlightLeg2.getArrivalLocalTime())
         && flightLeg2.getDuration().equals(otherFlightLeg2.getDuration())
-        && flightLeg2.getLayovers().equals(otherFlightLeg2.getLayovers());
+        && flightLeg2.getLayovers().equals(otherFlightLeg2.getLayovers())
+        && getAddress().equals(other.getAddress());
   }
 }

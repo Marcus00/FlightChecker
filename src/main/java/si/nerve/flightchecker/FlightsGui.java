@@ -58,7 +58,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private List<String[]> m_1xCombinations, m_3xCombinations;
 
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
-      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se", "ir")),
+      m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se")),
       m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be"));
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
@@ -101,12 +101,12 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_fromAP2 = new JComboBox();
     m_toAP2 = new JComboBox();
 
-    m_normalSearch = new JRadioButton("N");
-    m_combinedSearch = new JRadioButton("Rošada");
+    m_normalSearch = new JRadioButton("Normal");
+    m_combinedSearch = new JRadioButton("Mix");
     m_1xSearch = new JRadioButton("1x");
     m_3xSearch = new JRadioButton("3x");
 
-    MouseListener doubleClickML = new MouseListener()
+    MouseAdapter doubleClickML = new MouseAdapter()
     {
       @Override
       public void mouseClicked(MouseEvent e)
@@ -122,26 +122,6 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
             m_3xCombinations = loadCombinations();
           }
         }
-      }
-
-      @Override
-      public void mousePressed(MouseEvent e)
-      {
-      }
-
-      @Override
-      public void mouseReleased(MouseEvent e)
-      {
-      }
-
-      @Override
-      public void mouseEntered(MouseEvent e)
-      {
-      }
-
-      @Override
-      public void mouseExited(MouseEvent e)
-      {
       }
     };
     m_1xSearch.addMouseListener(doubleClickML);

@@ -35,11 +35,11 @@ public class Helper
       if (button.isSelected())
       {
         String text = button.getText();
-        if ("N".equals(text))
+        if ("Normal".equals(text))
         {
           return 0;
         }
-        else if ("Rošada".equals(text))
+        else if ("Mix".equals(text))
         {
           return 1;
         }
@@ -47,7 +47,7 @@ public class Helper
         {
           return 2;
         }
-        else // 3x
+        else if ("3x".equals(text))// 3x
         {
           return 3;
         }
