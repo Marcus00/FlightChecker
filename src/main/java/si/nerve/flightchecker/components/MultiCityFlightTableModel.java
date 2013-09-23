@@ -138,7 +138,7 @@ public class MultiCityFlightTableModel extends DefaultTableModel
         return "Currency";
 
       case COL_ADDRESS:
-        return "Link (Double click)";
+        return "Link";
 
       default:
         return "?";

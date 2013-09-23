@@ -9,6 +9,7 @@ import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.helper.Helper;
 import si.nerve.flightchecker.pages.EbookersFlightObtainer;
+import si.nerve.flightchecker.pages.EdreamsFlightObtainer;
 import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
 import si.nerve.flightchecker.pages.KayakFlightObtainer;
 import si.nerve.flightchecker.process.ComboDocument;
@@ -39,7 +40,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   public static final String STOP_SEARCH = "STOP_SEARCH";
   public static final String CHECKBOX_CHANGED = "CHECKBOX_CHANGED";
   public static final String RADIO_CLICKED = "RADIO_CLICKED";
-  public static final int QUEUE_SIZE = 100;
+  public static final int QUEUE_SIZE = 200;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
 
@@ -49,8 +50,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private JDateChooser m_dateXChooser;
   private JCheckBox m_showInEuro;
 
-  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap;
-  private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap, m_ebookersLabelMap;
+  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap, m_edreamsCBMap;
+  private Map<String, JLabel> m_kayakLabelMap, m_expediaLabelMap, m_ebookersLabelMap, m_edreamsLabelMap;
   private Map<String, JToggleButton> m_airportGroupBtnMap;
 
   private JRadioButton m_normalSearch, m_combinedSearch, m_1xSearch, m_3xSearch;
@@ -59,7 +60,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
       m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "dk", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie", "be", "se")),
-      m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be"));
+      m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be")),
+      m_edreamsRoots = new ArrayList<String>(Arrays.asList("com"));
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
       "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
@@ -146,11 +148,13 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_searchButton = new JButton("Search");
 
     m_kayakLabelMap = new HashMap<String, JLabel>();
-    m_kayakCBMap = new HashMap<String, JCheckBox>();
     m_expediaLabelMap = new HashMap<String, JLabel>();
     m_ebookersLabelMap = new HashMap<String, JLabel>();
+    m_edreamsLabelMap = new HashMap<String, JLabel>();
+    m_kayakCBMap = new HashMap<String, JCheckBox>();
     m_expediaCBMap = new HashMap<String, JCheckBox>();
     m_ebookersCBMap = new HashMap<String, JCheckBox>();
+    m_edreamsCBMap = new HashMap<String, JCheckBox>();
 
     fillCheckBoxMaps();
 
@@ -236,6 +240,11 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       groupPanel.add(m_ebookersCBMap.get(root));
     }
 
+    for (String root : m_edreamsRoots)
+    {
+      groupPanel.add(m_edreamsCBMap.get(root));
+    }
+
     JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
 
@@ -261,6 +270,11 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     for (String root : m_ebookersRoots)
     {
       groupStatusPanel.add(m_ebookersLabelMap.get(root));
+    }
+
+    for (String root : m_edreamsRoots)
+    {
+      groupStatusPanel.add(m_edreamsLabelMap.get(root));
     }
 
     loadLastSavedGroups();
@@ -381,6 +395,36 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           m_executorService.execute(new SearchAndRefresh(
               new EbookersFlightObtainer(),
+              root,
+              this,
+              label,
+              from,
+              to,
+              toStatic,
+              fromStatic,
+              fromDate,
+              toDate,
+              fromXDate,
+              numOfPersons,
+              selectedRadio,
+              m_roshadaCodes,
+              m_1xCombinations,
+              m_3xCombinations)
+          );
+        }
+        else
+        {
+          label.setForeground(Color.GRAY);
+        }
+      }
+
+      for (String root : m_edreamsRoots)
+      {
+        JLabel label = m_edreamsLabelMap.get(root);
+        if (m_edreamsCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefresh(
+              new EdreamsFlightObtainer(),
               root,
               this,
               label,
@@ -567,6 +611,18 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       checkBox.setSelected(true);
       m_ebookersCBMap.put(root, checkBox);
     }
+
+    for (String root : m_edreamsRoots)
+    {
+      JLabel label = new JLabel();
+      String cbText = "www.edreams." + root;
+      label.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      m_edreamsLabelMap.put(root, label);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      checkBox.setSelected(true);
+      m_edreamsCBMap.put(root, checkBox);
+    }
   }
 
   private void loadLastSavedGroups() throws IOException
@@ -744,6 +800,14 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     for (String root : m_ebookersRoots)
     {
       if (m_ebookersCBMap.get(root).isSelected())
+      {
+        count++;
+      }
+    }
+
+    for (String root : m_edreamsRoots)
+    {
+      if (m_edreamsCBMap.get(root).isSelected())
       {
         count++;
       }

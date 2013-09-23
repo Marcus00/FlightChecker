@@ -102,8 +102,8 @@ public class SearchAndRefresh implements Runnable
         case 2: // 1x
           for (final String[] codePairs : m_a1xCombinations)
           {
-            String from3 = codePairs[0];
-            String to3 = codePairs[1];
+            String from3 = codePairs[0].toUpperCase();
+            String to3 = codePairs[1].toUpperCase();
             if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
@@ -129,8 +129,8 @@ public class SearchAndRefresh implements Runnable
         case 3: // 3x
           for (final String[] codePairs : m_a3xCombinations)
           {
-            String from3 = codePairs[0];
-            String to3 = codePairs[1];
+            String from3 = codePairs[0].toUpperCase();
+            String to3 = codePairs[1].toUpperCase();
             if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
