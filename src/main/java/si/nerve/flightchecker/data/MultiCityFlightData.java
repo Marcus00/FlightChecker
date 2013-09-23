@@ -85,7 +85,7 @@ public class MultiCityFlightData
       }
       else
       {
-        builder.append(getPriceAmount(true)).append(" ").append(getPriceType().getMonSign()).append("   ");
+        builder.append(getPriceAmount(true)).append(" €   ");
       }
       builder.append(leg.getFromAirportCode()).append(" - ").append(leg.getToAirportCode());
     }

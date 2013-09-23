@@ -143,7 +143,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
     Integer[] numOfPersons = {1, 2};
     m_numOfPersons = new JComboBox(numOfPersons);
-    m_searchButton = new JButton("Išči");
+    m_searchButton = new JButton("Search");
 
     m_kayakLabelMap = new HashMap<String, JLabel>();
     m_kayakCBMap = new HashMap<String, JCheckBox>();
@@ -413,7 +413,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           try
           {
             m_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            m_searchButton.setText("Išči");
+            m_searchButton.setText("Search");
             m_searchButton.setActionCommand(SEARCH);
             resetCursor();
           }
@@ -448,7 +448,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
           try
           {
             m_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            m_searchButton.setText("Išči");
+            m_searchButton.setText("Search");
             m_searchButton.setActionCommand(SEARCH);
             resetCursor();
           }

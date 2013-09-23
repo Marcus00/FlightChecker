@@ -93,8 +93,6 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     }
     catch (Exception e)
     {
-      e.printStackTrace();
-      System.out.println("BANNED! " + address);
       LOG.error("ExpediaFlightObtainer: Flight-SearchResults not found!", e);
       return;
     }
