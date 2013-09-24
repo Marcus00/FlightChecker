@@ -67,7 +67,7 @@ public class SearchAndRefresh implements Runnable
           {
             m_statusLabel.setText(m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
             m_multiCityFlightObtainer
-                .search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons);
+                .search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons, false);
           }
 
           if (m_selectedRadio == 1) //todo randomize combination call order
@@ -90,7 +90,7 @@ public class SearchAndRefresh implements Runnable
                     Thread.sleep(getSleepMillis() + (int)(Math.random() * 100));
 
                     m_multiCityFlightObtainer
-                        .search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons);
+                        .search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons, false);
 
                     m_statusLabel.setText(codeFrom + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + codeTo);
                   }
@@ -121,7 +121,8 @@ public class SearchAndRefresh implements Runnable
                   m_codeFrom2,
                   m_codeTo2,
                   m_date2,
-                  m_numOfPersons
+                  m_numOfPersons,
+                  false
               );
             }
           }
@@ -148,7 +149,8 @@ public class SearchAndRefresh implements Runnable
                   from3,
                   to3,
                   m_date3,
-                  m_numOfPersons
+                  m_numOfPersons,
+                  false
               );
             }
           }

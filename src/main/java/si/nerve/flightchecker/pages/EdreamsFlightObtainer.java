@@ -5,10 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,7 +45,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
   @Override
   public void search(
       final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
-      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
+      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     try
     {
@@ -81,20 +78,11 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       String hostAddress = "http://www.edreams." + addressRoot;
       String address = hostAddress + "/flights/search/multidestinations/?tripT=MULTI_SEGMENT&isIframe=undefined";
 
-      URL url = new URL(address);
-      HttpURLConnection connection = createHttpConnection(url);
-      //InputStream ins = connection.getInputStream();
-      //String encoding = connection.getHeaderField("Content-Encoding");
-      //if (encoding.equals("gzip"))
-      //{
-      //  ins = new GZIPInputStream(ins);
-      //}
+      HttpURLConnection connection = createHttpProxyConnection(address, changeProxy);
 
-      //String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
       Map<String, List<String>> headerFields = connection.getHeaderFields();
       String newAddress = hostAddress + "/engine/ItinerarySearch/search";
-      url = new URL(newAddress);
-      connection = createHttpConnection(url);
+      connection = createHttpProxyConnection(newAddress, false);
       StringBuilder sbuf = new StringBuilder();
       for (String cookie : headerFields.get("Set-Cookie"))
       {
@@ -291,8 +279,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           }
 
           newAddress = hostAddress + "/engine/ItinerarySearch/paging?page=" + i + "&isSEM=";
-          url = new URL(newAddress);
-          connection = createHttpConnection(url);
+          connection = createHttpProxyConnection(newAddress, false);
           sbuf = new StringBuilder();
           for (String cookie : headerFields.get("Set-Cookie"))
           {
@@ -325,6 +312,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
       }
     }
+    catch (ConnectException e)
+    {
+      this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+    }
     catch (Exception e)
     {
       LOG.error("EdreamsFlightObtainer: ", e);
@@ -347,65 +338,6 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       builder.append(key).append('=').append(URLEncoder.encode(data.get(key), "UTF-8"));
     }
     return builder.toString();
-  }
-
-  private String getLayover(JSONArray segments)
-  {
-    StringBuilder builder = new StringBuilder();
-    long days = 0, hours = 0, minutes = 0;
-    if (segments.size() < 2)
-    {
-      return "";
-    }
-    else
-    {
-      for (int i = 0; i < segments.size() - 1; i++)
-      {
-        if (builder.length() > 0)
-        {
-          builder.append(",");
-        }
-        JSONObject segment = (JSONObject)segments.get(i);
-        JSONObject layover = (JSONObject)segment.get("layover");
-        if (layover != null)
-        {
-          days += (Long)layover.get("numOfDays");
-          hours += (Long)layover.get("hours");
-          minutes += (Long)layover.get("minutes");
-        }
-        JSONObject arrivalAirport = (JSONObject)segment.get("arrivalAirport");
-        builder.append((String)arrivalAirport.get("airportCode"));
-      }
-      builder.append(" (");
-      if (days > 0)
-      {
-        builder.append(days).append("days ");
-      }
-      builder.append(hours).append("h ").append(minutes).append("min)");
-      return builder.toString();
-    }
-  }
-
-  private String getDuration(JSONObject totalTravelingHours)
-  {
-    Long numOfDays = (Long)totalTravelingHours.get("numOfDays");
-    Long hours = (Long)totalTravelingHours.get("hours");
-    Long minutes = (Long)totalTravelingHours.get("minutes");
-    if (0 == numOfDays)
-    {
-      if (0 == hours)
-      {
-        return minutes + "min";
-      }
-      else
-      {
-        return hours + "h " + minutes + "min";
-      }
-    }
-    else
-    {
-      return numOfDays + "days " + hours + "h " + minutes + "min";
-    }
   }
 
   private String getCharSetFromConnection(URLConnection connection)
@@ -432,18 +364,19 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     return charset;
   }
 
-  private HttpURLConnection createHttpConnection(URL url) throws IOException
+  private HttpURLConnection createHttpProxyConnection(String address, boolean changeProxy) throws IOException
   {
-    URLConnection connection = url.openConnection();
-    connection.addRequestProperty("Connection", "keep-alive");
-    connection.addRequestProperty("Cache-Control", "max-age=0");
-    connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-    connection.addRequestProperty("Host", url.getHost());
-    connection.addRequestProperty("Referer", url.toString());
-    connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-    connection.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-    return (HttpURLConnection)connection;
+    URL url = new URL(address);
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection(Helper.pullFreeProxy(changeProxy));
+    conn.addRequestProperty("Connection", "keep-alive");
+    conn.addRequestProperty("Cache-Control", "max-age=0");
+    conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+    conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
+    conn.addRequestProperty("Host", url.getHost());
+    conn.addRequestProperty("Referer", url.toString());
+    conn.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+    conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+    return conn;
   }
 
   public static void main(String[] args)
@@ -452,8 +385,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "VCE", "BKK", formatter.parse("07.10.2013"), "BKK", "VCE", formatter.parse("21.10.2013"), "VCE", "NYC", formatter.parse("31.10.2013"), 1);
-      //      obtainer.search(null, null, "com", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "com", "VCE", "BKK", formatter.parse("07.10.2013"), "BKK", "VCE", formatter.parse("21.10.2013"), "VCE", "NYC", formatter.parse("31.10.2013"), 1, false);
     }
     catch (Exception e)
     {

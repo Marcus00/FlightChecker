@@ -43,7 +43,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
   @Override
   public void search(
       final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1,
-      Date date1, String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
+      Date date1, String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     SimpleDateFormat formatter;
     if ("com".equals(addressRoot))
@@ -302,7 +302,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1, false);
     }
     catch (Exception e)
     {

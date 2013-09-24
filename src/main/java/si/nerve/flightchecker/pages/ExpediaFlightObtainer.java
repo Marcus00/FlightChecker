@@ -36,7 +36,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
-      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons) throws Exception
+      String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     if ("com".equals(addressRoot))
     {
@@ -319,7 +319,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1);
+      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1, false);
     }
     catch (Exception e)
     {
