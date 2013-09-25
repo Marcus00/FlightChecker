@@ -1,26 +1,6 @@
 package si.nerve.flightchecker.pages;
 
-import java.awt.Color;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import javax.swing.JLabel;
-
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,12 +14,25 @@ import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
 import si.nerve.flightchecker.helper.Helper;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
 /**
  * Created: 10.8.13 20:39
  */
 public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 {
   private SimpleDateFormat m_formatter;
+  public static final String COOKIE_KEY = "Set-Cookie";
   private static final Logger LOG = Logger.getLogger(EdreamsFlightObtainer.class);
 
   @Override
@@ -78,19 +71,24 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       String hostAddress = "http://www.edreams." + addressRoot;
       String address = hostAddress + "/flights/search/multidestinations/?tripT=MULTI_SEGMENT&isIframe=undefined";
 
-      HttpURLConnection connection = createHttpProxyConnection(address, changeProxy);
+      Proxy currentProxy = Helper.pullFreeProxy(changeProxy);
+      HttpURLConnection connection = createHttpProxyConnection(address, currentProxy);
 
       Map<String, List<String>> headerFields = connection.getHeaderFields();
       String newAddress = hostAddress + "/engine/ItinerarySearch/search";
-      connection = createHttpProxyConnection(newAddress, false);
+      connection = createHttpProxyConnection(newAddress, currentProxy);
       StringBuilder sbuf = new StringBuilder();
-      for (String cookie : headerFields.get("Set-Cookie"))
+
+      if (headerFields != null && headerFields.containsKey(COOKIE_KEY))
       {
-        if (sbuf.length() > 0 && !sbuf.toString().trim().endsWith(";"))
+        for (String cookie : headerFields.get(COOKIE_KEY))
         {
-          sbuf.append("; ");
+          if (sbuf.length() > 0 && !sbuf.toString().trim().endsWith(";"))
+          {
+            sbuf.append("; ");
+          }
+          sbuf.append(cookie);
         }
-        sbuf.append(cookie);
       }
       connection.addRequestProperty("Cookie", sbuf.toString());
       connection.addRequestProperty("Host", "www.edreams." + addressRoot);
@@ -140,7 +138,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
       InputStream ins = connection.getInputStream();
       String encoding = connection.getHeaderField("Content-Encoding");
-      if (encoding.equals("gzip"))
+      if (encoding != null && encoding.equals("gzip"))
       {
         ins = new GZIPInputStream(ins);
       }
@@ -159,9 +157,9 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             String price = "", priceNumber = null;
             for (Node node : link.select("div[class^=singleItinerayPrice]").first().childNodes())
             {
-              if (node instanceof TextNode && ((TextNode)node).text().trim().length() > 0)
+              if (node instanceof TextNode && ((TextNode) node).text().trim().length() > 0)
               {
-                price = ((TextNode)node).text().trim();
+                price = ((TextNode) node).text().trim();
                 priceNumber = price.replaceAll("[\\D]", "");
                 if (priceNumber != null && priceNumber.length() > 0)
                 {
@@ -185,7 +183,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("departureTime or fromAirportName not found!");
+                LOG.error("[EdreamsFlightObtainer] departureTime or fromAirportName not found!");
               }
 
               summary = leg.select("span[id^=segmentDestination]").text();
@@ -198,7 +196,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("arrivalTime or toAirportName not found!");
+                LOG.error("[EdreamsFlightObtainer] arrivalTime or toAirportName not found!");
               }
 
               summary = leg.select("span[id^=segmentElapsedTime]").text();
@@ -210,7 +208,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("duration not found!");
+                LOG.error("[EdreamsFlightObtainer] duration not found!");
               }
               summary = leg.select("span[id^=segmentStopsOvers]").text();
               split = summary.split("\\u00a0");
@@ -221,7 +219,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("layover not found!");
+                LOG.error("[EdreamsFlightObtainer] layover not found!");
               }
 
               legList.add(new FlightLeg(
@@ -272,27 +270,30 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
             if (returnList.size() > 0)
             {
-              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
               tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
               tableModel.fireTableDataChanged();
             }
           }
 
           newAddress = hostAddress + "/engine/ItinerarySearch/paging?page=" + i + "&isSEM=";
-          connection = createHttpProxyConnection(newAddress, false);
+          connection = createHttpProxyConnection(newAddress, currentProxy);
           sbuf = new StringBuilder();
-          for (String cookie : headerFields.get("Set-Cookie"))
+          if (headerFields != null && headerFields.containsKey(COOKIE_KEY))
           {
-            if (sbuf.length() > 0 && !sbuf.toString().trim().endsWith(";"))
+            for (String cookie : headerFields.get(COOKIE_KEY))
             {
-              sbuf.append("; ");
+              if (sbuf.length() > 0 && !sbuf.toString().trim().endsWith(";"))
+              {
+                sbuf.append("; ");
+              }
+              sbuf.append(cookie);
             }
-            sbuf.append(cookie);
           }
           connection.addRequestProperty("Cookie", sbuf.toString());
           ins = connection.getInputStream();
           encoding = connection.getHeaderField("Content-Encoding");
-          if (encoding.equals("gzip"))
+          if (encoding != null && encoding.equals("gzip"))
           {
             ins = new GZIPInputStream(ins);
           }
@@ -305,10 +306,16 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       else
       {
-        int noResultsStartLocation = response.indexOf("no results available");
-        if (noResultsStartLocation > -1)
+        int startLocation = response.indexOf("no results available");
+        if (startLocation > -1)
         {
-          LOG.error("no results available!");
+          LOG.error("[EdreamsFlightObtainer] No results available!");
+        }
+        startLocation = response.indexOf("Your IP was blocked by our system due to suspicious query load.");
+        if (startLocation > -1)
+        {
+          LOG.info("[EdreamsFlightObtainer] Proxy " + currentProxy.address().toString() + " are banned! Changing proxy...");
+          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
         }
       }
     }
@@ -364,10 +371,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     return charset;
   }
 
-  private HttpURLConnection createHttpProxyConnection(String address, boolean changeProxy) throws IOException
+  private HttpURLConnection createHttpProxyConnection(String address, Proxy proxy) throws IOException
   {
     URL url = new URL(address);
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection(Helper.pullFreeProxy(changeProxy));
+    HttpURLConnection conn = proxy == null ? (HttpURLConnection) url.openConnection() : (HttpURLConnection) url.openConnection(proxy);
     conn.addRequestProperty("Connection", "keep-alive");
     conn.addRequestProperty("Cache-Control", "max-age=0");
     conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");

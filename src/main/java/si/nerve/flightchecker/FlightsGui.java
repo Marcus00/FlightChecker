@@ -65,7 +65,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
       "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
-      "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR"};
+      "VCE", "LJU", "BCN", "MAD", "VLC", "BRN", "GVA", "LUG", "ZRH", "EDI", "MAN", "LHR", "TRS", "DUS", "DUB"};
 
   private PriorityQueue<MultiCityFlightData> m_flightQueue;
   private Comparator<MultiCityFlightData> m_comparator;

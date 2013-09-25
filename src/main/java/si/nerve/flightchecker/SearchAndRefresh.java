@@ -1,9 +1,6 @@
 package si.nerve.flightchecker;
 
-import si.nerve.flightchecker.pages.EbookersFlightObtainer;
-import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
-import si.nerve.flightchecker.pages.KayakFlightObtainer;
-import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
+import si.nerve.flightchecker.pages.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -173,6 +170,10 @@ public class SearchAndRefresh implements Runnable
     if (m_multiCityFlightObtainer instanceof KayakFlightObtainer)
     {
       return 600;
+    }
+    else if (m_multiCityFlightObtainer instanceof EdreamsFlightObtainer)
+    {
+      return 300;
     }
     return 100;
   }
