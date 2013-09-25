@@ -1,4 +1,4 @@
-package si.nerve.flightchecker.pages;
+package si.nerve.flightchecker.pages.obtainers;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -13,6 +13,7 @@ import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
 import si.nerve.flightchecker.helper.Helper;
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,7 +72,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       String hostAddress = "http://www.edreams." + addressRoot;
       String address = hostAddress + "/flights/search/multidestinations/?tripT=MULTI_SEGMENT&isIframe=undefined";
 
-      Proxy currentProxy = Helper.pullFreeProxy(changeProxy);
+      Proxy currentProxy = Helper.peekFreeProxy(this.getClass(), changeProxy);
       HttpURLConnection connection = createHttpProxyConnection(address, currentProxy);
 
       Map<String, List<String>> headerFields = connection.getHeaderFields();

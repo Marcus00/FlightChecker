@@ -1,4 +1,4 @@
-package si.nerve.flightchecker.pages;
+package si.nerve.flightchecker.pages.obtainers;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -30,6 +30,7 @@ import si.nerve.flightchecker.data.FlightLeg;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
 import si.nerve.flightchecker.helper.Helper;
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 
 /**
  * Created: 10.8.13 20:39

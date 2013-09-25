@@ -1,6 +1,8 @@
 package si.nerve.flightchecker;
 
 import si.nerve.flightchecker.pages.*;
+import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
 
 import javax.swing.*;
 import java.awt.*;

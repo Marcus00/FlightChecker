@@ -8,10 +8,10 @@ import si.nerve.flightchecker.components.*;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.helper.Helper;
-import si.nerve.flightchecker.pages.EbookersFlightObtainer;
-import si.nerve.flightchecker.pages.EdreamsFlightObtainer;
-import si.nerve.flightchecker.pages.ExpediaFlightObtainer;
-import si.nerve.flightchecker.pages.KayakFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.EbookersFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.ExpediaFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
 import si.nerve.flightchecker.process.ComboDocument;
 import si.nerve.flightchecker.process.SelectFocusAdapter;
 
