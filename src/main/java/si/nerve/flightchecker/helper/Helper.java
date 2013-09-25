@@ -89,7 +89,7 @@ public class Helper
 
   private static ConcurrentLinkedQueue<ProxyData> readProxiesFromTheWebs()
   {
-    String urlString = "http://www.cool-proxy.net/proxies/http_proxy_list/sort:score/direction:desc";
+    String urlString = "http://www.cool-proxy.net/proxies/http_proxy_list/country_code:/port:/anonymous:1/sort:score/direction:desc";
     try
     {
       ConcurrentLinkedQueue<ProxyData> returnQueue = new ConcurrentLinkedQueue<ProxyData>();
