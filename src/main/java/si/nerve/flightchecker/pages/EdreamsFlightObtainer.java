@@ -33,8 +33,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 {
   private SimpleDateFormat m_formatter;
   public static final String COOKIE_KEY = "Set-Cookie";
+  public static final String INSTANCE_NAME = "[EdreamsFlightObtainer] ";
   private static final Logger LOG = Logger.getLogger(EdreamsFlightObtainer.class);
-
   @Override
   public void search(
       final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
@@ -136,7 +136,20 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       out.flush();
       out.close();
 
-      InputStream ins = connection.getInputStream();
+      InputStream ins = null;
+      try
+      {
+        ins = connection.getInputStream();
+      }
+      catch (IOException e)
+      {
+        if ("Unexpected end of file from server".equals(e.getLocalizedMessage()))
+        {
+          LOG.error(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " error: Unexpected end of file from server. Changing proxy.");
+          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          return;
+        }
+      }
       String encoding = connection.getHeaderField("Content-Encoding");
       if (encoding != null && encoding.equals("gzip"))
       {
@@ -144,6 +157,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
 
       String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+
       if (response.contains("singleItineray-content-body"))
       {
         for (int i = 2; i < 10; i++)
@@ -157,9 +171,9 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             String price = "", priceNumber = null;
             for (Node node : link.select("div[class^=singleItinerayPrice]").first().childNodes())
             {
-              if (node instanceof TextNode && ((TextNode) node).text().trim().length() > 0)
+              if (node instanceof TextNode && ((TextNode)node).text().trim().length() > 0)
               {
-                price = ((TextNode) node).text().trim();
+                price = ((TextNode)node).text().trim();
                 priceNumber = price.replaceAll("[\\D]", "");
                 if (priceNumber != null && priceNumber.length() > 0)
                 {
@@ -183,7 +197,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("[EdreamsFlightObtainer] departureTime or fromAirportName not found!");
+                LOG.error(INSTANCE_NAME + "departureTime or fromAirportName not found!");
               }
 
               summary = leg.select("span[id^=segmentDestination]").text();
@@ -196,7 +210,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("[EdreamsFlightObtainer] arrivalTime or toAirportName not found!");
+                LOG.error(INSTANCE_NAME + "arrivalTime or toAirportName not found!");
               }
 
               summary = leg.select("span[id^=segmentElapsedTime]").text();
@@ -208,7 +222,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("[EdreamsFlightObtainer] duration not found!");
+                LOG.error(INSTANCE_NAME + "duration not found!");
               }
               summary = leg.select("span[id^=segmentStopsOvers]").text();
               split = summary.split("\\u00a0");
@@ -219,7 +233,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
               }
               else
               {
-                LOG.error("[EdreamsFlightObtainer] layover not found!");
+                LOG.error(INSTANCE_NAME + "layover not found!");
               }
 
               legList.add(new FlightLeg(
@@ -270,7 +284,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
             if (returnList.size() > 0)
             {
-              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
+              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
               tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
               tableModel.fireTableDataChanged();
             }
@@ -306,15 +320,17 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       else
       {
-        int startLocation = response.indexOf("no results available");
-        if (startLocation > -1)
+        if (response.contains("We cannot find the cities you selected."))
         {
-          LOG.error("[EdreamsFlightObtainer] No results available!");
+          LOG.debug(INSTANCE_NAME + "We cannot find the cities you selected.");
         }
-        startLocation = response.indexOf("Your IP was blocked by our system due to suspicious query load.");
-        if (startLocation > -1)
+        else if (response.contains("no results available"))
         {
-          LOG.info("[EdreamsFlightObtainer] Proxy " + currentProxy.address().toString() + " are banned! Changing proxy...");
+          LOG.debug(INSTANCE_NAME + "No results available.");
+        }
+        else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
+        {
+          LOG.debug(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
         }
       }

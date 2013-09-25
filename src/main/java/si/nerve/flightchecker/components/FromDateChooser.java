@@ -35,6 +35,7 @@ public class FromDateChooser extends JDateChooser
             public void run()
             {
               m_toDateChooser.getCalendarButton().doClick();
+              m_toDateChooser.requestFocus();
             }
           });
         }
