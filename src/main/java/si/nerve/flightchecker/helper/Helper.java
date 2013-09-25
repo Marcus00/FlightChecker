@@ -1,14 +1,5 @@
 package si.nerve.flightchecker.helper;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import si.nerve.flightchecker.data.ProxyData;
-
-import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,16 +7,29 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
-import java.util.PriorityQueue;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import si.nerve.flightchecker.data.ProxyData;
+import si.nerve.flightchecker.pages.obtainers.EbookersFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.ExpediaFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
 
 /**
  * @author bratwurzt
  */
 public class Helper
 {
-  private static Proxy c_currentProxy = null;
-  private static ConcurrentLinkedQueue<ProxyData> m_proxyQueue = null;
+  private static Map<Class, ConcurrentLinkedQueue<ProxyData>> m_proxyQueueMap = new HashMap<Class, ConcurrentLinkedQueue<ProxyData>>();
 
   public static String readResponse(InputStream ins, String charset) throws IOException
   {
@@ -73,18 +77,22 @@ public class Helper
     return -1;
   }
 
-  public synchronized static Proxy pullFreeProxy(boolean changeProxy)
+  public synchronized static Proxy peekFreeProxy(Class sourceClass, boolean changeProxy)
   {
-    if (m_proxyQueue == null)
+    if (m_proxyQueueMap.size() == 0)
     {
-      m_proxyQueue = readProxiesFromTheWebs();
+      final ConcurrentLinkedQueue<ProxyData> value = readProxiesFromTheWebs();
+      m_proxyQueueMap.put(EdreamsFlightObtainer.class, value);
+      m_proxyQueueMap.put(EbookersFlightObtainer.class, value);
+      m_proxyQueueMap.put(ExpediaFlightObtainer.class, value);
+      m_proxyQueueMap.put(KayakFlightObtainer.class, value);
     }
 
-    if (c_currentProxy == null || changeProxy)
+    if (changeProxy)
     {
-      c_currentProxy = m_proxyQueue.poll().getProxy();
+      m_proxyQueueMap.get(sourceClass).poll().getProxy();
     }
-    return c_currentProxy;
+    return m_proxyQueueMap.get(sourceClass).peek().getProxy();
   }
 
   private static ConcurrentLinkedQueue<ProxyData> readProxiesFromTheWebs()
