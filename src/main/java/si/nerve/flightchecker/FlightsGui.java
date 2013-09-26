@@ -183,36 +183,33 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_dateXChooser.setEnabled(false);
     m_dateXChooser.setDateFormatString("dd.MM.yyyy");
 
-    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportMap);
-    JTextComponent toCombocTF2 = (JTextComponent) m_toAP2.getEditor().getEditorComponent();
-    toCombocTF2.setDocument(new ComboDocument(m_dateChooser));
-    toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
-    m_toAP2.setModel(sbm4);
-    m_toAP2.addItemListener(sbm4);
-
-    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportMap);
-    JTextComponent fromComboxTF2 = (JTextComponent) m_fromAP2.getEditor().getEditorComponent();
-    fromComboxTF2.setDocument(new ComboDocument(toCombocTF2));
-    fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
-    m_fromAP2.setModel(sbm3);
-    m_fromAP2.addItemListener(sbm3);
-
-    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportMap);
-    JTextComponent toComboxTF1 = (JTextComponent) m_toAP1.getEditor().getEditorComponent();
-    toComboxTF1.setDocument(new ComboDocument(fromComboxTF2));
-    toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
-    m_toAP1.setModel(sbm2);
-    m_toAP1.addItemListener(sbm2);
-
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportMap);
     JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
-    fromComboxTF1.setDocument(new ComboDocument(toComboxTF1));
+    fromComboxTF1.setDocument(new ComboDocument());
     fromComboxTF1.addFocusListener(new SelectFocusAdapter(fromComboxTF1));
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
 
+    SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportMap);
+    JTextComponent toComboxTF1 = (JTextComponent) m_toAP1.getEditor().getEditorComponent();
+    toComboxTF1.setDocument(new ComboDocument());
+    toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
+    m_toAP1.setModel(sbm2);
+    m_toAP1.addItemListener(sbm2);
 
+    SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportMap);
+    JTextComponent fromComboxTF2 = (JTextComponent) m_fromAP2.getEditor().getEditorComponent();
+    fromComboxTF2.setDocument(new ComboDocument());
+    fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
+    m_fromAP2.setModel(sbm3);
+    m_fromAP2.addItemListener(sbm3);
 
+    SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportMap);
+    JTextComponent toCombocTF2 = (JTextComponent) m_toAP2.getEditor().getEditorComponent();
+    toCombocTF2.setDocument(new ComboDocument());
+    toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
+    m_toAP2.setModel(sbm4);
+    m_toAP2.addItemListener(sbm4);
 
     JPanel commandPanel = new JPanel(new GridBagLayout());
     int i = 0;

@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 /**
- * @author DusanM
+ * @author bratwurzt
  */
 public class ProxyData
 {
@@ -18,5 +18,23 @@ public class ProxyData
   public Proxy getProxy()
   {
     return m_proxy;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return m_proxy.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (!(obj instanceof ProxyData))
+    {
+      return false;
+    }
+
+    ProxyData other = (ProxyData) obj;
+    return m_proxy.address().equals(other.getProxy().address());
   }
 }
