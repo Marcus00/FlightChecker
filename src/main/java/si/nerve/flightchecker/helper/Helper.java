@@ -29,8 +29,8 @@ import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
  */
 public class Helper
 {
-  private static Map<Class, ConcurrentLinkedQueue<ProxyData>> m_proxyQueueMap = new HashMap<Class, ConcurrentLinkedQueue<ProxyData>>();
-  private static Map<Class, ConcurrentLinkedQueue<ProxyData>> m_bannedProxyQueueMap = new HashMap<Class, ConcurrentLinkedQueue<ProxyData>>();
+  private static Map<String, ConcurrentLinkedQueue<ProxyData>> m_proxyQueueMap = new HashMap<String, ConcurrentLinkedQueue<ProxyData>>();
+  private static Map<String, ConcurrentLinkedQueue<ProxyData>> m_bannedProxyQueueMap = new HashMap<String, ConcurrentLinkedQueue<ProxyData>>();
 
   public static String readResponse(InputStream ins, String charset) throws IOException
   {
@@ -78,39 +78,33 @@ public class Helper
     return -1;
   }
 
-  public synchronized static Proxy peekFreeProxy(Class sourceClass, boolean changeProxy)
+  public synchronized static Proxy peekFreeProxy(String sourceObtainer, boolean changeProxy)
   {
-    if (m_proxyQueueMap.size() == 0)
+    if (!m_proxyQueueMap.containsKey(sourceObtainer))
     {
       final ConcurrentLinkedQueue<ProxyData> value = readProxiesFromTheWebs(null);
-      m_proxyQueueMap.put(EdreamsFlightObtainer.class, value);
-      m_proxyQueueMap.put(EbookersFlightObtainer.class, value);
-      m_proxyQueueMap.put(ExpediaFlightObtainer.class, value);
-      m_proxyQueueMap.put(KayakFlightObtainer.class, value);
+      m_proxyQueueMap.put(sourceObtainer, value);
     }
 
-    if (m_proxyQueueMap.size() == 0)
+    if (!m_bannedProxyQueueMap.containsKey(sourceObtainer))
     {
-      m_proxyQueueMap.put(EdreamsFlightObtainer.class, new ConcurrentLinkedQueue<ProxyData>());
-      m_proxyQueueMap.put(EbookersFlightObtainer.class, new ConcurrentLinkedQueue<ProxyData>());
-      m_proxyQueueMap.put(ExpediaFlightObtainer.class, new ConcurrentLinkedQueue<ProxyData>());
-      m_proxyQueueMap.put(KayakFlightObtainer.class, new ConcurrentLinkedQueue<ProxyData>());
+      m_bannedProxyQueueMap.put(sourceObtainer, new ConcurrentLinkedQueue<ProxyData>());
     }
 
     if (changeProxy)
     {
-      ConcurrentLinkedQueue<ProxyData> proxyQueue = m_proxyQueueMap.get(sourceClass);
-      m_bannedProxyQueueMap.get(sourceClass).add(proxyQueue.poll());
+      ConcurrentLinkedQueue<ProxyData> proxyQueue = m_proxyQueueMap.get(sourceObtainer);
+      m_bannedProxyQueueMap.get(sourceObtainer).add(proxyQueue.poll());
       if (proxyQueue.size() == 0)
       {
-        proxyQueue.addAll(readProxiesFromTheWebs(sourceClass));
+        proxyQueue.addAll(readProxiesFromTheWebs(sourceObtainer));
       }
     }
 
-    return m_proxyQueueMap.get(sourceClass).peek().getProxy();
+    return m_proxyQueueMap.get(sourceObtainer).peek().getProxy();
   }
 
-  private static ConcurrentLinkedQueue<ProxyData> readProxiesFromTheWebs(Class sourceClass)
+  private static ConcurrentLinkedQueue<ProxyData> readProxiesFromTheWebs(String sourceObtainer)
   {
     String urlString = "http://www.cool-proxy.net/proxies/http_proxy_list/country_code:/port:/anonymous:1/sort:score/direction:desc";
     try
@@ -135,7 +129,7 @@ public class Helper
             int beginIndex = javascript.indexOf(startString) + startString.length();
             String ipString = new String(Base64.decode(javascript.substring(beginIndex, javascript.indexOf("\")", beginIndex))));
             ProxyData proxyData = new ProxyData(ipString, Integer.parseInt(portNum));
-            if (sourceClass == null || !m_bannedProxyQueueMap.get(sourceClass).contains(proxyData))
+            if (sourceObtainer == null || !m_bannedProxyQueueMap.get(sourceObtainer).contains(proxyData))
             {
               returnQueue.add(proxyData);
             }

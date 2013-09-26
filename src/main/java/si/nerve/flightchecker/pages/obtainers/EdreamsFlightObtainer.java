@@ -41,6 +41,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
       String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
+    HttpURLConnection connection;
     try
     {
       String langSpec1;
@@ -52,21 +53,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       else if ("de".equals(addressRoot))
       {
         m_formatter = new SimpleDateFormat("dd/MM/yyyy");
-        langSpec1 = "flug/suchen/rundreise/?tripT=MULTI_SEGMENT&isIframe=undefined";
+        langSpec1 = "/flug/suchen/rundreise/?tripT=MULTI_SEGMENT&isIframe=undefined";
       }
-      //else if ("nl".equals(addressRoot))
-      //{
-      //  m_formatter = new SimpleDateFormat("dd-MM-yyyy");
-      //}
-      //else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
-      //    || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot) || "ir".equals(addressRoot))
-      //{
-      //  m_formatter = new SimpleDateFormat("dd/MM/yyyy");
-      //}
-      //else if ("se".equals(addressRoot))
-      //{
-      //  m_formatter = new SimpleDateFormat("yyyy-MM-dd");
-      //}
       else
       {
         m_formatter = new SimpleDateFormat("MM/dd/yyyy");
@@ -76,8 +64,16 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       String hostAddress = "http://www.edreams." + addressRoot;
       String address = hostAddress + langSpec1;
 
-      Proxy currentProxy = Helper.peekFreeProxy(this.getClass(), changeProxy);
-      HttpURLConnection connection = createHttpProxyConnection(address, currentProxy);
+      Proxy currentProxy = Helper.peekFreeProxy(hostAddress, changeProxy);
+      try
+      {
+        connection = createHttpProxyConnection(address, currentProxy);
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+        return;
+      }
 
       Map<String, List<String>> headerFields = connection.getHeaderFields();
       String newAddress = hostAddress + "/engine/ItinerarySearch/search";
@@ -148,13 +144,41 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       catch (IOException e)
       {
-        if ("Unexpected end of file from server".equals(e.getLocalizedMessage()))
+        if ("Unexpected end of file from server".equals(e.getLocalizedMessage())
+            || "Connection reset".equals(e.getLocalizedMessage())
+            || "Connection refused: connect".equals(e.getLocalizedMessage()))
         {
-          LOG.error(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " error: Unexpected end of file from server. Changing proxy.");
+          LOG.error(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " " + e.getLocalizedMessage() + ". Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
+        else if (e.getLocalizedMessage().contains(" 502 "))
+        {
+          LOG.error(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " error: 502 Bad gateway. Changing proxy.");
+          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          return;
+        }
+        else
+        {
+          System.out.println();
+        }
       }
+
+      int responseCode = connection.getResponseCode();
+      if (responseCode != 200 )
+      {
+        switch (responseCode)
+        {
+          case 302:
+            LOG.error(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " " + connection.getResponseMessage() + ". Changing proxy.");
+            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            return;
+          default:
+            System.out.println();
+            return;
+        }
+      }
+
       String encoding = connection.getHeaderField("Content-Encoding");
       if (encoding != null && encoding.equals("gzip"))
       {
@@ -173,20 +197,15 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           List<MultiCityFlightData> returnList = new ArrayList<MultiCityFlightData>();
           for (Element link : links)
           {
-            String price = "", priceNumber = null;
+            String priceNumber = null;
             for (Node node : link.select("div[class^=singleItinerayPrice]").first().childNodes())
             {
               if (node instanceof TextNode)
               {
-                final String text = ((TextNode)node).text();
-                if (PriceType.containsMon(text) && text.trim().length() > 0)
+                final String text = ((TextNode)node).text().trim();
+                if (text.length() > 0 && (priceNumber == null || priceNumber.length() == 0))
                 {
-                  price = text.trim();
-                  priceNumber = price.replaceAll("[\\D]", "");
-                  if (priceNumber != null && priceNumber.length() > 0)
-                  {
-                    break;
-                  }
+                  priceNumber = text.replaceAll("[\\D]", "");
                 }
               }
             }
@@ -266,7 +285,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
                   0,
                   s.substring(beginIndex, s.indexOf('&', beginIndex)),
                   Integer.parseInt(priceNumber),
-                  PriceType.getInstance(price),
+                  PriceType.getInstance(s),
                   legList,
                   "",
                   address
@@ -329,18 +348,49 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       else
       {
-        if (response.contains("We cannot find the cities you selected."))
+        if ("com".equals(addressRoot))
         {
-          LOG.debug(INSTANCE_NAME + "We cannot find the cities you selected.");
+          if (response.contains("We cannot find the cities you selected."))
+          {
+            LOG.debug(INSTANCE_NAME + "We cannot find the cities you selected.");
+          }
+          else if (response.contains("no results available"))
+          {
+            LOG.debug(INSTANCE_NAME + "No results available.");
+          }
+          else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
+          {
+            LOG.debug(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          }
+          else
+          {
+            System.out.println();
+          }
         }
-        else if (response.contains("no results available"))
+        else if ("de".equals(addressRoot))
         {
-          LOG.debug(INSTANCE_NAME + "No results available.");
-        }
-        else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
-        {
-          LOG.debug(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
-          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          if (response.contains("Ihren Zielort nicht gefunden"))
+          {
+            LOG.debug(INSTANCE_NAME + "Did not find your destination (Ihren Zielort nicht gefunden)");
+          }
+          else if (response.contains("Wir konnten die von Ihnen ausgewählten Orte nicht finden"))
+          {
+            LOG.debug(INSTANCE_NAME + "We could not find the places you selected. (Wir konnten die von Ihnen ausgewählten Orte nicht finden.)");
+          }
+          else if (response.contains("Für Ihre Suche gibt es leider keine Ergebnisse."))
+          {
+            LOG.debug(INSTANCE_NAME + "No results available. (Für Ihre Suche gibt es leider keine Ergebnisse.)");
+          }
+          else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
+          {
+            LOG.debug(INSTANCE_NAME + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          }
+          else
+          {
+            System.out.println();
+          }
         }
       }
     }
@@ -376,16 +426,19 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
   {
     String contentType = connection.getHeaderField("Content-Type");
 
-    String[] values = contentType.split(";");
     String charset = null;
-
-    for (String value : values)
+    if (contentType != null)
     {
-      value = value.trim();
+      String[] values = contentType.split(";");
 
-      if (value.toLowerCase().startsWith("charset="))
+      for (String value : values)
       {
-        charset = value.substring("charset=".length());
+        value = value.trim();
+
+        if (value.toLowerCase().startsWith("charset="))
+        {
+          charset = value.substring("charset=".length());
+        }
       }
     }
 
@@ -396,7 +449,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     return charset;
   }
 
-  private HttpURLConnection createHttpProxyConnection(String address, Proxy proxy) throws IOException
+  private HttpURLConnection createHttpProxyConnection(String address, Proxy proxy) throws Exception
   {
     URL url = new URL(address);
     HttpURLConnection conn = proxy == null ? (HttpURLConnection) url.openConnection() : (HttpURLConnection) url.openConnection(proxy);
