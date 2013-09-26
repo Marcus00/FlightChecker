@@ -43,34 +43,38 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
   {
     try
     {
+      String langSpec1;
       if ("com".equals(addressRoot))
       {
         m_formatter = new SimpleDateFormat("dd/MM/yyyy");
+        langSpec1 = "/flights/search/multidestinations/?tripT=MULTI_SEGMENT&isIframe=undefined";
       }
-      else if ("de".equals(addressRoot) || "dk".equals(addressRoot) || "at".equals(addressRoot))
-      {
-        m_formatter = new SimpleDateFormat("dd.MM.yyyy");
-      }
-      else if ("nl".equals(addressRoot))
-      {
-        m_formatter = new SimpleDateFormat("dd-MM-yyyy");
-      }
-      else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
-          || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot) || "ir".equals(addressRoot))
+      else if ("de".equals(addressRoot))
       {
         m_formatter = new SimpleDateFormat("dd/MM/yyyy");
+        langSpec1 = "flug/suchen/rundreise/?tripT=MULTI_SEGMENT&isIframe=undefined";
       }
-      else if ("se".equals(addressRoot))
-      {
-        m_formatter = new SimpleDateFormat("yyyy-MM-dd");
-      }
+      //else if ("nl".equals(addressRoot))
+      //{
+      //  m_formatter = new SimpleDateFormat("dd-MM-yyyy");
+      //}
+      //else if ("it".equals(addressRoot) || "co.uk".equals(addressRoot) || "es".equals(addressRoot) || "fr".equals(addressRoot) || "pl".equals(addressRoot)
+      //    || "ca".equals(addressRoot) || "ie".equals(addressRoot) || "be".equals(addressRoot) || "ir".equals(addressRoot))
+      //{
+      //  m_formatter = new SimpleDateFormat("dd/MM/yyyy");
+      //}
+      //else if ("se".equals(addressRoot))
+      //{
+      //  m_formatter = new SimpleDateFormat("yyyy-MM-dd");
+      //}
       else
       {
         m_formatter = new SimpleDateFormat("MM/dd/yyyy");
+        return;
       }
 
       String hostAddress = "http://www.edreams." + addressRoot;
-      String address = hostAddress + "/flights/search/multidestinations/?tripT=MULTI_SEGMENT&isIframe=undefined";
+      String address = hostAddress + langSpec1;
 
       Proxy currentProxy = Helper.peekFreeProxy(this.getClass(), changeProxy);
       HttpURLConnection connection = createHttpProxyConnection(address, currentProxy);
@@ -125,7 +129,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       data.put("numInfants", "0");
       data.put("cabinClassName", "TOURIST");
       data.put("filteringCarrier", "");
-      data.put("fake_filteringCarrier", "All Airlines");
+      data.put("fake_filteringCarrier", addressRoot.equals("com") ? "All Airlines" : "Alle Fluggesellschaften");
       data.put("collectionTypeEstimationNeeded", "false");
       data.put("applyAllTaxes", "false");
 
@@ -172,13 +176,17 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             String price = "", priceNumber = null;
             for (Node node : link.select("div[class^=singleItinerayPrice]").first().childNodes())
             {
-              if (node instanceof TextNode && ((TextNode)node).text().trim().length() > 0)
+              if (node instanceof TextNode)
               {
-                price = ((TextNode)node).text().trim();
-                priceNumber = price.replaceAll("[\\D]", "");
-                if (priceNumber != null && priceNumber.length() > 0)
+                final String text = ((TextNode)node).text();
+                if (PriceType.containsMon(text) && text.trim().length() > 0)
                 {
-                  break;
+                  price = text.trim();
+                  priceNumber = price.replaceAll("[\\D]", "");
+                  if (priceNumber != null && priceNumber.length() > 0)
+                  {
+                    break;
+                  }
                 }
               }
             }

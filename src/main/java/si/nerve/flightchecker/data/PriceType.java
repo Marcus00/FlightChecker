@@ -23,6 +23,11 @@ public enum PriceType
     return price.contains("€") ? PriceType.EURO : price.contains("£") ? PriceType.POUND : PriceType.DOLLAR;
   }
 
+  public static boolean containsMon(String price)
+  {
+    return price.contains("€") || price.contains("$") || price.contains("£");
+  }
+
   public String getMonSign()
   {
     switch (this)
