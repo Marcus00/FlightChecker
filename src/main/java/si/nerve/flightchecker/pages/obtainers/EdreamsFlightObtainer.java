@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
+import java.net.SocketException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,6 +39,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
   private SimpleDateFormat m_formatter;
   public static final String COOKIE_KEY = "Set-Cookie";
   private static final Logger LOG = Logger.getLogger(EdreamsFlightObtainer.class);
+    private String m_logName;
 
   @Override
   public void search(
@@ -75,8 +77,13 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
 
       String hostAddress = "http://www.edreams." + addressRoot;
-      final String logName = "[" + hostAddress + "] ";
+      m_logName = "[" + hostAddress + "] ";
       String address = hostAddress + langSpec1;
+
+      if (changeProxy && Thread.currentThread().isInterrupted())
+      {
+        throw new InterruptedException();
+      }
 
       Proxy currentProxy = Helper.peekFreeProxy(hostAddress, changeProxy);
       try
@@ -162,25 +169,25 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             || "Connection reset".equals(e.getLocalizedMessage())
             || "Connection refused: connect".equals(e.getLocalizedMessage()))
         {
-          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " " + e.getLocalizedMessage() + ". Changing proxy.");
+          LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " " + e.getLocalizedMessage() + ". Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
         else if (e.getLocalizedMessage().contains(" 502 ") || e.getLocalizedMessage().contains(" 400 "))
         {
-          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
+          LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
         else if (e instanceof ConnectException)
         {
-          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
+          LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
         else
         {
-          LOG.debug(logName, e);
+          LOG.debug(m_logName, e);
           return;
         }
       }
@@ -191,11 +198,11 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         switch (responseCode)
         {
           case 302:
-            LOG.error(logName + "Proxy " + currentProxy.address().toString() + " " + connection.getResponseMessage() + ". Changing proxy.");
+            LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " " + connection.getResponseMessage() + ". Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
             return;
           default:
-            LOG.debug(logName + connection.getResponseCode() + " " + connection.getResponseMessage());
+            LOG.debug(m_logName + connection.getResponseCode() + " " + connection.getResponseMessage());
             return;
         }
       }
@@ -213,7 +220,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         for (int i = 2; i < 10; i++)
         {
           Document doc = Jsoup.parse(response);
-          List<MultiCityFlightData> returnList = extractFlightData(statusLabel, from1, to1, from2, to2, from3, to3, logName, address, doc);
+          List<MultiCityFlightData> returnList = extractFlightData(statusLabel, from1, to1, from2, to2, from3, to3, address, doc);
 
           synchronized (flightGui.getFlightQueue())
           {
@@ -261,16 +268,15 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           {
             if (e instanceof IOException && e.getLocalizedMessage().contains(" 502 "))
             {
-              LOG.debug(logName + "Last page.");
+              LOG.debug(m_logName + "Last page.");
             }
             else if (e instanceof ConnectException)
             {
               this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-              return;
             }
             else
             {
-              LOG.error(logName, e);
+              LOG.error(m_logName, e);
             }
             return;
           }
@@ -292,88 +298,88 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         {
           if (response.contains("We cannot find the cities you selected."))
           {
-            LOG.debug(logName + "We cannot find the cities you selected.");
+            LOG.debug(m_logName + "We cannot find the cities you selected.");
           }
           else if (response.contains("no results available"))
           {
-            LOG.debug(logName + "No results available.");
+            LOG.debug(m_logName + "No results available.");
           }
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
-            LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("We found multiple options for your trip"))
           {
-            LOG.debug(logName + response);
+            LOG.debug(m_logName + response);
           }
         }
         else if ("de".equals(addressRoot))
         {
           if (response.contains("Ihren Zielort nicht gefunden"))
           {
-            LOG.debug(logName + "Did not find your destination (Ihren Zielort nicht gefunden)");
+            LOG.debug(m_logName + "Did not find your destination (Ihren Zielort nicht gefunden)");
           }
           else if (response.contains("Wir konnten die von Ihnen ausgewählten Orte nicht finden"))
           {
-            LOG.debug(logName + "We cannot find the cities you selected. (Wir konnten die von Ihnen ausgewählten Orte nicht finden.)");
+            LOG.debug(m_logName + "We cannot find the cities you selected. (Wir konnten die von Ihnen ausgewählten Orte nicht finden.)");
           }
           else if (response.contains("Für Ihre Suche gibt es leider keine Ergebnisse."))
           {
-            LOG.debug(logName + "No results available. (Für Ihre Suche gibt es leider keine Ergebnisse.)");
+            LOG.debug(m_logName + "No results available. (Für Ihre Suche gibt es leider keine Ergebnisse.)");
           }
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
-            LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          else
+          else if (!response.contains("Für Ihre Reise gibt es mehrere Optionen"))
           {
-            LOG.debug(logName + response);
+            LOG.debug(m_logName + response);
           }
         }
         else if ("it".equals(addressRoot))
         {
           if (response.contains("Non siamo riusciti a trovare le città richieste."))
           {
-            LOG.debug(logName + "Did not find your destination (Non siamo riusciti a trovare le città richieste.)");
+            LOG.debug(m_logName + "Did not find your destination (Non siamo riusciti a trovare le città richieste.)");
           }
           else if (response.contains("Non ci sono risultati per la tua ricerca."))
           {
-            LOG.debug(logName + "No results available. (Non ci sono risultati per la tua ricerca.)");
+            LOG.debug(m_logName + "No results available. (Non ci sono risultati per la tua ricerca.)");
           }
           else if (response.contains("I parametri di ricerca inseriti non sono corretti. Per favore verificali prima di andare avanti."))
           {
-            LOG.debug(logName + "We cannot find the cities you selected. (I parametri di ricerca inseriti non sono corretti. Per favore verificali prima di andare avanti.)");
+            LOG.debug(m_logName + "We cannot find the cities you selected. (I parametri di ricerca inseriti non sono corretti. Per favore verificali prima di andare avanti.)");
           }
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
-            LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("Abbiamo trovato diverse opzioni per il tuo viaggio"))
           {
-            LOG.debug(logName + response);
+            LOG.debug(m_logName + response);
           }
         }
         else if ("es".equals(addressRoot))
         {
           if (response.contains("No hemos podido localizar las ciudades indicadas."))
           {
-            LOG.debug(logName + "We cannot find the cities you selected. (No hemos podido localizar las ciudades indicadas.)");
+            LOG.debug(m_logName + "We cannot find the cities you selected. (No hemos podido localizar las ciudades indicadas.)");
           }
           else if (response.contains("No hay resultados disponibles para tu búsqueda."))
           {
-            LOG.debug(logName + "No results available. (No hay resultados disponibles para tu búsqueda.)");
+            LOG.debug(m_logName + "No results available. (No hay resultados disponibles para tu búsqueda.)");
           }
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
-            LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
+            LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("Hemos encontrado varias opciones para tu viaje"))
           {
-            LOG.debug(logName + response);
+            LOG.debug(m_logName + response);
           }
         }
         else
@@ -382,9 +388,20 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
       }
     }
-    catch (ConnectException e)
+    catch (IOException e)
     {
-      this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      if (e.getLocalizedMessage().contains(" 502 "))
+      {
+        LOG.debug(m_logName + "Last page.");
+      }
+      else if (e instanceof SocketException || e.getLocalizedMessage().contains("Premature EOF") || e.getLocalizedMessage().contains(" 400 "))
+      {
+        this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      }
+      else
+      {
+        LOG.error(m_logName, e);
+      }
     }
     catch (Exception e)
     {
@@ -394,7 +411,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
   }
 
   private List<MultiCityFlightData> extractFlightData(
-      JLabel statusLabel, String from1, String to1, String from2, String to2, String from3, String to3, String logName, String address, Document doc)
+      JLabel statusLabel, String from1, String to1, String from2, String to2, String from3, String to3, String address, Document doc)
   {
     Elements links = doc.select("div[class^=singleItineray-content-body]");
 
@@ -429,7 +446,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
         else
         {
-          LOG.error(logName + "departureTime or fromAirportName not found!");
+          LOG.error(m_logName + "departureTime or fromAirportName not found!");
         }
 
         summary = leg.select("span[id^=segmentDestination]").text();
@@ -442,7 +459,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
         else
         {
-          LOG.error(logName + "arrivalTime or toAirportName not found!");
+          LOG.error(m_logName + "arrivalTime or toAirportName not found!");
         }
 
         summary = leg.select("span[id^=segmentElapsedTime]").text();
@@ -454,7 +471,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
         else
         {
-          LOG.error(logName + "duration not found!");
+          LOG.error(m_logName + "duration not found!");
         }
         summary = leg.select("span[id^=segmentStopsOvers]").text();
         split = summary.split("\\u00a0");
@@ -465,7 +482,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         }
         else
         {
-          LOG.error(logName + "layover not found!");
+          LOG.error(m_logName + "layover not found!");
         }
 
         legList.add(new FlightLeg(

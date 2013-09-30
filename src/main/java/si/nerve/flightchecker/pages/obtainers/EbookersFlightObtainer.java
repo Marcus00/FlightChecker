@@ -3,7 +3,7 @@ package si.nerve.flightchecker.pages.obtainers;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -73,8 +73,8 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
       formatter = new SimpleDateFormat("MM/dd/yyyy");
     }
     String hostAddress = "http://www.ebookers." + addressRoot;
+    String logName = "[" + hostAddress + "] ";
     StringBuilder builder = new StringBuilder(hostAddress).append("/shop/airsearch?type=air&ar.type=multiCity");
-
     String encode0 = URLEncoder.encode("[0]", "UTF-8");
     String encode1 = URLEncoder.encode("[1]", "UTF-8");
     String encode2 = URLEncoder.encode("[2]", "UTF-8");
@@ -125,7 +125,27 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
     URL url = new URL(address);
     URLConnection connection = Helper.createHttpConnection(url);
-    InputStream ins = connection.getInputStream();
+    InputStream ins = null;
+    try
+    {
+      ins = connection.getInputStream();
+    }
+    catch (IOException e)
+    {
+      if (e instanceof IOException && e.getLocalizedMessage().contains(" 502 "))
+      {
+        LOG.debug(logName + "Last page.");
+      }
+      else if (e instanceof ConnectException)
+      {
+        this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      }
+      else
+      {
+        LOG.error(logName, e);
+      }
+      return;
+    }
     String encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
@@ -228,7 +248,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
               address
           );
 
-          statusLabel.setForeground(statusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
+          statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
 
           synchronized (flightGui.getFlightQueue())
           {
@@ -255,23 +275,9 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     }
     catch (Exception e)
     {
-      LOG.error("EbookersFlightObtainer: Jsoup parsing failed!", e);
+      LOG.error(logName + "Jsoup parsing failed!", e);
     }
   }
-
-  //private HttpURLConnection createHttpConnection(URL url) throws IOException
-  //{
-  //  URLConnection connection = url.openConnection();
-  //  connection.addRequestProperty("Connection", "keep-alive");
-  //  //    connection.addRequestProperty("Cache-Control", "max-age");
-  //  connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-  //  connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-  //  connection.addRequestProperty("Host", url.getHost());
-  //  connection.addRequestProperty("Referer", url.toString());
-  //  connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-  //  connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4,en-US,en;q=0.8");
-  //  return (HttpURLConnection)connection;
-  //}
 
   public static void main(String[] args)
   {
@@ -279,7 +285,8 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1, false);
+      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1,
+          false);
     }
     catch (Exception e)
     {

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.SocketException;
@@ -72,6 +71,12 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         m_address += "/" + numOfPersons + "adults";
       }
       URLConnection connection;
+
+      if (changeProxy && Thread.currentThread().isInterrupted())
+      {
+        throw new InterruptedException();
+      }
+
       m_currentProxy = Helper.peekFreeProxy(hostAddress, changeProxy);
       try
       {
@@ -145,19 +150,19 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         }
       }
     }
-    catch (ConnectException e)
-    {
-      this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-    }
-    catch (SocketException e)
-    {
-      this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-    }
     catch (IOException e)
     {
-      if (e.getLocalizedMessage().contains(" 502 ") || e.getLocalizedMessage().contains(" 400 "))
+      if (e.getLocalizedMessage().contains(" 502 "))
+      {
+        LOG.debug(m_logName + "Last page.");
+      }
+      else if (e instanceof SocketException || e.getLocalizedMessage().contains(" 400 ") || e.getLocalizedMessage().contains("Premature EOF"))
       {
         this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      }
+      else
+      {
+        LOG.error(m_logName, e);
       }
     }
   }
@@ -262,7 +267,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     return new KayakResult(newTime, response);
   }
 
-  private void addToQueue(FlightsGui flightGui, JLabel kayakStatusLabel, String response)
+  private void addToQueue(FlightsGui flightGui, JLabel statusLabel, String response)
   {
     if (response.contains("addAdt('results/details/button')"))
     {
@@ -305,7 +310,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                 m_address
             );
 
-            kayakStatusLabel.setForeground(kayakStatusLabel.getForeground().equals(Color.BLACK) ? Color.DARK_GRAY : Color.BLACK);
+            statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
 
             synchronized (flightGui.getFlightQueue())
             {

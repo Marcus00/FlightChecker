@@ -1,13 +1,14 @@
 package si.nerve.flightchecker;
 
-import si.nerve.flightchecker.pages.*;
+import java.awt.Color;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.JToggleButton;
+
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
 import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * @author bratwurzt
@@ -31,7 +32,8 @@ public class SearchAndRefresh implements Runnable
   private List<String[]> m_a1xCombinations;
   private List<String[]> m_a3xCombinations;
 
-  public SearchAndRefresh(MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom1,
+  public SearchAndRefresh(
+      MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom1,
       String codeTo2, String codeTo1, String codeFrom2, Date date1, Date date2, Date from1xDate, Integer numOfPersons, int selectedRadio,
       String[] codes, List<String[]> a1xCombinations, List<String[]> a3xCombinations)
   {
@@ -107,6 +109,11 @@ public class SearchAndRefresh implements Runnable
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
               m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              if (Thread.currentThread().isInterrupted())
+              {
+                m_statusLabel.setForeground(Color.BLUE);
+                return;
+              }
               m_multiCityFlightObtainer.search(
                   m_flightsGui,
                   m_statusLabel,
@@ -135,6 +142,11 @@ public class SearchAndRefresh implements Runnable
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
               m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              if (Thread.currentThread().isInterrupted())
+              {
+                m_statusLabel.setForeground(Color.BLUE);
+                return;
+              }
               m_multiCityFlightObtainer.search(
                   m_flightsGui,
                   m_statusLabel,
@@ -159,11 +171,10 @@ public class SearchAndRefresh implements Runnable
     }
     catch (InterruptedException e)
     {
-      m_statusLabel.setForeground(Color.DARK_GRAY);
+      m_statusLabel.setForeground(Color.BLUE);
     }
     catch (Exception e)
     {
-      e.printStackTrace();
       m_statusLabel.setForeground(Color.RED);
     }
   }
@@ -172,7 +183,7 @@ public class SearchAndRefresh implements Runnable
   {
     if (m_multiCityFlightObtainer instanceof KayakFlightObtainer)
     {
-      return 600;
+      return 700;
     }
     else if (m_multiCityFlightObtainer instanceof EdreamsFlightObtainer)
     {
