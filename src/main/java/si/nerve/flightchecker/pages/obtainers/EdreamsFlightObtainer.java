@@ -1,28 +1,5 @@
 package si.nerve.flightchecker.pages.obtainers;
 
-import java.awt.Color;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import javax.swing.JLabel;
-
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,6 +14,21 @@ import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.data.PriceType;
 import si.nerve.flightchecker.helper.Helper;
 import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Created: 10.8.13 20:39
@@ -180,9 +172,16 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
+        else if (e instanceof ConnectException)
+        {
+          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
+          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          return;
+        }
         else
         {
           LOG.debug(logName, e);
+          return;
         }
       }
 
@@ -233,7 +232,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
             if (returnList.size() > 0)
             {
-              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)flightGui.getMainTable().getModel();
+              MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) flightGui.getMainTable().getModel();
               tableModel.setEntityList(new ArrayList<MultiCityFlightData>(flightGui.getFlightQueue()));
               tableModel.fireTableDataChanged();
             }
@@ -263,6 +262,11 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             if (e instanceof IOException && e.getLocalizedMessage().contains(" 502 "))
             {
               LOG.debug(logName + "Last page.");
+            }
+            else if (e instanceof ConnectException)
+            {
+              this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+              return;
             }
             else
             {
@@ -299,10 +303,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          //else
-          //{
-          //  LOG.debug(logName + response);
-          //}
+          else if (!response.contains("We found multiple options for your trip"))
+          {
+            LOG.debug(logName + response);
+          }
         }
         else if ("de".equals(addressRoot))
         {
@@ -323,30 +327,34 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          //else
-          //{
-          //  LOG.debug(logName + response);
-          //}
+          else
+          {
+            LOG.debug(logName + response);
+          }
         }
         else if ("it".equals(addressRoot))
         {
           if (response.contains("Non siamo riusciti a trovare le città richieste."))
           {
-            LOG.debug(logName + "We cannot find the cities you selected. (Non siamo riusciti a trovare le città richieste.)");
+            LOG.debug(logName + "Did not find your destination (Non siamo riusciti a trovare le città richieste.)");
           }
           else if (response.contains("Non ci sono risultati per la tua ricerca."))
           {
             LOG.debug(logName + "No results available. (Non ci sono risultati per la tua ricerca.)");
+          }
+          else if (response.contains("I parametri di ricerca inseriti non sono corretti. Per favore verificali prima di andare avanti."))
+          {
+            LOG.debug(logName + "We cannot find the cities you selected. (I parametri di ricerca inseriti non sono corretti. Per favore verificali prima di andare avanti.)");
           }
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          //else
-          //{
-          //  LOG.debug(logName + response);
-          //}
+          else if (!response.contains("Abbiamo trovato diverse opzioni per il tuo viaggio"))
+          {
+            LOG.debug(logName + response);
+          }
         }
         else if ("es".equals(addressRoot))
         {
@@ -363,10 +371,14 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          //else
-          //{
-          //  LOG.debug(logName + response);
-          //}
+          else if (!response.contains("Hemos encontrado varias opciones para tu viaje"))
+          {
+            LOG.debug(logName + response);
+          }
+        }
+        else
+        {
+          System.out.println();
         }
       }
     }
@@ -394,7 +406,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       {
         if (node instanceof TextNode)
         {
-          final String text = ((TextNode)node).text().trim();
+          final String text = ((TextNode) node).text().trim();
           if (text.length() > 0 && (priceNumber == null || priceNumber.length() == 0))
           {
             priceNumber = text.replaceAll("[\\D]", "");

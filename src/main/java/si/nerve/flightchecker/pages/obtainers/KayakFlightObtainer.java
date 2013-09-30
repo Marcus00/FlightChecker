@@ -343,7 +343,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (Przeszukiwane przez nas linie lotnicze nie zwróciły żadnych wyników.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -354,7 +354,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (Geen resultaten gevonden tussen de vliegmaatschappijen waar wij zoeken.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -365,7 +365,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -376,7 +376,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (No results were found among the airlines we search.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -387,7 +387,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (No se encontraron resultados con las aerolíneas elegidas.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -398,7 +398,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (Nessun risultato trovato tra le compagnie aeree che confrontiamo.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -409,7 +409,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (Es wurden keine Ergebnisse unter den Airlines gefunden, die wir durchsuchen.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
@@ -420,7 +420,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           LOG.debug(m_logName + "No results available. (No results were found among the airlines we search.)");
         }
-        else
+        else if (response.length() > 1000)
         {
           LOG.debug(m_logName + "No results available. (Aucun résultat n'a été trouvé parmi les compagnies recherchées.)");
         }
