@@ -60,11 +60,9 @@ public enum PriceType
     String google = "http://www.google.com/ig/calculator?hl=en&q=1";
     String baseCurrency = get3LetterCode(priceTypeFrom);
 
-    String charset = "UTF-8";
-
     URL url = new URL(google + baseCurrency + "=EUR");
     URLConnection urlConnection = url.openConnection();
-    String jsonString = Helper.readResponse(urlConnection.getInputStream(), charset);
+    String jsonString = Helper.readResponse(urlConnection.getInputStream(), urlConnection);
     String firstAnchor = ",rhs: \"";
     int startIndex = jsonString.indexOf(firstAnchor);
     return Double.parseDouble(jsonString.substring(startIndex + firstAnchor.length(), jsonString.indexOf(" Euros", startIndex + firstAnchor.length())));

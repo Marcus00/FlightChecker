@@ -163,6 +163,7 @@ public class SearchAndRefresh implements Runnable
     }
     catch (Exception e)
     {
+      e.printStackTrace();
       m_statusLabel.setForeground(Color.RED);
     }
   }

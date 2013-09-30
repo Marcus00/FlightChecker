@@ -1,19 +1,6 @@
 package si.nerve.flightchecker.pages.obtainers;
 
-import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import si.nerve.flightchecker.FlightsGui;
-import si.nerve.flightchecker.components.MultiCityFlightTableModel;
-import si.nerve.flightchecker.data.FlightLeg;
-import si.nerve.flightchecker.data.MultiCityFlightData;
-import si.nerve.flightchecker.data.PriceType;
-import si.nerve.flightchecker.helper.Helper;
-import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -26,6 +13,19 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+import javax.swing.JLabel;
+
+import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import si.nerve.flightchecker.FlightsGui;
+import si.nerve.flightchecker.components.MultiCityFlightTableModel;
+import si.nerve.flightchecker.data.FlightLeg;
+import si.nerve.flightchecker.data.MultiCityFlightData;
+import si.nerve.flightchecker.data.PriceType;
+import si.nerve.flightchecker.helper.Helper;
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 
 /**
  * Created: 10.8.13 20:39
@@ -36,7 +36,8 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
   private static final Logger LOG = Logger.getLogger(ExpediaFlightObtainer.class);
 
   @Override
-  public void search(final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+  public void search(
+      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
       String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     if ("com".equals(addressRoot))
@@ -65,8 +66,9 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       m_formatter = new SimpleDateFormat("MM/dd/yyyy");
     }
 
-    String hostAddress = "http://www.expedia." + addressRoot + "/";
-    String address = hostAddress + "Flight-SearchResults?trip=multi" +
+    String hostAddress = "http://www.expedia." + addressRoot;
+    final String logName = "[" + hostAddress + "] ";
+    String address = hostAddress + "/Flight-SearchResults?trip=multi" +
         "&leg1=" + URLEncoder.encode("from:" + from1 + ",frCode:undefined,to:" + to1 + ",toCode:undefined,departure:" + m_formatter.format(date1) + "TANYT", "UTF-8") +
         "&leg2=" + URLEncoder.encode("from:" + from2 + ",frCode:undefined,to:" + to2 + ",toCode:undefined,departure:" + m_formatter.format(date2) + "TANYT", "UTF-8");
     if (from3 != null && to3 != null && date3 != null)
@@ -78,23 +80,23 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
         "&mode=search";
 
     URL url = new URL(address);
-    URLConnection connection = createHttpConnection(url);
+    URLConnection connection = Helper.createHttpConnection(url);
     InputStream ins = connection.getInputStream();
     String encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, connection);
     int streamingStartLocation = response.indexOf("Flight-SearchResults");
     int streamingEndLocation = response.indexOf("';", streamingStartLocation);
     try
     {
-      address = hostAddress + response.substring(streamingStartLocation, streamingEndLocation);
+      address = hostAddress + "/" + response.substring(streamingStartLocation, streamingEndLocation);
     }
     catch (Exception e)
     {
-      LOG.error("ExpediaFlightObtainer: Flight-SearchResults not found!", e);
+      LOG.error(logName + "Flight-SearchResults not found!", e);
       return;
     }
     url = new URL(address);
@@ -109,8 +111,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       sbuf.append(cookie);
     }
     String cookies = sbuf.toString();
-
-    connection = createHttpConnection(url);
+    connection = Helper.createHttpConnection(url);
     connection.addRequestProperty("Cookie", cookies);
     ins = connection.getInputStream();
     encoding = connection.getHeaderField("Content-Encoding");
@@ -118,13 +119,207 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     {
       ins = new GZIPInputStream(ins);
     }
-    response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+    response = Helper.readResponse(ins, connection);
     String startJsonString = "<script id='jsonData' type=\"text/x-jquery-tmpl\">";
     int startIndex = response.indexOf(startJsonString);
     if (startIndex == -1)
     {
-      LOG.error("ExpediaFlightObtainer: JSON decoding failed for www.expedia." + addressRoot);
-      statusLabel.setForeground(Color.RED);
+      if (addressRoot.equals("dk"))
+      {
+        if (response.contains("Vi kunne ikke finde lufthavne, der passede til din søgning efter"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (Vi kunne ikke finde lufthavne, der passede til din søgning efter...)");
+        }
+        else if (response.contains("Der blev ikke fundet nogen fly, der stemte overens med søgekriterierne"))
+        {
+          LOG.debug(logName + "No results available. (Der blev ikke fundet nogen fly, der stemte overens med søgekriterierne)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("de"))
+      {
+        if (response.contains("Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen"))
+        {
+          LOG.debug(logName + "No results available. (Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen)");
+        }
+        else if (response.contains("Es wurde kein Flughafen gefunden, der Ihrer Suche nach"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (Es wurde kein Flughafen gefunden, der Ihrer Suche nach...)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("com"))
+      {
+        if (response.contains("We could not find any airports that match your search for"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We could not find any airports that match your search for...)");
+        }
+        else if (response.contains("No flights were found that matched your search"))
+        {
+          LOG.debug(logName + "No results available. (No flights were found that matched your request)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("at"))
+      {
+        if (response.contains("Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen"))
+        {
+          LOG.debug(logName + "No results available. (Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("nl"))
+      {
+        if (response.contains("We kunnen geen luchthavens vinden die overeenkomen met de zoekopdracht naar"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We kunnen geen luchthavens vinden die overeenkomen met de zoekopdracht naar...)");
+        }
+        else if (response.contains("Er zijn geen vluchten gevonden die aan je verzoek voldoen"))
+        {
+          LOG.debug(logName + "No results available. (Er zijn geen vluchten gevonden die aan je verzoek voldoen)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("it"))
+      {
+        if (response.contains("Impossibile trovare aeroporti corrispondenti alla ricerca di"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (Impossibile trovare aeroporti corrispondenti alla ricerca di...)");
+        }
+        else if (response.contains("Non è stato trovato alcun volo che soddisfi i criteri"))
+        {
+          LOG.debug(logName + "No results available. (Non è stato trovato alcun volo che soddisfi i criteri)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("co.uk"))
+      {
+        if (response.contains("We could not find any airports that match your search for"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We could not find any airports that match your search for)");
+        }
+        else if (response.contains("No flights were found that matched your request"))
+        {
+          LOG.debug(logName + "No results available. (No flights were found that matched your request)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("es"))
+      {
+        if (response.contains("No hemos encontrado aeropuertos que coincidan con tu búsqueda de"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (No hemos encontrado aeropuertos que coincidan con tu búsqueda de)");
+        }
+        else if (response.contains("No se han encontrado vuelos que coincidan con tu solicitud"))
+        {
+          LOG.debug(logName + "No results available. (No se han encontrado vuelos que coincidan con tu solicitud)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("fr"))
+      {
+        if (response.contains("Aucun aéroport ne correspond à votre recherche pour"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (Aucun aéroport ne correspond à votre recherche pour...)");
+        }
+        else if (response.contains("Aucun vol ne correspond à vos critères"))
+        {
+          LOG.debug(logName + "No results available. (Aucun vol ne correspond à vos critères)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("ca"))
+      {
+        if (response.contains("No flights were found that matched your request"))
+        {
+          LOG.debug(logName + "No results available. (No flights were found that matched your request)");
+        }
+        else if (response.contains("We could not find any airports that match your search for"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We could not find any airports that match your search for...)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("ie"))
+      {
+        if (response.contains("No flights were found that matched your request"))
+        {
+          LOG.debug(logName + "No results available. (No flights were found that matched your request)");
+        }
+        else if (response.contains("We could not find any airports that match your search for"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We could not find any airports that match your search for...)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("be"))
+      {
+        if (response.contains("We kunnen geen luchthavens vinden die overeenkomen met de zoekopdracht naar"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (We kunnen geen luchthavens vinden die overeenkomen met de zoekopdracht naar...)");
+        }
+        else if (response.contains("Er zijn geen vluchten gevonden die aan je verzoek voldoen"))
+        {
+          LOG.debug(logName + "No results available. (Er zijn geen vluchten gevonden die aan je verzoek voldoen)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else if (addressRoot.equals("se"))
+      {
+        if (response.contains("Det går inte att hitta några flygplatser som matchar din sökning efter"))
+        {
+          LOG.debug(logName + "We cannot find the cities you selected. (Det går inte att hitta några flygplatser som matchar din sökning efter...)");
+        }
+        else if (response.contains("Inga flyg stämde med sökvillkoren"))
+        {
+          LOG.debug(logName + "No results available. (Inga flyg stämde med sökvillkoren)");
+        }
+        else
+        {
+          LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        }
+      }
+      else
+      {
+        LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
+        statusLabel.setForeground(Color.RED);
+      }
       return;
     }
     streamingStartLocation = startIndex + startJsonString.length();
@@ -276,56 +471,18 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     }
   }
 
-  private String getCharSetFromConnection(URLConnection connection)
-  {
-    String contentType = connection.getHeaderField("Content-Type");
-
-    String[] values = contentType.split(";");
-    String charset = null;
-
-    for (String value : values)
-    {
-      value = value.trim();
-
-      if (value.toLowerCase().startsWith("charset="))
-      {
-        charset = value.substring("charset=".length());
-      }
-    }
-
-    if (charset == null)
-    {
-      charset = "UTF-8";
-    }
-    return charset;
-  }
-
-  private HttpURLConnection createHttpConnection(URL url) throws IOException
-  {
-    URLConnection connection = url.openConnection();
-    connection.addRequestProperty("Connection", "keep-alive");
-    //    connection.addRequestProperty("Cache-Control", "max-age");
-    connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-    connection.addRequestProperty("Host", url.getHost());
-    connection.addRequestProperty("Referer", url.toString());
-    connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-    connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4,en-US,en;q=0.8");
-    return (HttpURLConnection)connection;
-  }
-
   public static void main(String[] args)
   {
     MultiCityFlightObtainer obtainer = new ExpediaFlightObtainer();
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1, false);
+      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1,
+          false);
     }
     catch (Exception e)
     {
       e.printStackTrace();
     }
   }
-
 }

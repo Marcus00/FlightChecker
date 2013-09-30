@@ -124,14 +124,14 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     String address = builder.toString();
 
     URL url = new URL(address);
-    URLConnection connection = createHttpConnection(url);
+    URLConnection connection = Helper.createHttpConnection(url);
     InputStream ins = connection.getInputStream();
     String encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
       ins = new GZIPInputStream(ins);
     }
-    String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+    String response = Helper.readResponse(ins, connection);
     try
     {
       Document doc = Jsoup.parse(response);
@@ -259,43 +259,19 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     }
   }
 
-  private String getCharSetFromConnection(URLConnection connection)
-  {
-    String contentType = connection.getHeaderField("Content-Type");
-
-    String[] values = contentType.split(";");
-    String charset = null;
-
-    for (String value : values)
-    {
-      value = value.trim();
-
-      if (value.toLowerCase().startsWith("charset="))
-      {
-        charset = value.substring("charset=".length());
-      }
-    }
-
-    if (charset == null)
-    {
-      charset = "UTF-8";
-    }
-    return charset;
-  }
-
-  private HttpURLConnection createHttpConnection(URL url) throws IOException
-  {
-    URLConnection connection = url.openConnection();
-    connection.addRequestProperty("Connection", "keep-alive");
-    //    connection.addRequestProperty("Cache-Control", "max-age");
-    connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-    connection.addRequestProperty("Host", url.getHost());
-    connection.addRequestProperty("Referer", url.toString());
-    connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-    connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4,en-US,en;q=0.8");
-    return (HttpURLConnection)connection;
-  }
+  //private HttpURLConnection createHttpConnection(URL url) throws IOException
+  //{
+  //  URLConnection connection = url.openConnection();
+  //  connection.addRequestProperty("Connection", "keep-alive");
+  //  //    connection.addRequestProperty("Cache-Control", "max-age");
+  //  connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+  //  connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
+  //  connection.addRequestProperty("Host", url.getHost());
+  //  connection.addRequestProperty("Referer", url.toString());
+  //  connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+  //  connection.addRequestProperty("Accept-Language", "sl-SI,sl;q=0.8,en-GB;q=0.6,en;q=0.4,en-US,en;q=0.8");
+  //  return (HttpURLConnection)connection;
+  //}
 
   public static void main(String[] args)
   {

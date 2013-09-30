@@ -89,7 +89,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       Proxy currentProxy = Helper.peekFreeProxy(hostAddress, changeProxy);
       try
       {
-        connection = createHttpProxyConnection(address, currentProxy);
+        connection = Helper.createHttpProxyConnection(address, currentProxy);
       }
       catch (Exception e)
       {
@@ -99,7 +99,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
       Map<String, List<String>> headerFields = connection.getHeaderFields();
       String newAddress = hostAddress + "/engine/ItinerarySearch/search";
-      connection = createHttpProxyConnection(newAddress, currentProxy);
+      connection = Helper.createHttpProxyConnection(newAddress, currentProxy);
       StringBuilder sbuf = new StringBuilder();
 
       if (headerFields != null && headerFields.containsKey(COOKIE_KEY))
@@ -174,9 +174,9 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
-        else if (e.getLocalizedMessage().contains(" 502 "))
+        else if (e.getLocalizedMessage().contains(" 502 ") || e.getLocalizedMessage().contains(" 400 "))
         {
-          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " error: 502 Bad gateway. Changing proxy.");
+          LOG.error(logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
           this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
@@ -207,7 +207,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         ins = new GZIPInputStream(ins);
       }
 
-      String response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+      String response = Helper.readResponse(ins, connection);
 
       if (response.contains("singleItineray-content-body"))
       {
@@ -240,7 +240,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           }
 
           newAddress = hostAddress + "/engine/ItinerarySearch/paging?page=" + i + "&isSEM=";
-          connection = createHttpProxyConnection(newAddress, currentProxy);
+          connection = Helper.createHttpProxyConnection(newAddress, currentProxy);
           sbuf = new StringBuilder();
           if (headerFields != null && headerFields.containsKey(COOKIE_KEY))
           {
@@ -275,7 +275,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           {
             ins = new GZIPInputStream(ins);
           }
-          response = Helper.readResponse(ins, getCharSetFromConnection(connection));
+          response = Helper.readResponse(ins, connection);
           if (!response.contains("singleItineray-content-body"))
           {
             break;
@@ -299,10 +299,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          else
-          {
-            LOG.debug(logName + response);
-          }
+          //else
+          //{
+          //  LOG.debug(logName + response);
+          //}
         }
         else if ("de".equals(addressRoot))
         {
@@ -323,10 +323,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          else
-          {
-            LOG.debug(logName + response);
-          }
+          //else
+          //{
+          //  LOG.debug(logName + response);
+          //}
         }
         else if ("it".equals(addressRoot))
         {
@@ -343,10 +343,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          else
-          {
-            LOG.debug(logName + response);
-          }
+          //else
+          //{
+          //  LOG.debug(logName + response);
+          //}
         }
         else if ("es".equals(addressRoot))
         {
@@ -363,10 +363,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             LOG.debug(logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
             this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
-          else
-          {
-            LOG.debug(logName + response);
-          }
+          //else
+          //{
+          //  LOG.debug(logName + response);
+          //}
         }
       }
     }
@@ -525,48 +525,6 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       builder.append(key).append('=').append(URLEncoder.encode(data.get(key), "UTF-8"));
     }
     return builder.toString();
-  }
-
-  private String getCharSetFromConnection(URLConnection connection)
-  {
-    String contentType = connection.getHeaderField("Content-Type");
-
-    String charset = null;
-    if (contentType != null)
-    {
-      String[] values = contentType.split(";");
-
-      for (String value : values)
-      {
-        value = value.trim();
-
-        if (value.toLowerCase().startsWith("charset="))
-        {
-          charset = value.substring("charset=".length());
-        }
-      }
-    }
-
-    if (charset == null)
-    {
-      charset = "UTF-8";
-    }
-    return charset;
-  }
-
-  private HttpURLConnection createHttpProxyConnection(String address, Proxy proxy) throws Exception
-  {
-    URL url = new URL(address);
-    HttpURLConnection conn = proxy == null ? (HttpURLConnection)url.openConnection() : (HttpURLConnection)url.openConnection(proxy);
-    conn.addRequestProperty("Connection", "keep-alive");
-    conn.addRequestProperty("Cache-Control", "max-age=0");
-    conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
-    conn.addRequestProperty("Host", url.getHost());
-    conn.addRequestProperty("Referer", url.toString());
-    conn.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-    conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-    return conn;
   }
 
   public static void main(String[] args)

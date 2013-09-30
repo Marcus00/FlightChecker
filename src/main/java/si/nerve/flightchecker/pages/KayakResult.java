@@ -5,16 +5,16 @@ package si.nerve.flightchecker.pages;
  */
 public class KayakResult
 {
-  long m_time;
+  Long m_time;
   String m_response;
 
-  public KayakResult(long time, String response)
+  public KayakResult(Long time, String response)
   {
     m_time = time;
     m_response = response;
   }
 
-  public long getTime()
+  public Long getTime()
   {
     return m_time;
   }
