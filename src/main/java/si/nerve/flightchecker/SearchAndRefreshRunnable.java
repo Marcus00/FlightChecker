@@ -3,17 +3,16 @@ package si.nerve.flightchecker;
 import java.awt.Color;
 import java.util.Date;
 import java.util.List;
-import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 
+import si.nerve.flightchecker.helper.Helper;
 import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
-import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
-import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
 
 /**
  * @author bratwurzt
  */
-public class SearchAndRefresh implements Runnable
+public class SearchAndRefreshRunnable implements Runnable
 {
   private FlightsGui m_flightsGui;
   private String m_codeFrom1;
@@ -26,14 +25,14 @@ public class SearchAndRefresh implements Runnable
   private String m_root;
   private int m_selectedRadio;
   private String[] m_codes;
-  private JLabel m_statusLabel;
   private Integer m_numOfPersons;
   private MultiCityFlightObtainer m_multiCityFlightObtainer;
   private List<String[]> m_a1xCombinations;
   private List<String[]> m_a3xCombinations;
+  private JProgressBar m_progressBar;
 
-  public SearchAndRefresh(
-      MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JLabel statusLabel, String codeFrom1,
+  public SearchAndRefreshRunnable(
+      MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JProgressBar progressBar, String codeFrom1,
       String codeTo2, String codeTo1, String codeFrom2, Date date1, Date date2, Date from1xDate, Integer numOfPersons, int selectedRadio,
       String[] codes, List<String[]> a1xCombinations, List<String[]> a3xCombinations)
   {
@@ -49,10 +48,30 @@ public class SearchAndRefresh implements Runnable
     m_numOfPersons = numOfPersons;
     m_selectedRadio = selectedRadio;
     m_codes = codes;
-    m_statusLabel = statusLabel;
+    m_progressBar = progressBar;
     m_multiCityFlightObtainer = multiCityFlightObtainer;
     m_a1xCombinations = a1xCombinations;
     m_a3xCombinations = a3xCombinations;
+    if (m_selectedRadio == 0)
+    {
+      m_progressBar.setMinimum(0);
+      m_progressBar.setMaximum(1);
+    }
+    else if (m_selectedRadio == 1)
+    {
+      m_progressBar.setMinimum(0);
+      m_progressBar.setMaximum(m_codes.length * m_codes.length);
+    }
+    else if (m_selectedRadio == 2)
+    {
+      m_progressBar.setMinimum(0);
+      m_progressBar.setMaximum(m_a1xCombinations.size());
+    }
+    else if (m_selectedRadio == 3)
+    {
+      m_progressBar.setMinimum(0);
+      m_progressBar.setMaximum(m_a3xCombinations.size());
+    }
   }
 
   @Override
@@ -60,15 +79,16 @@ public class SearchAndRefresh implements Runnable
   {
     try
     {
+      m_progressBar.setForeground(Color.BLACK);
       switch (m_selectedRadio)
       {
         case 0:
         case 1:
           if (m_codeFrom1 != null && m_codeTo2 != null && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3)
           {
-            m_statusLabel.setText(m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
-            m_multiCityFlightObtainer
-                .search(m_flightsGui, m_statusLabel, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons, false);
+            m_progressBar.setString(m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+            m_multiCityFlightObtainer.search(m_flightsGui, m_root, m_codeFrom1, m_codeTo1, m_date1, m_codeFrom2, m_codeTo2, m_date2, null, null, null, m_numOfPersons, false);
+            m_progressBar.setValue(1);
           }
 
           if (m_selectedRadio == 1) //todo randomize combination call order
@@ -88,13 +108,13 @@ public class SearchAndRefresh implements Runnable
 
                   if (toggleButtonFrom.isSelected() && toggleButtonTo.isSelected())
                   {
-                    Thread.sleep(getSleepMillis() + (int)(Math.random() * 100));
+                    Thread.sleep(Helper.getSleepMillis(m_multiCityFlightObtainer) + (int)(Math.random() * 100));
 
-                    m_multiCityFlightObtainer
-                        .search(m_flightsGui, m_statusLabel, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons, false);
+                    m_multiCityFlightObtainer.search(m_flightsGui, m_root, codeFrom, m_codeTo1, m_date1, m_codeFrom2, codeTo, m_date2, null, null, null, m_numOfPersons, false);
 
-                    m_statusLabel.setText(codeFrom + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + codeTo);
+                    m_progressBar.setString(codeFrom + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + codeTo);
                   }
+                  m_progressBar.setValue(m_progressBar.getValue() + 1);
                 }
               }
             }
@@ -108,15 +128,16 @@ public class SearchAndRefresh implements Runnable
             if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
-              m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              m_progressBar.setString(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+
               if (Thread.currentThread().isInterrupted())
               {
-                m_statusLabel.setForeground(Color.BLUE);
+                m_progressBar.setForeground(Color.BLUE);
                 return;
               }
+
               m_multiCityFlightObtainer.search(
                   m_flightsGui,
-                  m_statusLabel,
                   m_root,
                   from3,
                   to3,
@@ -130,6 +151,7 @@ public class SearchAndRefresh implements Runnable
                   m_numOfPersons,
                   false
               );
+              m_progressBar.setValue(m_progressBar.getValue() + 1);
             }
           }
           break;
@@ -141,15 +163,14 @@ public class SearchAndRefresh implements Runnable
             if (m_codeFrom1 != null && m_codeTo2 != null && from3 != null && to3 != null
                 && m_codeFrom1.length() == 3 && m_codeTo2.length() == 3 && from3.length() == 3 && to3.length() == 3)
             {
-              m_statusLabel.setText(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
+              m_progressBar.setString(from3 + "-" + to3 + " | " + m_codeFrom1 + "-" + m_codeTo1 + " | " + m_codeFrom2 + "-" + m_codeTo2);
               if (Thread.currentThread().isInterrupted())
               {
-                m_statusLabel.setForeground(Color.BLUE);
+                m_progressBar.setForeground(Color.BLUE);
                 return;
               }
               m_multiCityFlightObtainer.search(
                   m_flightsGui,
-                  m_statusLabel,
                   m_root,
                   m_codeFrom1,
                   m_codeTo1,
@@ -163,32 +184,20 @@ public class SearchAndRefresh implements Runnable
                   m_numOfPersons,
                   false
               );
+              m_progressBar.setValue(m_progressBar.getValue() + 1);
             }
           }
           break;
       }
-      m_statusLabel.setForeground(Color.GREEN);
+      m_progressBar.setForeground(Color.GREEN);
     }
     catch (InterruptedException e)
     {
-      m_statusLabel.setForeground(Color.BLUE);
+      m_progressBar.setForeground(Color.BLUE);
     }
     catch (Exception e)
     {
-      m_statusLabel.setForeground(Color.RED);
+      m_progressBar.setForeground(Color.RED);
     }
-  }
-
-  public int getSleepMillis()
-  {
-    if (m_multiCityFlightObtainer instanceof KayakFlightObtainer)
-    {
-      return 700;
-    }
-    else if (m_multiCityFlightObtainer instanceof EdreamsFlightObtainer)
-    {
-      return 300;
-    }
-    return 100;
   }
 }

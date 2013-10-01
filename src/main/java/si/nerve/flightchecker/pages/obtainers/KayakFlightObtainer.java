@@ -49,7 +49,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(
-      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+      final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1,
       String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy)
       throws Exception
   {
@@ -101,7 +101,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         if (response.contains("/help/human.html"))
         {
           LOG.error(m_logName + "Proxy " + m_currentProxy.address().toString() + " is banned. Changing proxy.");
-          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          Thread.sleep(Helper.getSleepMillis(this));
+          this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
         else
@@ -142,7 +143,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
         {
           time = result.getTime();
           response = result.getResponse();
-          addToQueue(flightGui, statusLabel, response);
+          addToQueue(flightGui, response);
         }
         else
         {
@@ -158,7 +159,8 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
       }
       else if (e instanceof SocketException || e.getLocalizedMessage().contains(" 400 ") || e.getLocalizedMessage().contains("Premature EOF"))
       {
-        this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+        Thread.sleep(Helper.getSleepMillis(this));
+        this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
       }
       else
       {
@@ -267,7 +269,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     return new KayakResult(newTime, response);
   }
 
-  private void addToQueue(FlightsGui flightGui, JLabel statusLabel, String response)
+  private void addToQueue(FlightsGui flightGui, String response)
   {
     if (response.contains("addAdt('results/details/button')"))
     {
@@ -309,8 +311,6 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
                 link.select("div.seatsPromo").text(),
                 m_address
             );
-
-            statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
 
             synchronized (flightGui.getFlightQueue())
             {
@@ -443,8 +443,7 @@ public class KayakFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1,
-          false);
+      obtainer.search(null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1, false);
     }
     catch (Exception e)
     {

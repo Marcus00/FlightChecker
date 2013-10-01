@@ -25,6 +25,9 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import si.nerve.flightchecker.data.ProxyData;
+import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
 
 /**
  * @author bratwurzt
@@ -321,6 +324,19 @@ public class Helper
     conn.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
     conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
     return conn;
+  }
+
+  public static int getSleepMillis(MultiCityFlightObtainer obtainer)
+  {
+    if (obtainer instanceof KayakFlightObtainer)
+    {
+      return 700;
+    }
+    else if (obtainer instanceof EdreamsFlightObtainer)
+    {
+      return 300;
+    }
+    return 100;
   }
 
   public static void main(String[] args)

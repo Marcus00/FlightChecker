@@ -37,7 +37,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(
-      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+      final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1,
       String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     if ("com".equals(addressRoot))
@@ -129,7 +129,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     int startIndex = response.indexOf(startJsonString);
     if (startIndex == -1)
     {
-      debugResponse(statusLabel, addressRoot, logName, response);
+      debugResponse(addressRoot, logName, response);
       return;
     }
     streamingStartLocation = startIndex + startJsonString.length();
@@ -188,7 +188,6 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
               address
           );
           returnList.add(flightData);
-          statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
         }
       }
 
@@ -218,11 +217,10 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     catch (Exception e)
     {
       LOG.error("ExpediaFlightObtainer: JSON decoding failed!", e);
-      statusLabel.setForeground(Color.RED);
     }
   }
 
-  private void debugResponse(JLabel statusLabel, String addressRoot, String logName, String response)
+  private void debugResponse(String addressRoot, String logName, String response)
   {
     if (addressRoot.equals("dk"))
     {
@@ -274,6 +272,10 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       if (response.contains("Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen"))
       {
         LOG.debug(logName + "No results available. (Es wurden keine Flüge gefunden, die Ihren Suchkriterien entsprechen)");
+      }
+      else if (response.contains("Es wurde kein Flughafen gefunden, der Ihrer Suche nach"))
+      {
+        LOG.debug(logName + "We cannot find the cities you selected. (Es wurde kein Flughafen gefunden, der Ihrer Suche nach...)");
       }
       else
       {
@@ -418,7 +420,6 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     else
     {
       LOG.error(logName + "JSON decoding failed for www.expedia." + addressRoot);
-      statusLabel.setForeground(Color.RED);
     }
   }
 
@@ -487,8 +488,7 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1,
-          false);
+      obtainer.search(null, "de", "LJU", "NYC", formatter.parse("18.12.2013"), "NYC", "VIE", formatter.parse("07.01.2014"), "NYC", "VIE", formatter.parse("07.01.2014"), 1, false);
     }
     catch (Exception e)
     {

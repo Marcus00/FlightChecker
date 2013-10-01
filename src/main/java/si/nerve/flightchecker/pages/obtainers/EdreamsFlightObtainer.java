@@ -18,6 +18,7 @@ import si.nerve.flightchecker.pages.MultiCityFlightObtainer;
 import javax.swing.*;
 import java.awt.*;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -43,7 +44,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(
-      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1, Date date1,
+      final FlightsGui flightGui, String addressRoot, String from1, String to1, Date date1,
       String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     HttpURLConnection connection;
@@ -166,23 +167,13 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       catch (IOException e)
       {
         if ("Unexpected end of file from server".equals(e.getLocalizedMessage())
-            || "Connection reset".equals(e.getLocalizedMessage())
-            || "Connection refused: connect".equals(e.getLocalizedMessage()))
-        {
-          LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " " + e.getLocalizedMessage() + ". Changing proxy.");
-          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-          return;
-        }
-        else if (e.getLocalizedMessage().contains(" 502 ") || e.getLocalizedMessage().contains(" 400 "))
+            || "Connection reset".equals(e.getLocalizedMessage()) || "Connection refused: connect".equals(e.getLocalizedMessage())
+            || e.getLocalizedMessage().contains(" 502 ") || e.getLocalizedMessage().contains(" 400 ")
+            || e instanceof ConnectException || e instanceof FileNotFoundException)
         {
           LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
-          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-          return;
-        }
-        else if (e instanceof ConnectException)
-        {
-          LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
-          this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+          Thread.sleep(Helper.getSleepMillis(this));
+          this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           return;
         }
         else
@@ -199,7 +190,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         {
           case 302:
             LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " " + connection.getResponseMessage() + ". Changing proxy.");
-            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            Thread.sleep(Helper.getSleepMillis(this));
+            this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
             return;
           default:
             LOG.debug(m_logName + connection.getResponseCode() + " " + connection.getResponseMessage());
@@ -220,7 +212,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
         for (int i = 2; i < 10; i++)
         {
           Document doc = Jsoup.parse(response);
-          List<MultiCityFlightData> returnList = extractFlightData(statusLabel, from1, to1, from2, to2, from3, to3, address, doc);
+          List<MultiCityFlightData> returnList = extractFlightData(from1, to1, from2, to2, from3, to3, address, doc);
 
           synchronized (flightGui.getFlightQueue())
           {
@@ -272,7 +264,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             }
             else if (e instanceof ConnectException)
             {
-              this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+              Thread.sleep(Helper.getSleepMillis(this));
+              this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
             }
             else
             {
@@ -307,7 +300,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
             LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
-            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            Thread.sleep(Helper.getSleepMillis(this));
+            this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("We found multiple options for your trip"))
           {
@@ -331,7 +325,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
             LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
-            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            Thread.sleep(Helper.getSleepMillis(this));
+            this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("Für Ihre Reise gibt es mehrere Optionen"))
           {
@@ -355,7 +350,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
             LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
-            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            Thread.sleep(Helper.getSleepMillis(this));
+            this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("Abbiamo trovato diverse opzioni per il tuo viaggio"))
           {
@@ -375,7 +371,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           else if (response.contains("Your IP was blocked by our system due to suspicious query load."))
           {
             LOG.debug(m_logName + "Proxy " + currentProxy.address().toString() + " is banned! Changing proxy.");
-            this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+            Thread.sleep(Helper.getSleepMillis(this));
+            this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
           }
           else if (!response.contains("Hemos encontrado varias opciones para tu viaje"))
           {
@@ -396,7 +393,8 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       else if (e instanceof SocketException || e.getLocalizedMessage().contains("Premature EOF") || e.getLocalizedMessage().contains(" 400 "))
       {
-        this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+        Thread.sleep(Helper.getSleepMillis(this));
+        this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
       }
       else
       {
@@ -406,12 +404,10 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     catch (Exception e)
     {
       LOG.error("EdreamsFlightObtainer: ", e);
-      statusLabel.setForeground(Color.RED);
     }
   }
 
-  private List<MultiCityFlightData> extractFlightData(
-      JLabel statusLabel, String from1, String to1, String from2, String to2, String from3, String to3, String address, Document doc)
+  private List<MultiCityFlightData> extractFlightData(String from1, String to1, String from2, String to2, String from3, String to3, String address, Document doc)
   {
     Elements links = doc.select("div[class^=singleItineray-content-body]");
 
@@ -512,7 +508,6 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
             address
         );
         returnList.add(flightData);
-        statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
       }
     }
     return returnList;
@@ -562,8 +557,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "VCE", "BKK", formatter.parse("07.10.2013"), "BKK", "VCE", formatter.parse("21.10.2013"), "VCE", "NYC", formatter.parse("31.10.2013"), 1,
-          false);
+      obtainer.search(null, "com", "VCE", "BKK", formatter.parse("07.10.2013"), "BKK", "VCE", formatter.parse("21.10.2013"), "VCE", "NYC", formatter.parse("31.10.2013"), 1, false);
     }
     catch (Exception e)
     {

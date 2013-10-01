@@ -43,7 +43,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
   @Override
   public void search(
-      final FlightsGui flightGui, JLabel statusLabel, String addressRoot, String from1, String to1,
+      final FlightsGui flightGui, String addressRoot, String from1, String to1,
       Date date1, String from2, String to2, Date date2, String from3, String to3, Date date3, Integer numOfPersons, boolean changeProxy) throws Exception
   {
     SimpleDateFormat formatter;
@@ -138,7 +138,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
       }
       else if (e instanceof ConnectException)
       {
-        this.search(flightGui, statusLabel, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+        this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
       }
       else
       {
@@ -248,8 +248,6 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
               address
           );
 
-          statusLabel.setForeground(!statusLabel.getForeground().equals(Color.DARK_GRAY) ? Color.DARK_GRAY : Color.BLACK);
-
           synchronized (flightGui.getFlightQueue())
           {
             if (!flightGui.getFlightQueue().contains(flightData))
@@ -285,8 +283,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     try
     {
-      obtainer.search(null, null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1,
-          false);
+      obtainer.search(null, "com", "vce", "bkk", formatter.parse("20.12.2013"), "bkk", "vce", formatter.parse("07.01.2014"), "bkk", "vce", formatter.parse("07.01.2014"), 1, false);
     }
     catch (Exception e)
     {
