@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="jsoup-1.7.2">
+    <CLASSES>
+      <root url="jar://$WEBLOGIC_APPS_DIR$/Java/jsoup-1.7.2/jsoup-1.7.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$WEBLOGIC_APPS_DIR$/Java/jsoup-1.7.2/jsoup-1.7.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$WEBLOGIC_APPS_DIR$/Java/jsoup-1.7.2/jsoup-1.7.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

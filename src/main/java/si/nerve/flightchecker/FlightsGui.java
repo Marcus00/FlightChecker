@@ -936,15 +936,18 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       {
         String line = br.readLine();
 
-        for (String root : line.split(";"))
+        if (line != null && line.length() > 0)
         {
-          try
+          for (String root : line.split(";"))
           {
-            m_airportGroupBtnMap.get(root).setSelected(true);
-          }
-          catch (Exception e)
-          {
-            LOG.error("FlightsGui: error substring!", e);
+            try
+            {
+              m_airportGroupBtnMap.get(root).setSelected(true);
+            }
+            catch (Exception e)
+            {
+              LOG.error("FlightsGui: error substring!", e);
+            }
           }
         }
 
