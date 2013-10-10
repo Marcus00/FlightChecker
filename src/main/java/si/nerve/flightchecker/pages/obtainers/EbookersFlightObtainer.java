@@ -183,13 +183,15 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
         LinkedList<FlightLeg> legs = new LinkedList<FlightLeg>();
 
+        int legNum = 1;
         for (Element leg : link.select("div[class^=airSlice slice]"))
         {
           Element departureInfo = leg.select("div[class=info departure]").first();
           Element fromAirport = departureInfo.select("span.airportCode > abbr").first();
           String fromAirportName = fromAirport.attr("title");
           String fromAirportCode = fromAirport.text();
-          String fromLocalTime = m_dateFormatter.format(date1) + " " + departureInfo.select("span.heading").text() + ":00";
+          Date fromDate = legNum == 1 ? date1 : legNum == 2 ? date2 : date3;
+          String fromLocalTime = m_dateFormatter.format(fromDate) + " " + departureInfo.select("span.heading").text() + ":00";
 
           Element arrivalInfo = leg.select("div[class=info infoArrival]").first();
           Element toAirport = arrivalInfo.select("span.airportCode > abbr").first();
@@ -206,7 +208,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
             }
           }
           Calendar calendar = Calendar.getInstance();
-          calendar.setTime(date1);
+          calendar.setTime(fromDate);
           calendar.add(Calendar.DAY_OF_YEAR, days);
           String toLocalTime = m_dateFormatter.format(calendar.getTime()) + " " + arrivalInfo.select("span.heading").text() + ":00";
 
@@ -223,6 +225,7 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
               duration,
               layovers
           ));
+          legNum++;
         }
 
         if (legs.size() > 1)

@@ -1,6 +1,7 @@
 package si.nerve.flightchecker;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +46,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -58,6 +61,7 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
@@ -89,7 +93,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   public static final String SEARCH = "SEARCH";
   public static final String STOP_SEARCH = "STOP_SEARCH";
   public static final String CHECKBOX_CHANGED = "CHECKBOX_CHANGED";
-  public static final String RADIO_CLICKED = "RADIO_CLICKED";
+  public static final String RADIO_SELECTED = "RADIO_CLICKED";
   public static final int QUEUE_SIZE = 200;
   private MultiCityFlightTable m_mainTable;
   public TableRowSorter<MultiCityFlightTableModel> m_sorter;
@@ -104,10 +108,12 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private Map<String, JProgressBar> m_kayakProgressBarMap, m_expediaProgressBarMap, m_ebookersProgressBarMap, m_edreamsProgressBarMap;
   private Map<String, JToggleButton> m_airportGroupBtnMap;
 
-  private JRadioButton m_normalSearch, m_combinedSearch, m_1xSearch, m_3xSearch;
+  private JRadioButton m_normalSearch, m_combinedSearch, m_1xSearch, m_3xSearch, m_datePeriodSearch;
   private ButtonGroup m_radioGroup;
   private JPanel m_groupStatusPanel;
   private List<String[]> m_1xCombinations, m_3xCombinations;
+
+  private JFormattedTextField m_numberOfDays;
 
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
       m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie")),
@@ -158,6 +164,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_combinedSearch = new JRadioButton("Mix");
     m_1xSearch = new JRadioButton("1x");
     m_3xSearch = new JRadioButton("3x");
+    m_datePeriodSearch = new JRadioButton("Date period");
 
     MouseAdapter doubleClickML = new MouseAdapter()
     {
@@ -184,15 +191,21 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_radioGroup.add(m_combinedSearch);
     m_radioGroup.add(m_1xSearch);
     m_radioGroup.add(m_3xSearch);
+    m_radioGroup.add(m_datePeriodSearch);
     m_normalSearch.addActionListener(this);
     m_combinedSearch.addActionListener(this);
     m_1xSearch.addActionListener(this);
     m_3xSearch.addActionListener(this);
-    m_normalSearch.setActionCommand(RADIO_CLICKED);
-    m_combinedSearch.setActionCommand(RADIO_CLICKED);
-    m_1xSearch.setActionCommand(RADIO_CLICKED);
-    m_3xSearch.setActionCommand(RADIO_CLICKED);
+    m_datePeriodSearch.addActionListener(this);
+    m_normalSearch.setActionCommand(RADIO_SELECTED);
+    m_combinedSearch.setActionCommand(RADIO_SELECTED);
+    m_1xSearch.setActionCommand(RADIO_SELECTED);
+    m_3xSearch.setActionCommand(RADIO_SELECTED);
+    m_datePeriodSearch.setActionCommand(RADIO_SELECTED);
     m_normalSearch.setSelected(true);
+
+    m_numberOfDays = new JFormattedTextField(NumberFormat.getNumberInstance());
+    m_numberOfDays.setValue(14);
 
     Integer[] numOfPersons = {1, 2};
     m_numOfPersons = new JComboBox(numOfPersons);
@@ -271,6 +284,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     commandPanel.add(m_dateChooser, new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_dateXChooser, new GridBagConstraints(i++, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_numOfPersons, new GridBagConstraints(i++, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    commandPanel.add(m_numberOfDays, new GridBagConstraints(i++, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     commandPanel.add(m_showInEuro, new GridBagConstraints(i++, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
     commandPanel.add(m_normalSearch, new GridBagConstraints(i++, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
     commandPanel.add(m_combinedSearch, new GridBagConstraints(i++, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH, new Insets(0, 10, 0, 0), 0, 0));
@@ -359,6 +373,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     final Date toDate = m_dateChooser.getToDateChooser().getDate();
     final Date fromXDate = m_dateXChooser.getDate();
     final Integer numOfPersons = (Integer)m_numOfPersons.getSelectedItem();
+    final Integer numOfDays = (Integer)m_numberOfDays.getValue();
 
     if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
     {
@@ -381,6 +396,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
               toDate,
               fromXDate,
               numOfPersons,
+              numOfDays,
               selectedRadio,
               m_roshadaCodes,
               m_1xCombinations,
@@ -408,6 +424,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
               toDate,
               fromXDate,
               numOfPersons,
+              numOfDays,
               selectedRadio,
               m_roshadaCodes,
               m_1xCombinations,
@@ -435,6 +452,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
               toDate,
               fromXDate,
               numOfPersons,
+              numOfDays,
               selectedRadio,
               m_roshadaCodes,
               m_1xCombinations,
@@ -462,6 +480,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
               toDate,
               fromXDate,
               numOfPersons,
+              numOfDays,
               selectedRadio,
               m_roshadaCodes,
               m_1xCombinations,
@@ -526,7 +545,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         }
       }.execute();
     }
-    else if (RADIO_CLICKED.equals(action))
+    else if (RADIO_SELECTED.equals(action))
     {
       if (e.getSource().equals(m_1xSearch))
       {
@@ -598,12 +617,12 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
   private void fillMaps()
   {
-    //Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
+    Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
     for (String root : m_kayakRoots)
     {
       JProgressBar progressBar = new JProgressBar();
       String cbText = "www.kayak." + root;
-      //progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
       progressBar.setStringPainted(true);
       m_kayakProgressBarMap.put(root, progressBar);
       JCheckBox checkBox = new JCheckBox(cbText);
@@ -615,7 +634,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       JProgressBar progressBar = new JProgressBar();
       String cbText = "www.expedia." + root;
-      //progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
       progressBar.setStringPainted(true);
       m_expediaProgressBarMap.put(root, progressBar);
       JCheckBox checkBox = new JCheckBox(cbText);
@@ -627,7 +646,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       JProgressBar progressBar = new JProgressBar();
       String cbText = "www.ebookers." + root;
-      //progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
       progressBar.setStringPainted(true);
       m_ebookersProgressBarMap.put(root, progressBar);
       JCheckBox checkBox = new JCheckBox(cbText);
@@ -639,7 +658,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     {
       JProgressBar progressBar = new JProgressBar();
       String cbText = "www.edreams." + root;
-      //progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
       progressBar.setStringPainted(true);
       m_edreamsProgressBarMap.put(root, progressBar);
       JCheckBox checkBox = new JCheckBox(cbText);

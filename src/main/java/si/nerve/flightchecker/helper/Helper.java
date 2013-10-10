@@ -77,6 +77,10 @@ public class Helper
         {
           return 3;
         }
+        else if ("Date period".equals(text))
+        {
+          return 4;
+        }
       }
     }
 

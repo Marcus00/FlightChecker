@@ -25,7 +25,7 @@ public class SearchAndRefreshRunnable implements Runnable
   private String m_root;
   private int m_selectedRadio;
   private String[] m_codes;
-  private Integer m_numOfPersons;
+  private Integer m_numOfPersons, m_numOfDays;
   private MultiCityFlightObtainer m_multiCityFlightObtainer;
   private List<String[]> m_a1xCombinations;
   private List<String[]> m_a3xCombinations;
@@ -33,7 +33,7 @@ public class SearchAndRefreshRunnable implements Runnable
 
   public SearchAndRefreshRunnable(
       MultiCityFlightObtainer multiCityFlightObtainer, String root, FlightsGui flightsGui, JProgressBar progressBar, String codeFrom1,
-      String codeTo2, String codeTo1, String codeFrom2, Date date1, Date date2, Date from1xDate, Integer numOfPersons, int selectedRadio,
+      String codeTo2, String codeTo1, String codeFrom2, Date date1, Date date2, Date from1xDate, Integer numOfPersons, Integer numOfDays, int selectedRadio,
       String[] codes, List<String[]> a1xCombinations, List<String[]> a3xCombinations)
   {
     m_root = root;
@@ -46,31 +46,33 @@ public class SearchAndRefreshRunnable implements Runnable
     m_date2 = date2;
     m_date3 = from1xDate;
     m_numOfPersons = numOfPersons;
+    m_numOfDays = numOfDays;
     m_selectedRadio = selectedRadio;
     m_codes = codes;
     m_progressBar = progressBar;
     m_multiCityFlightObtainer = multiCityFlightObtainer;
     m_a1xCombinations = a1xCombinations;
     m_a3xCombinations = a3xCombinations;
-    if (m_selectedRadio == 0)
+    m_progressBar.setMinimum(0);
+    m_progressBar.setMaximum(getMaximum());
+  }
+
+  private int getMaximum()
+  {
+    switch (m_selectedRadio)
     {
-      m_progressBar.setMinimum(0);
-      m_progressBar.setMaximum(1);
-    }
-    else if (m_selectedRadio == 1)
-    {
-      m_progressBar.setMinimum(0);
-      m_progressBar.setMaximum(m_codes.length * m_codes.length);
-    }
-    else if (m_selectedRadio == 2)
-    {
-      m_progressBar.setMinimum(0);
-      m_progressBar.setMaximum(m_a1xCombinations.size());
-    }
-    else if (m_selectedRadio == 3)
-    {
-      m_progressBar.setMinimum(0);
-      m_progressBar.setMaximum(m_a3xCombinations.size());
+      case 0:
+        return 1;
+      case 1:
+        return m_codes.length * m_codes.length;
+      case 2:
+        return m_a1xCombinations.size();
+      case 3:
+        return m_a3xCombinations.size();
+      case 4:
+        return 1;
+      default:
+        return 0;
     }
   }
 
