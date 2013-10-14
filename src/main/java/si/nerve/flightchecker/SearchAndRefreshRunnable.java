@@ -82,6 +82,7 @@ public class SearchAndRefreshRunnable implements Runnable
     try
     {
       m_progressBar.setForeground(Color.BLACK);
+      m_progressBar.setValue(0);
       switch (m_selectedRadio)
       {
         case 0:
@@ -199,6 +200,7 @@ public class SearchAndRefreshRunnable implements Runnable
     }
     catch (Exception e)
     {
+      e.printStackTrace();
       m_progressBar.setForeground(Color.RED);
     }
   }

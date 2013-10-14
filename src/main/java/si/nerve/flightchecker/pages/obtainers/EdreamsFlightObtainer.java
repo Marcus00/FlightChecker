@@ -94,7 +94,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       }
       catch (Exception e)
       {
-        e.printStackTrace();
+        LOG.error(m_logName, e);
         return;
       }
 
@@ -165,7 +165,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
       {
         ins = connection.getInputStream();
       }
-      catch (IOException e)
+      catch (Exception e)
       {
         if ("Unexpected end of file from server".equals(e.getLocalizedMessage())
             || "Connection reset".equals(e.getLocalizedMessage()) || "Connection refused: connect".equals(e.getLocalizedMessage())
@@ -175,7 +175,6 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           LOG.error(m_logName + "Proxy " + currentProxy.address().toString() + " error: " + e.getLocalizedMessage() + " Changing proxy.");
           Thread.sleep(sleepMillis);
           this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-          return;
         }
         else if (e.getLocalizedMessage().contains(" 503 ")
             || e.getLocalizedMessage().contains(" 504 ")
@@ -185,13 +184,12 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
           LOG.error(m_logName + "Server overloaded. Calling again in " + sleepMillis + " millis.");
           Thread.sleep(sleepMillis);
           this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
-          return;
         }
         else
         {
           LOG.debug(m_logName, e);
-          return;
         }
+        return;
       }
 
       int responseCode = connection.getResponseCode();
@@ -414,7 +412,7 @@ public class EdreamsFlightObtainer implements MultiCityFlightObtainer
     }
     catch (Exception e)
     {
-      LOG.error("EdreamsFlightObtainer: ", e);
+      LOG.error(m_logName, e);
     }
   }
 

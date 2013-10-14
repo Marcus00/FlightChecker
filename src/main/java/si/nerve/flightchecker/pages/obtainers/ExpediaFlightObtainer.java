@@ -1,9 +1,7 @@
 package si.nerve.flightchecker.pages.obtainers;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -13,7 +11,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import javax.swing.JLabel;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -79,9 +76,21 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
         "&options=" + URLEncoder.encode("cabinclass:economy,nopenalty:N,sortby:price", "UTF-8") +
         "&mode=search";
 
+    int sleepMillis = Helper.getSleepMillis(this);
     URL url = new URL(address);
     URLConnection connection = Helper.createHttpConnection(url);
-    InputStream ins = connection.getInputStream();
+    InputStream ins;
+    try
+    {
+      ins = connection.getInputStream();
+    }
+    catch (IOException e)
+    {
+      LOG.error(logName + "Error: " + e.getLocalizedMessage() + " Sleeping " + sleepMillis + " millis and calling again.");
+      Thread.sleep(sleepMillis);
+      this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      return;
+    }
     String encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
@@ -118,13 +127,33 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
     String cookies = sbuf.toString();
     connection = Helper.createHttpConnection(url);
     connection.addRequestProperty("Cookie", cookies);
-    ins = connection.getInputStream();
+    try
+    {
+      ins = connection.getInputStream();
+    }
+    catch (Exception e)
+    {
+      LOG.error(logName + "Error: " + e.getLocalizedMessage() + " Sleeping " + sleepMillis + " millis and calling again.");
+      Thread.sleep(sleepMillis);
+      this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      return;
+    }
     encoding = connection.getHeaderField("Content-Encoding");
     if (encoding.equals("gzip"))
     {
       ins = new GZIPInputStream(ins);
     }
-    response = Helper.readResponse(ins, connection);
+    try
+    {
+      response = Helper.readResponse(ins, connection);
+    }
+    catch (Exception e)
+    {
+      LOG.error(logName + "Error: " + e.getLocalizedMessage() + " Sleeping " + sleepMillis + " millis and calling again.");
+      Thread.sleep(sleepMillis);
+      this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+      return;
+    }
     String startJsonString = "<script id='jsonData' type=\"text/x-jquery-tmpl\">";
     int startIndex = response.indexOf(startJsonString);
     if (startIndex == -1)
@@ -261,6 +290,10 @@ public class ExpediaFlightObtainer implements MultiCityFlightObtainer
       else if (response.contains("No flights were found that matched your search"))
       {
         LOG.debug(logName + "No results available. (No flights were found that matched your request)");
+      }
+      else if (response.contains("An Internal Error has occurred"))
+      {
+        LOG.debug(logName + "An Internal Error has occurred. (An Internal Error has occurred)");
       }
       else
       {

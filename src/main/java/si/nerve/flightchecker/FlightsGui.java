@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -147,6 +148,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     initLogging();
 
     m_mainTable = new MultiCityFlightTable(new MultiCityFlightTableModel(new ArrayList<MultiCityFlightData>()));
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    setPreferredSize(screenSize);
     Dimension size = new Dimension(1000, 800);
     m_mainTable.setPreferredScrollableViewportSize(size);
     m_mainTable.setFillsViewportHeight(true);
@@ -293,7 +296,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     commandPanel.add(m_searchButton, new GridBagConstraints(i, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 20, 0, 0), 0, 0));
 
     JPanel groupPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
-    groupPanel.setBorder(BorderFactory.createTitledBorder("Strani"));
+    groupPanel.setBorder(BorderFactory.createTitledBorder("Pages"));
     for (String root : m_kayakRoots)
     {
       groupPanel.add(m_kayakCBMap.get(root));
@@ -314,7 +317,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     }
 
     JPanel groupCodesPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
-    groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Letališča za rošado"));
+    groupCodesPanel.setBorder(BorderFactory.createTitledBorder("Mix AP codes"));
 
     for (JToggleButton button : m_airportGroupBtnMap.values())
     {

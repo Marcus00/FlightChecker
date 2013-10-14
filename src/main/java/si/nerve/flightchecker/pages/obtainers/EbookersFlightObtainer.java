@@ -1,6 +1,5 @@
 package si.nerve.flightchecker.pages.obtainers;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -15,7 +14,6 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import javax.swing.JLabel;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -125,35 +123,36 @@ public class EbookersFlightObtainer implements MultiCityFlightObtainer
 
     URL url = new URL(address);
     URLConnection connection = Helper.createHttpConnection(url);
-    InputStream ins = null;
+    InputStream ins;
     try
     {
-      ins = connection.getInputStream();
-    }
-    catch (IOException e)
-    {
-      if (e instanceof IOException && e.getLocalizedMessage().contains(" 502 "))
+      try
       {
-        LOG.debug(logName + "Last page.");
+        ins = connection.getInputStream();
       }
-      else if (e instanceof ConnectException)
+      catch (Exception e)
       {
-        this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+        if (e instanceof IOException && e.getLocalizedMessage().contains(" 502 "))
+        {
+          LOG.debug(logName + "Last page.");
+        }
+        else if (e instanceof ConnectException)
+        {
+          this.search(flightGui, addressRoot, from1, to1, date1, from2, to2, date2, from3, to3, date3, numOfPersons, true);
+        }
+        else
+        {
+          LOG.error(logName, e);
+        }
+        return;
       }
-      else
+      String encoding = connection.getHeaderField("Content-Encoding");
+      if (encoding.equals("gzip"))
       {
-        LOG.error(logName, e);
+        ins = new GZIPInputStream(ins);
       }
-      return;
-    }
-    String encoding = connection.getHeaderField("Content-Encoding");
-    if (encoding.equals("gzip"))
-    {
-      ins = new GZIPInputStream(ins);
-    }
-    String response = Helper.readResponse(ins, connection);
-    try
-    {
+      String response = Helper.readResponse(ins, connection);
+
       Document doc = Jsoup.parse(response);
       Elements links = doc.select("div[class^=airResultsCard withSelectSliceCheckbox optimizedCard]");
       for (Element link : links)
