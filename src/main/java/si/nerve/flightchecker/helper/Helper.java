@@ -307,7 +307,7 @@ public class Helper
     connection.addRequestProperty("Connection", "keep-alive");
     //connection.addRequestProperty("Cache-Control", "max-age");
     connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36");
+    connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36");
     connection.addRequestProperty("Host", url.getHost());
     connection.addRequestProperty("Referer", url.toString());
     connection.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
@@ -322,7 +322,7 @@ public class Helper
     conn.addRequestProperty("Connection", "keep-alive");
     conn.addRequestProperty("Cache-Control", "max-age=0");
     conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36");
+    conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36");
     conn.addRequestProperty("Host", url.getHost());
     conn.addRequestProperty("Referer", url.toString());
     conn.addRequestProperty("Accept-Encoding", "gzip,deflate,sdch");

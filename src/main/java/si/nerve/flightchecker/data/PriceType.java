@@ -57,15 +57,36 @@ public enum PriceType
 
   private double getRateToEuros(PriceType priceTypeFrom) throws IOException
   {
-    String google = "http://www.google.com/ig/calculator?hl=en&q=1";
-    String baseCurrency = get3LetterCode(priceTypeFrom);
+    if (PriceType.DOLLAR.equals(priceTypeFrom))
+    {
+      return 0.74683;
+    }
+    else if (PriceType.POUND.equals(priceTypeFrom))
+    {
+      return 1.20019;
+    }
+    else
+    {
+      return 1;
+    }
 
-    URL url = new URL(google + baseCurrency + "=EUR");
-    URLConnection urlConnection = url.openConnection();
-    String jsonString = Helper.readResponse(urlConnection.getInputStream(), urlConnection);
-    String firstAnchor = ",rhs: \"";
-    int startIndex = jsonString.indexOf(firstAnchor);
-    return Double.parseDouble(jsonString.substring(startIndex + firstAnchor.length(), jsonString.indexOf(" Euros", startIndex + firstAnchor.length())));
+//    String google = "http://www.google.com/ig/calculator?hl=en&q=1";
+//    String baseCurrency = get3LetterCode(priceTypeFrom);
+//
+//    URL url = new URL(google + baseCurrency + "=EUR");
+//    URLConnection urlConnection = url.openConnection();
+//    String jsonString = Helper.readResponse(urlConnection.getInputStream(), urlConnection);
+//    String firstAnchor = ",rhs: \"";
+//    int startIndex = jsonString.indexOf(firstAnchor);
+//    try
+//    {
+//      return Double.parseDouble(jsonString.substring(startIndex + firstAnchor.length(), jsonString.indexOf(" Euros", startIndex + firstAnchor.length())));
+//    }
+//    catch (Exception e)
+//    {
+//      e.printStackTrace();
+//    }
+//    return 0;
   }
 
   private String get3LetterCode(PriceType priceType)
