@@ -1,90 +1,33 @@
 package si.nerve.flightchecker;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JToggleButton;
-import javax.swing.KeyStroke;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import javax.swing.border.Border;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableRowSorter;
-import javax.swing.text.JTextComponent;
-
 import com.csvreader.CsvReader;
 import com.toedter.calendar.JDateChooser;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import si.nerve.flightchecker.components.DoubleDateChooser;
-import si.nerve.flightchecker.components.MultiCityFlightTable;
-import si.nerve.flightchecker.components.MultiCityFlightTableModel;
-import si.nerve.flightchecker.components.SearchBoxModel;
-import si.nerve.flightchecker.components.WrapLayout;
+import si.nerve.flightchecker.components.*;
 import si.nerve.flightchecker.data.AirportData;
 import si.nerve.flightchecker.data.MultiCityFlightData;
 import si.nerve.flightchecker.helper.Helper;
-import si.nerve.flightchecker.pages.obtainers.EbookersFlightObtainer;
-import si.nerve.flightchecker.pages.obtainers.EdreamsFlightObtainer;
-import si.nerve.flightchecker.pages.obtainers.ExpediaFlightObtainer;
-import si.nerve.flightchecker.pages.obtainers.KayakFlightObtainer;
+import si.nerve.flightchecker.pages.obtainers.*;
 import si.nerve.flightchecker.process.ComboDocument;
 import si.nerve.flightchecker.process.SelectFocusAdapter;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.URL;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author bratwurzt
@@ -105,8 +48,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private JDateChooser m_dateXChooser;
   private JCheckBox m_showInEuro;
 
-  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap, m_edreamsCBMap;
-  private Map<String, JProgressBar> m_kayakProgressBarMap, m_expediaProgressBarMap, m_ebookersProgressBarMap, m_edreamsProgressBarMap;
+  private Map<String, JCheckBox> m_kayakCBMap, m_expediaCBMap, m_ebookersCBMap, m_orbitzCBMap, m_edreamsCBMap;
+  private Map<String, JProgressBar> m_kayakProgressBarMap, m_expediaProgressBarMap, m_ebookersProgressBarMap, m_orbitzProgressBarMap, m_edreamsProgressBarMap;
   private Map<String, JToggleButton> m_airportGroupBtnMap;
 
   private JRadioButton m_normalSearch, m_combinedSearch, m_1xSearch, m_3xSearch, m_datePeriodSearch;
@@ -119,7 +62,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
   private List<String> m_kayakRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "it", "co.uk", "es", "fr", "pl")),
       m_expediaRoots = new ArrayList<String>(Arrays.asList("com", "de", "at", "nl", "it", "co.uk", "es", "fr", "ca", "ie")),
       m_ebookersRoots = new ArrayList<String>(Arrays.asList("com", "de", "nl", "fr", "at", "ie", "be")),
-      m_edreamsRoots = new ArrayList<String>(Arrays.asList("com", "de", "it", "es"));
+      m_edreamsRoots = new ArrayList<String>(Arrays.asList("com", "de", "it", "es")),
+      m_orbitzRoots = new ArrayList<String>(Arrays.asList("com"));
   public static int[] c_columnWidths = {4, 10, 4, 10, 5, 10, 4, 10, 4, 10, 5, 10, 6, 2, 10};
   private String[] m_roshadaCodes = {
       "VIE", "BRU", "CRL", "ZAG", "MRS", "NCE", "ORY", "CDG", "FRA", "MUC", "BUD", "BLQ", "LIN", "MXP", "FCO", "CIA", "TSF",
@@ -153,7 +97,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     Dimension size = new Dimension(1000, 800);
     m_mainTable.setPreferredScrollableViewportSize(size);
     m_mainTable.setFillsViewportHeight(true);
-    m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel)m_mainTable.getModel());
+    m_sorter = new TableRowSorter<MultiCityFlightTableModel>((MultiCityFlightTableModel) m_mainTable.getModel());
     m_sorter.toggleSortOrder(MultiCityFlightTableModel.COL_PRICE);
     m_mainTable.setRowSorter(m_sorter);
     m_sorter.setSortsOnUpdates(true);
@@ -217,10 +161,12 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_kayakProgressBarMap = new HashMap<String, JProgressBar>();
     m_expediaProgressBarMap = new HashMap<String, JProgressBar>();
     m_ebookersProgressBarMap = new HashMap<String, JProgressBar>();
+    m_orbitzProgressBarMap = new HashMap<String, JProgressBar>();
     m_edreamsProgressBarMap = new HashMap<String, JProgressBar>();
     m_kayakCBMap = new HashMap<String, JCheckBox>();
     m_expediaCBMap = new HashMap<String, JCheckBox>();
     m_ebookersCBMap = new HashMap<String, JCheckBox>();
+    m_orbitzCBMap = new HashMap<String, JCheckBox>();
     m_edreamsCBMap = new HashMap<String, JCheckBox>();
 
     fillMaps();
@@ -251,28 +197,28 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_dateXChooser.setDateFormatString("dd.MM.yyyy");
 
     SearchBoxModel sbm1 = new SearchBoxModel(m_fromAP1, airportMap);
-    JTextComponent fromComboxTF1 = (JTextComponent)m_fromAP1.getEditor().getEditorComponent();
+    JTextComponent fromComboxTF1 = (JTextComponent) m_fromAP1.getEditor().getEditorComponent();
     fromComboxTF1.setDocument(new ComboDocument());
     fromComboxTF1.addFocusListener(new SelectFocusAdapter(fromComboxTF1));
     m_fromAP1.setModel(sbm1);
     m_fromAP1.addItemListener(sbm1);
 
     SearchBoxModel sbm2 = new SearchBoxModel(m_toAP1, airportMap);
-    JTextComponent toComboxTF1 = (JTextComponent)m_toAP1.getEditor().getEditorComponent();
+    JTextComponent toComboxTF1 = (JTextComponent) m_toAP1.getEditor().getEditorComponent();
     toComboxTF1.setDocument(new ComboDocument());
     toComboxTF1.addFocusListener(new SelectFocusAdapter(toComboxTF1));
     m_toAP1.setModel(sbm2);
     m_toAP1.addItemListener(sbm2);
 
     SearchBoxModel sbm3 = new SearchBoxModel(m_fromAP2, airportMap);
-    JTextComponent fromComboxTF2 = (JTextComponent)m_fromAP2.getEditor().getEditorComponent();
+    JTextComponent fromComboxTF2 = (JTextComponent) m_fromAP2.getEditor().getEditorComponent();
     fromComboxTF2.setDocument(new ComboDocument());
     fromComboxTF2.addFocusListener(new SelectFocusAdapter(fromComboxTF2));
     m_fromAP2.setModel(sbm3);
     m_fromAP2.addItemListener(sbm3);
 
     SearchBoxModel sbm4 = new SearchBoxModel(m_toAP2, airportMap);
-    JTextComponent toCombocTF2 = (JTextComponent)m_toAP2.getEditor().getEditorComponent();
+    JTextComponent toCombocTF2 = (JTextComponent) m_toAP2.getEditor().getEditorComponent();
     toCombocTF2.setDocument(new ComboDocument());
     toCombocTF2.addFocusListener(new SelectFocusAdapter(toCombocTF2));
     m_toAP2.setModel(sbm4);
@@ -311,6 +257,11 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       groupPanel.add(m_ebookersCBMap.get(root));
     }
 
+    for (String root : m_orbitzRoots)
+    {
+      groupPanel.add(m_orbitzCBMap.get(root));
+    }
+
     for (String root : m_edreamsRoots)
     {
       groupPanel.add(m_edreamsCBMap.get(root));
@@ -327,7 +278,8 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
 
     m_groupStatusPanel = new JPanel(new WrapLayout(FlowLayout.LEADING));
     m_groupStatusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
-
+    JScrollPane groupStatusScrollPane = new JScrollPane(m_groupStatusPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    groupStatusScrollPane.setMinimumSize(new Dimension(20, 100));
     readSettings();
 
     JPanel panel = new JPanel(new GridBagLayout());
@@ -335,7 +287,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     panel.add(groupCodesPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.add(groupPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.add(scrollPane, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    panel.add(m_groupStatusPanel, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    panel.add(groupStatusScrollPane, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_END, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     panel.setOpaque(true);
     add(panel, BorderLayout.CENTER);
 
@@ -367,16 +319,16 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     m_executorService = Executors.newFixedThreadPool(numOfSelected);
     m_flightQueue = new PriorityQueue<MultiCityFlightData>(QUEUE_SIZE, m_comparator);
 
-    final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData)m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
-    final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData)m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
+    final String from = m_fromAP1.getSelectedIndex() >= 0 ? ((AirportData) m_fromAP1.getItemAt(m_fromAP1.getSelectedIndex())).getIataCode() : null;
+    final String to = m_toAP2.getSelectedIndex() >= 0 ? ((AirportData) m_toAP2.getItemAt(m_toAP2.getSelectedIndex())).getIataCode() : null;
 
-    final String toStatic = ((AirportData)m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
-    final String fromStatic = ((AirportData)m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
+    final String toStatic = ((AirportData) m_toAP1.getItemAt(m_toAP1.getSelectedIndex())).getIataCode();
+    final String fromStatic = ((AirportData) m_fromAP2.getItemAt(m_fromAP2.getSelectedIndex())).getIataCode();
     final Date fromDate = m_dateChooser.getFromDateChooser().getDate();
     final Date toDate = m_dateChooser.getToDateChooser().getDate();
     final Date fromXDate = m_dateXChooser.getDate();
-    final Integer numOfPersons = (Integer)m_numOfPersons.getSelectedItem();
-    final Integer numOfDays = (Integer)m_numberOfDays.getValue();
+    final Integer numOfPersons = (Integer) m_numOfPersons.getSelectedItem();
+    final Integer numOfDays = (Integer) m_numberOfDays.getValue();
 
     if (fromStatic != null && fromStatic.length() == 3 && toStatic != null && toStatic.length() == 3)
     {
@@ -444,6 +396,34 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           m_executorService.execute(new SearchAndRefreshRunnable(
               new EbookersFlightObtainer(),
+              root,
+              this,
+              progressBar,
+              from,
+              to,
+              toStatic,
+              fromStatic,
+              fromDate,
+              toDate,
+              fromXDate,
+              numOfPersons,
+              numOfDays,
+              selectedRadio,
+              m_roshadaCodes,
+              m_1xCombinations,
+              m_3xCombinations)
+          );
+          m_groupStatusPanel.add(progressBar);
+        }
+      }
+
+      for (String root : m_orbitzRoots)
+      {
+        JProgressBar progressBar = m_orbitzProgressBarMap.get(root);
+        if (m_orbitzCBMap.get(root).isSelected())
+        {
+          m_executorService.execute(new SearchAndRefreshRunnable(
+              new OrbitzFlightObtainer(),
               root,
               this,
               progressBar,
@@ -573,7 +553,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     }
     else if (CHECKBOX_CHANGED.equals(action))
     {
-      MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel)m_mainTable.getModel();
+      MultiCityFlightTableModel tableModel = (MultiCityFlightTableModel) m_mainTable.getModel();
       tableModel.setConvertToEuro(m_showInEuro.isSelected());
       tableModel.fireTableDataChanged();
     }
@@ -655,6 +635,18 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
       JCheckBox checkBox = new JCheckBox(cbText);
       checkBox.setActionCommand(CHECKBOX_CHANGED);
       m_ebookersCBMap.put(root, checkBox);
+    }
+
+    for (String root : m_orbitzRoots)
+    {
+      JProgressBar progressBar = new JProgressBar();
+      String cbText = "www.orbitz." + root;
+      progressBar.setBorder(BorderFactory.createTitledBorder(lineBorder, cbText));
+      progressBar.setStringPainted(true);
+      m_orbitzProgressBarMap.put(root, progressBar);
+      JCheckBox checkBox = new JCheckBox(cbText);
+      checkBox.setActionCommand(CHECKBOX_CHANGED);
+      m_orbitzCBMap.put(root, checkBox);
     }
 
     for (String root : m_edreamsRoots)
@@ -805,6 +797,14 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
     for (String root : m_ebookersRoots)
     {
       if (m_ebookersCBMap.get(root).isSelected())
+      {
+        count++;
+      }
+    }
+
+    for (String root : m_orbitzRoots)
+    {
+      if (m_orbitzCBMap.get(root).isSelected())
       {
         count++;
       }
@@ -962,14 +962,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           for (String root : line.split(";"))
           {
-            try
-            {
-              m_airportGroupBtnMap.get(root).setSelected(true);
-            }
-            catch (Exception e)
-            {
-              LOG.error("FlightsGui: error substring!", e);
-            }
+            m_airportGroupBtnMap.get(root).setSelected(true);
           }
         }
 
@@ -978,14 +971,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           for (String root : line.split(";"))
           {
-            try
-            {
-              m_edreamsCBMap.get(root).setSelected(true);
-            }
-            catch (Exception e)
-            {
-              LOG.error("FlightsGui: error substring!", e);
-            }
+            m_edreamsCBMap.get(root).setSelected(true);
           }
         }
         line = br.readLine();
@@ -993,14 +979,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           for (String root : line.split(";"))
           {
-            try
-            {
-              m_expediaCBMap.get(root).setSelected(true);
-            }
-            catch (Exception e)
-            {
-              LOG.error("FlightsGui: error substring!", e);
-            }
+            m_expediaCBMap.get(root).setSelected(true);
           }
         }
         line = br.readLine();
@@ -1008,14 +987,7 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           for (String root : line.split(";"))
           {
-            try
-            {
-              m_ebookersCBMap.get(root).setSelected(true);
-            }
-            catch (Exception e)
-            {
-              LOG.error("FlightsGui: error substring!", e);
-            }
+            m_ebookersCBMap.get(root).setSelected(true);
           }
         }
         line = br.readLine();
@@ -1023,20 +995,22 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         {
           for (String root : line.split(";"))
           {
-            try
-            {
-              m_kayakCBMap.get(root).setSelected(true);
-            }
-            catch (Exception e)
-            {
-              LOG.error("FlightsGui: error substring!", e);
-            }
+            m_orbitzCBMap.get(root).setSelected(true);
+          }
+        }
+        line = br.readLine();
+        if (line != null && line.length() > 0)
+        {
+          for (String root : line.split(";"))
+          {
+            m_kayakCBMap.get(root).setSelected(true);
           }
         }
       }
-      catch (IOException e)
+      catch (Exception e)
       {
         LOG.error("FlightsGui: error reading from file!", e);
+        JOptionPane.showMessageDialog(null, "Error while reading from settings file " + settingsFile.getAbsolutePath() + "! When you exit normally, setting will be saved again." );
       }
       finally
       {
@@ -1084,6 +1058,15 @@ public class FlightsGui extends JFrame implements ActionListener, WindowListener
         for (String root : m_ebookersCBMap.keySet())
         {
           if (m_ebookersCBMap.get(root).isSelected())
+          {
+            bw.write(root);
+            bw.write(";");
+          }
+        }
+        bw.newLine();
+        for (String root : m_orbitzCBMap.keySet())
+        {
+          if (m_orbitzCBMap.get(root).isSelected())
           {
             bw.write(root);
             bw.write(";");
